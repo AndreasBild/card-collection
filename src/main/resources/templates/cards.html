@@ -11,6 +11,7 @@
     <th>Name</th>
     <th>Surname</th>
     <th>Team</th> <!-- Updated to reflect the new Team relationship -->
+    <th>Sport</th> <!-- Updated to reflect the new Team relationship -->
     <th>Season</th>
     <th>Company</th>
     <th>Brand</th>
@@ -28,6 +29,7 @@
     <td th:text="${card.player.name}"></td>
     <td th:text="${card.player.surname}"></td>
     <td th:text="${card.player.team.name}"></td> <!-- Display the Team name -->
+    <td th:text="${card.player.sport.name}"></td> <!-- Display the Team name -->
     <td th:text="${card.season}"></td>
     <td th:text="${card.theme.brand.manufacturer.name}"></td>
     <td th:text="${card.theme.brand.name}"></td>

@@ -11,6 +11,11 @@ data class Player(
 
     @ManyToOne
     @JoinColumn(name = "team_id")
-    val team: Team
+    val team: Team,
+
+    @ManyToOne
+    @JoinColumn(name = "sport_id")
+    val sport: Sport,
+
 )
 
