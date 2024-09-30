@@ -7,11 +7,10 @@ data class Card(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val printRun: Int,
-    val printRunNumber: Int,
+    val serialNumber: Int,
     val season: String,
     val number: String,
     val rookieCard: Boolean,
-    val serialNumbered: Boolean,
     val gameUsedMaterial: Boolean,
     val autograph: Boolean,
 
