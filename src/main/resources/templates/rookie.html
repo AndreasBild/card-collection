@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Juwan Howard Basketball Rookie Trading Card Collection</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#317EFB">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="194x194" href="/favicon-194x194.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#317EFB">
+    <meta name="apple-mobile-web-app-title" content="Maulmann.de">
+    <meta name="application-name" content="Maulmann.de">
+    <meta name="msapplication-TileColor" content="#317EFB">
+    <link href="/favicon.ico" rel="icon" sizes="32x32">
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
+    <meta name="description" content="Private Collection of Juwan Howard Basketball Trading Cards. Containing many 1/1 and rare Trading Cards from companies like: Panini, Fleer, Topps and Upper Deck. Including Super rare cards like Precious Metal Gems from the 90s">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../css/main.css" rel="stylesheet" type="text/css">
+    <meta name="robots" content="index,follow">
+</head>
+<body>
+<h1>Rookie Card Collection</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Surname</th>
+        <th>Team</th> <!-- Updated to reflect the new Team relationship -->
+        <th>Sport</th> <!-- Updated to reflect the new Team relationship -->
+        <th>Season</th>
+        <th>Company</th>
+        <th>Brand</th>
+        <th>Theme</th>
+        <th>Card Number</th>
+        <th>Serial/Print Run</th>
+        <th>Rookie Card</th>
+        <th>Serial Numbered</th>
+        <th>Game Used Material</th>
+        <th>Autograph</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="card : ${rookie}">
+        <td th:text="${card.player.name}"></td>
+        <td th:text="${card.player.surname}"></td>
+        <td th:text="${card.player.team.name}"></td> <!-- Display the Team name -->
+        <td th:text="${card.player.sport.name}"></td> <!-- Display the Team name -->
+        <td th:text="${card.season}"></td>
+        <td th:text="${card.theme.brand.manufacturer.name}"></td>
+        <td th:text="${card.theme.brand.name}"></td>
+        <td th:text="${card.theme.name}"></td>
+        <td th:text="${card.number}"></td>
+        <td th:text="${card.printRun}"></td>
+        <td th:text="${card.serialNumber}"></td>
+        <td th:text="${card.rookieCard ? 'Yes' : 'No'}"></td>
+        <td th:text="${card.gameUsedMaterial ? 'Yes' : 'No'}"></td>
+        <td th:text="${card.autograph ? 'Yes' : 'No'}"></td>
+
+
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

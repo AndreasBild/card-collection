@@ -9,6 +9,8 @@ class CardService(private val cardRepository: CardRepository) {
 
     fun getAllCards(): List<Card> = cardRepository.findAll()
 
+    fun getAllRookieCards(): List<Card> = cardRepository.findAll()
+
     fun getCardById(id: Long): Card? = cardRepository.findById(id).orElse(null)
 }
 
