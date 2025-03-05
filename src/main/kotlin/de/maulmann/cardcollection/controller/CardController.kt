@@ -18,14 +18,14 @@ class CardController(private val cardService: CardService) {
 
     @GetMapping("/cards/{id}")
     fun getCardById(@PathVariable id: Long, model: Model): String {
-        val card = cardService.getCardById(id)
-        model.addAttribute("card", card)
+        val card = cardService.findallById(id)
+        model.addAttribute("cards", card)
         return "cards"
     }
 
     @GetMapping("/rookie")
-    fun getAllRookieCards(model: Model): String {
-        model.addAttribute("rookie", cardService.getAllRookieCards())
+    fun findAllRookieCards(model: Model): String {
+        model.addAttribute("rookie", cardService.findAllByRookieCard(rookieCard = true))
         return "rookie"
     }
 }
