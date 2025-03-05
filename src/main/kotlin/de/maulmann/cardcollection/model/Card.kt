@@ -20,5 +20,10 @@ data class Card(
 
     @ManyToOne
     @JoinColumn(name = "theme_id")
-    val theme: CardTheme
+    val theme: CardTheme,
+
+
+    @ManyToOne
+    @JoinColumn(name = "variant_id")
+    val variant: Variant
 )
