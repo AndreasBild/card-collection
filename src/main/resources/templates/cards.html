@@ -67,5 +67,79 @@
     </tr>
     </tbody>
 </table>
+
+
+<div>
+    <label for="manufacturerSelect">Select Manufacturer:</label>
+    <select id="manufacturerSelect">
+        <option value="">All Manufacturers</option>
+        <option th:each="manufacturer : ${manufacturers}" th:value="${manufacturer.id}" th:text="${manufacturer}"></option>
+    </select>
+</div>
+
+<div id="cardsContainer">
+</div>
+
+<script>
+    // Function to fetch and display cards
+    function fetchCards(manufacturerId) {
+        // Construct the API URL
+        let url = '/api/cards';
+        if (manufacturerId) {
+            url += '/manufacturer/' + manufacturerId;
+            alert("URL: "+url)
+        }
+
+        // Make the AJAX request
+        fetch(url)
+            .then(response => response.json())
+            .then(cards => {
+                // Clear the existing cards
+                const cardsContainer = document.getElementById('cardsContainer');
+                cardsContainer.innerHTML = '';
+
+                // Create a table to display the cards
+                const table = document.createElement('table');
+                // ... (add table headers and rows as in the previous example)
+
+                cardsContainer.appendChild(table);
+            });
+    }
+
+    // Add event listener to the dropdown
+    const manufacturerSelect = document.getElementById('manufacturerSelect');
+    manufacturerSelect.addEventListener('change', () => {
+        const manufacturerId = manufacturerSelect.value;
+        fetchCards(manufacturerId);
+    });
+
+    // Initial fetch to display all cards
+    fetchCards();
+</script>
+
+<h1>Card Details</h1>
+<div id="cardDisplay">
+</div>
+
+<script>
+    // ... (Your JavaScript AJAX code here)
+
+    // Example of how to display data after fetching
+    fetch('/api/cards/manufacturer/') // Or your specific API endpoint
+        .then(response => response.json())
+        .then(data => {
+            const cardDisplay = document.getElementById('cardDisplay');
+            let html = '<table>';
+            html += '<thead><tr><th>Season</th><th>Number</th><th>Variant</th></tr></thead><tbody>';
+
+            data.forEach(card => {
+                html += `<tr><td><span class="math-inline">\{card\.season\}</td\><td\></span>{card.number}</td><td>${card.variant.name}</td></tr>`; // Adjust field names based on your API response
+            });
+
+            html += '</tbody></table>';
+            cardDisplay.innerHTML = html;
+        });
+</script>
+
 </body>
 </html>

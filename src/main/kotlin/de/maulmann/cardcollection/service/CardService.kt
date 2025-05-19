@@ -23,6 +23,14 @@ class CardService(private val cardRepository: CardRepository) {
     fun findallById(id: Long): MutableList<Card> {
         return cardRepository.findAllById(id)
     }
+
+    fun findAllByPrintRunIsLessThan(printRunIsLessThan: Int): MutableList<Card> {
+        return cardRepository.findAllByPrintRunLessThanEqual(printRunIsLessThan)
+    }
+    fun findAllByAutograph(autograph: Boolean): MutableList<Card> {
+        return cardRepository.findAllByAutograph(autograph)
+    }
+
     fun getCardById(id: Long): Card? = cardRepository.findById(id).orElse(null)
 
 
