@@ -120,6 +120,26 @@
         </select>
     </div>
 
+    <div>
+        <label for="variantSelectForm">Variant:</label>
+        <select id="variantSelectForm" name="variantId">
+            <option value="">All Variants</option>
+            <option th:each="variant : ${variants}"
+                    th:value="${variant.id}"
+                    th:text="${variant.name}"
+                    th:selected="${param.variantId != null && param.variantId == variant.id}"></option>
+        </select>
+    </div>
+
+    <div>
+        <label for="rookieCardSelectForm">Rookie Card:</label>
+        <select id="rookieCardSelectForm" name="rookieCard">
+            <option value="">Any</option>
+            <option value="true" th:selected="${param.rookieCard == 'true'}">Yes</option>
+            <option value="false" th:selected="${param.rookieCard == 'false'}">No</option>
+        </select>
+    </div>
+
     <button type="submit">Filter</button>
     <a th:href="@{/cards}" class="button">Clear Filters</a>
 </form>

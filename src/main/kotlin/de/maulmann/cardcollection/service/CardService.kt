@@ -4,10 +4,12 @@ import de.maulmann.cardcollection.model.Card
 import de.maulmann.cardcollection.model.CardBrand
 import de.maulmann.cardcollection.model.CardTheme
 import de.maulmann.cardcollection.model.Sport
+import de.maulmann.cardcollection.model.Variant
 import de.maulmann.cardcollection.repository.CardBrandRepository
 import de.maulmann.cardcollection.repository.CardRepository
 import de.maulmann.cardcollection.repository.CardThemeRepository
 import de.maulmann.cardcollection.repository.SportRepository
+import de.maulmann.cardcollection.repository.VariantRepository
 import org.springframework.stereotype.Service
 
 @Service
@@ -15,7 +17,8 @@ class CardService(
     private val cardRepository: CardRepository,
     private val cardBrandRepository: CardBrandRepository,
     private val cardThemeRepository: CardThemeRepository,
-    private val sportRepository: SportRepository
+    private val sportRepository: SportRepository,
+    private val variantRepository: VariantRepository
 ) {
 
     fun getAllCards(): List<Card> = cardRepository.findAll()
@@ -85,7 +88,9 @@ class CardService(
         playerId: Long?,
         season: String?,
         gameUsed: Boolean?, // New
-        autograph: Boolean?  // New
+        autograph: Boolean?,  // New
+        variantId: Long?,
+        rookieCard: Boolean?
     ): List<Card> {
         // Initial approach: Fetch all cards and then filter iteratively.
         // This can be optimized later with JPA Specifications if performance becomes an issue.
@@ -115,6 +120,14 @@ class CardService(
         autograph?.let {
             filteredCards = filteredCards.filter { card -> card.autograph == it }
         }
+
+        variantId?.let { vId ->
+            filteredCards = filteredCards.filter { card -> card.variant.id == vId }
+        }
+
+        rookieCard?.let { isRookie ->
+            filteredCards = filteredCards.filter { card -> card.rookieCard == isRookie }
+        }
         return filteredCards
     }
 
@@ -133,6 +146,10 @@ class CardService(
 
     fun getAllSeasons(): List<String> {
         return cardRepository.findDistinctSeasons()
+    }
+
+    fun getAllVariants(): List<Variant> {
+        return variantRepository.findAll()
     }
 }
 

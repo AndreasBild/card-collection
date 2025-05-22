@@ -29,7 +29,9 @@ class CardController(
         @RequestParam(required = false) playerId: Long?,
         @RequestParam(required = false) season: String?,
         @RequestParam(required = false) gameUsed: Boolean?, // New
-        @RequestParam(required = false) autograph: Boolean? // New
+        @RequestParam(required = false) autograph: Boolean?, // New
+        @RequestParam(required = false) variantId: Long?,
+        @RequestParam(required = false) rookieCard: Boolean?
     ): String {
         // Call the new service method that handles combined filtering
         val cards = cardService.getCardsFiltered(
@@ -40,7 +42,9 @@ class CardController(
             playerId = playerId,
             season = season,
             gameUsed = gameUsed,
-            autograph = autograph
+            autograph = autograph,
+            variantId = variantId,
+            rookieCard = rookieCard
         )
         model.addAttribute("cards", cards)
 
@@ -51,6 +55,7 @@ class CardController(
         model.addAttribute("themes", cardService.getAllThemes())
         model.addAttribute("sports", cardService.getAllSports())
         model.addAttribute("seasons", cardService.getAllSeasons())
+        model.addAttribute("variants", cardService.getAllVariants())
 
         return "cards" // Returns the "cards.html" view
     }
