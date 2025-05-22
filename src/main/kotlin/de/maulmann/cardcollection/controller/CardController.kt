@@ -27,26 +27,24 @@ class CardController(
         @RequestParam(required = false) themeId: Long?,
         @RequestParam(required = false) sportId: Long?,
         @RequestParam(required = false) playerId: Long?,
-        @RequestParam(required = false) season: String?
+        @RequestParam(required = false) season: String?,
+        @RequestParam(required = false) gameUsed: Boolean?, // New
+        @RequestParam(required = false) autograph: Boolean? // New
     ): String {
-        val cards = if (manufacturerId != null) {
-            cardService.getCardsByManufacturerId(manufacturerId)
-        } else if (brandId != null) {
-            cardService.getCardsByBrandId(brandId)
-        } else if (themeId != null) {
-            cardService.getCardsByThemeId(themeId)
-        } else if (sportId != null) {
-            cardService.getCardsBySportId(sportId)
-        } else if (playerId != null) {
-            cardService.findAllByPlayerId(playerId) // Assuming this returns List<Card>
-        } else if (season != null && season.isNotBlank()) {
-            cardService.getCardsBySeason(season)
-        } else {
-            cardService.getAllCards()
-        }
+        // Call the new service method that handles combined filtering
+        val cards = cardService.getCardsFiltered(
+            manufacturerId = manufacturerId,
+            brandId = brandId,
+            themeId = themeId,
+            sportId = sportId,
+            playerId = playerId,
+            season = season,
+            gameUsed = gameUsed,
+            autograph = autograph
+        )
         model.addAttribute("cards", cards)
 
-        // Fetch data for filters/dropdowns
+        // Fetch data for filters/dropdowns (this part remains the same)
         model.addAttribute("manufacturers", cardManufacturerService.getAllCardManufacturers())
         model.addAttribute("players", playerService.getPlayers()) // Assuming getPlayers() fetches List<Player>
         model.addAttribute("brands", cardService.getAllBrands())
