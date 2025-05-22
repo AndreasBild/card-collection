@@ -55,11 +55,12 @@ class CardControllerTests {
         `when`(cardService.getAllThemes()).thenReturn(emptyList())
         `when`(cardService.getAllSports()).thenReturn(emptyList())
         `when`(cardService.getAllSeasons()).thenReturn(emptyList())
+        `when`(cardService.getAllVariants()).thenReturn(emptyList()) // Mock for getAllVariants
     }
 
     @Test
     fun `getCards when no parameters should call getCardsFiltered with nulls and return cards view`() {
-        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null))
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null))
             .thenReturn(sampleCards)
 
         mockMvc.perform(get("/cards"))
@@ -73,36 +74,39 @@ class CardControllerTests {
             .andExpect(model().attributeExists("themes"))
             .andExpect(model().attributeExists("sports"))
             .andExpect(model().attributeExists("seasons"))
+            .andExpect(model().attributeExists("variants")) // Check for variants
 
-        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null)
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, null, null)
     }
 
     @Test
     fun `getCards with gameUsed true should call getCardsFiltered with gameUsed true`() {
         val gameUsed = true
-        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, gameUsed, null))
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, gameUsed, null, null, null))
             .thenReturn(sampleCards.filter { it.gameUsedMaterial == gameUsed })
 
         mockMvc.perform(get("/cards").param("gameUsed", gameUsed.toString()))
             .andExpect(status().isOk)
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
+            .andExpect(model().attributeExists("variants"))
 
-        verify(cardService).getCardsFiltered(null, null, null, null, null, null, gameUsed, null)
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, gameUsed, null, null, null)
     }
 
     @Test
     fun `getCards with autograph false should call getCardsFiltered with autograph false`() {
         val autograph = false
-        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, autograph))
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, autograph, null, null))
             .thenReturn(sampleCards.filter { it.autograph == autograph })
 
         mockMvc.perform(get("/cards").param("autograph", autograph.toString()))
             .andExpect(status().isOk)
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
+            .andExpect(model().attributeExists("variants"))
 
-        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, autograph)
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, autograph, null, null)
     }
 
     @Test
@@ -110,7 +114,7 @@ class CardControllerTests {
         val manufacturerId = 1L
         val gameUsed = true
         val autograph = false
-        `when`(cardService.getCardsFiltered(manufacturerId, null, null, null, null, null, gameUsed, autograph))
+        `when`(cardService.getCardsFiltered(manufacturerId, null, null, null, null, null, gameUsed, autograph, null, null))
             .thenReturn(sampleCards) // Actual filtering is tested in service layer
 
         mockMvc.perform(get("/cards")
@@ -120,15 +124,16 @@ class CardControllerTests {
             .andExpect(status().isOk)
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
+            .andExpect(model().attributeExists("variants"))
 
-        verify(cardService).getCardsFiltered(manufacturerId, null, null, null, null, null, gameUsed, autograph)
+        verify(cardService).getCardsFiltered(manufacturerId, null, null, null, null, null, gameUsed, autograph, null, null)
     }
 
     @Test
     fun `getCards with season and playerId`() {
         val season = "1997-98"
         val playerId = 1L
-        `when`(cardService.getCardsFiltered(null, null, null, null, playerId, season, null, null))
+        `when`(cardService.getCardsFiltered(null, null, null, null, playerId, season, null, null, null, null))
             .thenReturn(sampleCards)
 
         mockMvc.perform(get("/cards")
@@ -137,12 +142,13 @@ class CardControllerTests {
             .andExpect(status().isOk)
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
+            .andExpect(model().attributeExists("variants"))
 
-        verify(cardService).getCardsFiltered(null, null, null, null, playerId, season, null, null)
+        verify(cardService).getCardsFiltered(null, null, null, null, playerId, season, null, null, null, null)
     }
     
     @Test
-    fun `getCards with all parameters set`() {
+    fun `getCards with all parameters set excluding new ones`() {
         val manufacturerId = 1L
         val brandId = 1L
         val themeId = 1L
@@ -152,7 +158,7 @@ class CardControllerTests {
         val gameUsed = true
         val autograph = false
 
-        `when`(cardService.getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph))
+        `when`(cardService.getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph, null, null))
             .thenReturn(sampleCards)
 
         mockMvc.perform(get("/cards")
@@ -167,7 +173,106 @@ class CardControllerTests {
             .andExpect(status().isOk)
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
+            .andExpect(model().attributeExists("variants"))
 
-        verify(cardService).getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph)
+        verify(cardService).getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph, null, null)
+    }
+
+    @Test
+    fun `getCards with variantId should call getCardsFiltered with variantId`() {
+        val variantId = 123L
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, variantId, null))
+            .thenReturn(sampleCards)
+
+        mockMvc.perform(get("/cards").param("variantId", variantId.toString()))
+            .andExpect(status().isOk)
+            .andExpect(view().name("cards"))
+            .andExpect(model().attributeExists("cards"))
+            .andExpect(model().attributeExists("variants"))
+
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, variantId, null)
+    }
+
+    @Test
+    fun `getCards with rookieCard true should call getCardsFiltered with rookieCard true`() {
+        val rookieCard = true
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard))
+            .thenReturn(sampleCards)
+
+        mockMvc.perform(get("/cards").param("rookieCard", rookieCard.toString()))
+            .andExpect(status().isOk)
+            .andExpect(view().name("cards"))
+            .andExpect(model().attributeExists("cards"))
+            .andExpect(model().attributeExists("variants"))
+
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard)
+    }
+
+    @Test
+    fun `getCards with rookieCard false should call getCardsFiltered with rookieCard false`() {
+        val rookieCard = false
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard))
+            .thenReturn(sampleCards)
+
+        mockMvc.perform(get("/cards").param("rookieCard", rookieCard.toString()))
+            .andExpect(status().isOk)
+            .andExpect(view().name("cards"))
+            .andExpect(model().attributeExists("cards"))
+            .andExpect(model().attributeExists("variants"))
+
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard)
+    }
+
+    @Test
+    fun `getCards with variantId and rookieCard true should call getCardsFiltered with both`() {
+        val variantId = 456L
+        val rookieCard = true
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, variantId, rookieCard))
+            .thenReturn(sampleCards)
+
+        mockMvc.perform(get("/cards")
+            .param("variantId", variantId.toString())
+            .param("rookieCard", rookieCard.toString()))
+            .andExpect(status().isOk)
+            .andExpect(view().name("cards"))
+            .andExpect(model().attributeExists("cards"))
+            .andExpect(model().attributeExists("variants"))
+
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, variantId, rookieCard)
+    }
+    
+    @Test
+    fun `getCards with all parameters set including new ones`() {
+        val manufacturerId = 1L
+        val brandId = 2L
+        val themeId = 3L
+        val sportId = 4L
+        val playerId = 5L
+        val season = "2022-23"
+        val gameUsed = false
+        val autograph = true
+        val variantId = 789L
+        val rookieCard = false
+
+        `when`(cardService.getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph, variantId, rookieCard))
+            .thenReturn(sampleCards)
+
+        mockMvc.perform(get("/cards")
+            .param("manufacturerId", manufacturerId.toString())
+            .param("brandId", brandId.toString())
+            .param("themeId", themeId.toString())
+            .param("sportId", sportId.toString())
+            .param("playerId", playerId.toString())
+            .param("season", season)
+            .param("gameUsed", gameUsed.toString())
+            .param("autograph", autograph.toString())
+            .param("variantId", variantId.toString())
+            .param("rookieCard", rookieCard.toString()))
+            .andExpect(status().isOk)
+            .andExpect(view().name("cards"))
+            .andExpect(model().attributeExists("cards"))
+            .andExpect(model().attributeExists("variants"))
+
+        verify(cardService).getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph, variantId, rookieCard)
     }
 }

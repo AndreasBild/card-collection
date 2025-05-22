@@ -28,6 +28,8 @@ interface CardRepository : JpaRepository<Card, Long>, QueryByExampleExecutor<Car
 
     fun findAllBySeason(season: String): List<Card>
 
+    fun findAllByVariantId(variantId: Long): List<Card>
+
     @Query("SELECT DISTINCT c.season FROM Card c ORDER BY c.season ASC")
     fun findDistinctSeasons(): List<String>
 }
