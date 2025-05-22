@@ -102,6 +102,24 @@
         </select>
     </div>
 
+    <div>
+        <label for="gameUsedSelectForm">Game Used Material:</label>
+        <select id="gameUsedSelectForm" name="gameUsed">
+            <option value="">Any</option>
+            <option value="true" th:selected="${param.gameUsed == 'true'}">Yes</option>
+            <option value="false" th:selected="${param.gameUsed == 'false'}">No</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="autographSelectForm">Autograph:</label>
+        <select id="autographSelectForm" name="autograph">
+            <option value="">Any</option>
+            <option value="true" th:selected="${param.autograph == 'true'}">Yes</option>
+            <option value="false" th:selected="${param.autograph == 'false'}">No</option>
+        </select>
+    </div>
+
     <button type="submit">Filter</button>
     <a th:href="@{/cards}" class="button">Clear Filters</a>
 </form>

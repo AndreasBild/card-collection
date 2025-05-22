@@ -50,6 +50,10 @@ class CardService(
         return cardRepository.findAllByAutograph(autograph)
     }
 
+    fun findAllByGameUsedMaterial(gameUsedMaterial: Boolean): List<Card> {
+        return cardRepository.findAllByGameUsedMaterial(gameUsedMaterial)
+    }
+
     fun getCardById(id: Long): Card? = cardRepository.findById(id).orElse(null)
 
     // New service methods for filtering cards
@@ -71,6 +75,47 @@ class CardService(
 
     fun getCardsBySeason(season: String): List<Card> {
         return cardRepository.findAllBySeason(season)
+    }
+
+    fun getCardsFiltered(
+        manufacturerId: Long?,
+        brandId: Long?,
+        themeId: Long?,
+        sportId: Long?,
+        playerId: Long?,
+        season: String?,
+        gameUsed: Boolean?, // New
+        autograph: Boolean?  // New
+    ): List<Card> {
+        // Initial approach: Fetch all cards and then filter iteratively.
+        // This can be optimized later with JPA Specifications if performance becomes an issue.
+        var filteredCards = cardRepository.findAll() // Start with all cards
+
+        manufacturerId?.let {
+            filteredCards = filteredCards.filter { card -> card.theme.brand.manufacturer.id == it }
+        }
+        brandId?.let {
+            filteredCards = filteredCards.filter { card -> card.theme.brand.id == it }
+        }
+        themeId?.let {
+            filteredCards = filteredCards.filter { card -> card.theme.id == it }
+        }
+        sportId?.let {
+            filteredCards = filteredCards.filter { card -> card.player.sport.id == it }
+        }
+        playerId?.let {
+            filteredCards = filteredCards.filter { card -> card.player.id == it }
+        }
+        season?.takeIf { it.isNotBlank() }?.let {
+            filteredCards = filteredCards.filter { card -> card.season == it }
+        }
+        gameUsed?.let {
+            filteredCards = filteredCards.filter { card -> card.gameUsedMaterial == it }
+        }
+        autograph?.let {
+            filteredCards = filteredCards.filter { card -> card.autograph == it }
+        }
+        return filteredCards
     }
 
     // New service methods to fetch data for filter dropdowns
