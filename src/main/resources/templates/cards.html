@@ -22,9 +22,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="../css/main.css" rel="stylesheet" type="text/css">
     <meta name="robots" content="index,follow">
+    <style>
+        .filter-form div { margin-bottom: 10px; }
+        .filter-form label { margin-right: 5px; }
+        .filter-form select { padding: 5px; }
+        .filter-form button { padding: 8px 15px; }
+        .filter-form .button { text-decoration: none; padding: 8px 15px; background-color: #f0f0f0; color: #333; border: 1px solid #ccc; border-radius: 4px; }
+        .filter-form .button:hover { background-color: #e0e0e0; }
+    </style>
 </head>
 <body>
 <h1>Card Collection</h1>
+
+<!-- New Filter Form -->
+<form th:action="@{/cards}" method="GET" class="filter-form">
+    <div>
+        <label for="manufacturerSelectForm">Vendor/Manufacturer:</label>
+        <select id="manufacturerSelectForm" name="manufacturerId">
+            <option value="">All Manufacturers</option>
+            <option th:each="man : ${manufacturers}"
+                    th:value="${man.id}"
+                    th:text="${man.name}"
+                    th:selected="${param.manufacturerId != null && param.manufacturerId == man.id}"></option>
+        </select>
+    </div>
+
+    <div>
+        <label for="brandSelectForm">Brand:</label>
+        <select id="brandSelectForm" name="brandId">
+            <option value="">All Brands</option>
+            <option th:each="brand : ${brands}"
+                    th:value="${brand.id}"
+                    th:text="${brand.name}"
+                    th:selected="${param.brandId != null && param.brandId == brand.id}"></option>
+        </select>
+    </div>
+
+    <div>
+        <label for="themeSelectForm">Theme:</label>
+        <select id="themeSelectForm" name="themeId">
+            <option value="">All Themes</option>
+            <option th:each="theme : ${themes}"
+                    th:value="${theme.id}"
+                    th:text="${theme.name}"
+                    th:selected="${param.themeId != null && param.themeId == theme.id}"></option>
+        </select>
+    </div>
+
+    <div>
+        <label for="sportSelectForm">Sport:</label>
+        <select id="sportSelectForm" name="sportId">
+            <option value="">All Sports</option>
+            <option th:each="sport : ${sports}"
+                    th:value="${sport.id}"
+                    th:text="${sport.name}"
+                    th:selected="${param.sportId != null && param.sportId == sport.id}"></option>
+        </select>
+    </div>
+
+    <div>
+        <label for="playerSelectForm">Player:</label>
+        <select id="playerSelectForm" name="playerId">
+            <option value="">All Players</option>
+            <option th:each="player : ${players}"
+                    th:value="${player.id}"
+                    th:text="${player.name + ' ' + player.surname}"
+                    th:selected="${param.playerId != null && param.playerId == player.id}"></option>
+        </select>
+    </div>
+
+    <div>
+        <label for="seasonSelectForm">Season:</label>
+        <select id="seasonSelectForm" name="season">
+            <option value="">All Seasons</option>
+            <option th:each="s : ${seasons}"
+                    th:value="${s}"
+                    th:text="${s}"
+                    th:selected="${param.season != null && param.season == s}"></option>
+        </select>
+    </div>
+
+    <button type="submit">Filter</button>
+    <a th:href="@{/cards}" class="button">Clear Filters</a>
+</form>
+<!-- End New Filter Form -->
+
 <table>
     <thead>
     <tr>
@@ -73,7 +155,9 @@
     <label for="manufacturerSelect">Select Manufacturer:</label>
     <select id="manufacturerSelect">
         <option value="">All Manufacturers</option>
-        <option th:each="manufacturer : ${manufacturers}" th:value="${manufacturer.id}" th:text="${manufacturer}"></option>
+        <!-- Note: The th:each for this specific dropdown was slightly different in original: th:text="${manufacturer}" vs th:text="${manufacturer.name}" -->
+        <!-- For consistency with the new form, it would ideally be manufacturer.name if 'manufacturers' is a list of objects -->
+        <option th:each="manufacturer : ${manufacturers}" th:value="${manufacturer.id}" th:text="${manufacturer.name}"></option>
     </select>
 </div>
 
@@ -87,7 +171,7 @@
         let url = '/api/cards';
         if (manufacturerId) {
             url += '/manufacturer/' + manufacturerId;
-            alert("URL: "+url)
+            // alert("URL: "+url) // Commented out alert
         }
 
         // Make the AJAX request
@@ -101,44 +185,55 @@
                 // Create a table to display the cards
                 const table = document.createElement('table');
                 // ... (add table headers and rows as in the previous example)
+                // This part of JS is incomplete in the original file for table creation
 
                 cardsContainer.appendChild(table);
-            });
+            })
+            .catch(error => console.error('Error fetching cards:', error)); // Added error handling
     }
 
     // Add event listener to the dropdown
-    const manufacturerSelect = document.getElementById('manufacturerSelect');
-    manufacturerSelect.addEventListener('change', () => {
-        const manufacturerId = manufacturerSelect.value;
-        fetchCards(manufacturerId);
-    });
+    const manufacturerSelect = document.getElementById('manufacturerSelect'); // This is the old dropdown
+    if (manufacturerSelect) { // Check if element exists
+        manufacturerSelect.addEventListener('change', () => {
+            const manufacturerId = manufacturerSelect.value;
+            fetchCards(manufacturerId);
+        });
+    }
 
-    // Initial fetch to display all cards
-    fetchCards();
+
+    // Initial fetch to display all cards - This might be redundant now with server-side rendering
+    // fetchCards(); // Commenting out initial fetch by JS to avoid double loading or conflicts
 </script>
 
+<!-- This second h1 and script block seems to be another attempt at displaying card details or a list -->
+<!-- It fetches from '/api/cards/manufacturer/' which might be a fixed or different endpoint -->
 <h1>Card Details</h1>
 <div id="cardDisplay">
 </div>
 
 <script>
-    // ... (Your JavaScript AJAX code here)
-
     // Example of how to display data after fetching
     fetch('/api/cards/manufacturer/') // Or your specific API endpoint
         .then(response => response.json())
         .then(data => {
             const cardDisplay = document.getElementById('cardDisplay');
-            let html = '<table>';
-            html += '<thead><tr><th>Season</th><th>Number</th><th>Variant</th></tr></thead><tbody>';
+            if (cardDisplay) { // Check if element exists
+                let html = '<table>';
+                html += '<thead><tr><th>Season</th><th>Number</th><th>Variant</th></tr></thead><tbody>';
 
-            data.forEach(card => {
-                html += `<tr><td><span class="math-inline">\{card\.season\}</td\><td\></span>{card.number}</td><td>${card.variant.name}</td></tr>`; // Adjust field names based on your API response
-            });
+                data.forEach(card => {
+                    // Original line had issues with template literals within string concatenation
+                    // html += `<tr><td><span class="math-inline">\{card\.season\}</td\><td\></span>{card.number}</td><td>${card.variant.name}</td></tr>`;
+                    // Corrected (assuming card.variant is an object, otherwise card.variant.name will fail)
+                    html += `<tr><td>${card.season}</td><td>${card.number}</td><td>${card.variant ? card.variant.name : ''}</td></tr>`;
+                });
 
-            html += '</tbody></table>';
-            cardDisplay.innerHTML = html;
-        });
+                html += '</tbody></table>';
+                cardDisplay.innerHTML = html;
+            }
+        })
+        .catch(error => console.error('Error fetching card details:', error)); // Added error handling
 </script>
 
 </body>
