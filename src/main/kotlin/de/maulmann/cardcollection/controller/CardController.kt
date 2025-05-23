@@ -61,7 +61,6 @@ class CardController(
         model.addAttribute("sports", cardService.getAllSports())
         model.addAttribute("seasons", cardService.getAllSeasons())
         model.addAttribute("variants", cardService.getAllVariants())
-        
         model.addAttribute("printRunRanges", PrintRunRange.values()) // Add PrintRunRange values to model
         model.addAttribute("teams", cardService.getAllTeams()) // Add Teams to model
 
@@ -76,12 +75,12 @@ class CardController(
         model.addAttribute("cards", cardService.findAllById(id)) // Corrected service method name
         return "cards"
     }
-/*
+
     @GetMapping("/run/{printRunValue}") // Path relative to "/cards", made path variable more descriptive
     fun findAllByPrintRunIsLessThan(@PathVariable printRunValue: Int, model: Model): String {
         model.addAttribute("cards", cardService.findAllByPrintRunIsLessThan(printRunValue))
         return "cards"
-    }*/
+    }
 
     @GetMapping("/rookie") // Path relative to "/cards"
     fun findAllRookieCards(model: Model): String {
@@ -90,4 +89,19 @@ class CardController(
         return "cards"
     }
 
+    // Endpoint for cards by manufacturer (from previous outer controller's functionality, if needed explicitly)
+    // This might be handled by the main getCards with parameters later.
+    // For now, we provide a specific endpoint if direct access to cards by manufacturer is desired.
+    @GetMapping("/byManufacturer/{manufacturerId}")
+    fun getCardsByManufacturer(@PathVariable manufacturerId: Long, model: Model): String {
+        model.addAttribute("cards", cardManufacturerService.getCardsByManufacturerId(manufacturerId))
+        // Add filter data as well, for consistency if user navigates from here
+        model.addAttribute("manufacturers", cardManufacturerService.getAllCardManufacturers())
+        model.addAttribute("players", playerService.getPlayers())
+        model.addAttribute("brands", cardService.getAllBrands())
+        model.addAttribute("themes", cardService.getAllThemes())
+        model.addAttribute("sports", cardService.getAllSports())
+        model.addAttribute("seasons", cardService.getAllSeasons())
+        return "cards"
+    }
 }

@@ -210,5 +210,166 @@
     </tbody>
 </table>
 
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            const manufacturerSelect = document.getElementById('manufacturerSelectForm');
+            const brandSelect = document.getElementById('brandSelectForm');
+            const themeSelect = document.getElementById('themeSelectForm');
+
+            const initialManufacturerId = /*[[${param.manufacturerId}]]*/ null;
+            const initialBrandId = /*[[${param.brandId}]]*/ null;
+            const initialThemeId = /*[[${param.themeId}]]*/ null;
+
+            function updateDropdown(selectElement, options, selectedValue, defaultOptionText) {
+                selectElement.innerHTML = ''; // Clear existing options
+
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = defaultOptionText;
+                selectElement.appendChild(defaultOption);
+
+                options.forEach(function (optionData) {
+                    const option = document.createElement('option');
+                    option.value = optionData.id;
+                    option.textContent = optionData.name;
+                    if (selectedValue && optionData.id.toString() === selectedValue.toString()) {
+                        option.selected = true;
+                    }
+                    selectElement.appendChild(option);
+                });
+            }
+
+            async function fetchAndPopulateBrands(manufacturerId, selectedBrandId) {
+                const url = manufacturerId ? `/api/filters/brands?manufacturerId=${manufacturerId}` : '/api/filters/brands';
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        console.error('Failed to fetch brands:', response.status, await response.text());
+                        updateDropdown(brandSelect, [], selectedBrandId, 'All Brands'); // Clear or show error
+                        return;
+                    }
+                    const brands = await response.json();
+                    const defaultText = manufacturerId ? 'All Brands (for selected Manufacturer)' : 'All Brands';
+                    updateDropdown(brandSelect, brands, selectedBrandId, defaultText);
+                } catch (error) {
+                    console.error('Error fetching brands:', error);
+                    updateDropdown(brandSelect, [], selectedBrandId, 'All Brands'); // Clear on error
+                }
+            }
+
+            async function fetchAndPopulateThemes(manufacturerId, brandId, selectedThemeId) {
+                let url = '/api/filters/themes';
+                const params = new URLSearchParams();
+                if (brandId) {
+                    params.append('brandId', brandId);
+                } else if (manufacturerId) {
+                    // If no specific brand is chosen, but a manufacturer is, themes for that manufacturer are shown.
+                    params.append('manufacturerId', manufacturerId);
+                }
+                // If neither brandId nor manufacturerId, it fetches all themes.
+
+                if (params.toString()) {
+                    url += '?' + params.toString();
+                }
+                
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        console.error('Failed to fetch themes:', response.status, await response.text());
+                        updateDropdown(themeSelect, [], selectedThemeId, 'All Themes'); // Clear or show error
+                        return;
+                    }
+                    const themes = await response.json();
+                    let defaultText = 'All Themes';
+                    if (brandId) {
+                        defaultText = 'All Themes (for selected Brand)';
+                    } else if (manufacturerId) {
+                        defaultText = 'All Themes (for selected Manufacturer)';
+                    }
+                    updateDropdown(themeSelect, themes, selectedThemeId, defaultText);
+                } catch (error) {
+                    console.error('Error fetching themes:', error);
+                    updateDropdown(themeSelect, [], selectedThemeId, 'All Themes');
+                }
+            }
+
+            manufacturerSelect.addEventListener('change', async function () {
+                const selectedManufacturerId = this.value;
+                // When manufacturer changes, brand and theme selections might become invalid if not part of the new lists.
+                // We fetch new lists, and the updateDropdown will try to reselect if possible.
+                await fetchAndPopulateBrands(selectedManufacturerId, brandSelect.value); // Try to keep current brand if valid
+                await fetchAndPopulateThemes(selectedManufacturerId, null, themeSelect.value); // Themes for manufacturer, try to keep current theme
+                
+                // If "All Manufacturers" is selected, we need to ensure brand and theme dropdowns are reset correctly
+                if (!selectedManufacturerId) {
+                    brandSelect.value = ''; // Reset brand selection
+                    themeSelect.value = ''; // Reset theme selection
+                    // Re-populate brand and theme with all options
+                    await fetchAndPopulateBrands(null, null);
+                    await fetchAndPopulateThemes(null, null, null);
+                } else {
+                     // If a specific manufacturer is selected, we want to reset brand and theme to their "All..." state for that manufacturer
+                     // unless a specific brand/theme was already selected and is still valid.
+                     // The fetchAndPopulate functions handle re-selection if possible. If not, they default to "All..."
+                     // We might need to explicitly set brandSelect.value to '' if we want to force "All Brands (for selected Manufacturer)"
+                     // after a manufacturer change, rather than potentially keeping an old specific brand.
+                     // For now, let's allow re-selection if the old value is still valid in the new list.
+                }
+            });
+
+            brandSelect.addEventListener('change', async function () {
+                const selectedBrandId = this.value;
+                const selectedManufacturerId = manufacturerSelect.value; // Keep manufacturer context
+                // When brand changes, theme selection might become invalid.
+                await fetchAndPopulateThemes(selectedManufacturerId, selectedBrandId, themeSelect.value); // Try to keep current theme
+
+                if(!selectedBrandId && selectedManufacturerId) {
+                    // "All Brands (for selected Manufacturer)" selected, reload themes for manufacturer
+                    await fetchAndPopulateThemes(selectedManufacturerId, null, themeSelect.value);
+                } else if (!selectedBrandId && !selectedManufacturerId) {
+                    // "All Brands" (overall) selected
+                    await fetchAndPopulateThemes(null, null, themeSelect.value);
+                }
+            });
+
+            // Initial population annd state setting on page load
+            async function initializeFilters() {
+                let currentManufacturerId = manufacturerSelect.value; // Value from Thymeleaf (param or empty)
+                let currentBrandId = brandSelect.value; 
+                let currentThemeId = themeSelect.value;
+
+                // If there's an initial manufacturer ID from URL params, it means Thymeleaf has already set it.
+                // We need to ensure the Brand and Theme dropdowns are correctly populated based on this initial manufacturer.
+                if (currentManufacturerId) {
+                    // Populate brands for the current manufacturer, trying to select initialBrandId
+                    await fetchAndPopulateBrands(currentManufacturerId, initialBrandId);
+                    // Update currentBrandId because fetchAndPopulateBrands might not have found initialBrandId
+                    // and brandSelect.value would be '' (for "All Brands (for selected Manufacturer)")
+                    currentBrandId = brandSelect.value; 
+
+                    // Populate themes based on current manufacturer and potentially re-evaluated currentBrandId
+                    await fetchAndPopulateThemes(currentManufacturerId, currentBrandId, initialThemeId);
+                } else {
+                    // No initial manufacturer, ensure brands and themes are fully populated if needed
+                    // (Thymeleaf should have already populated them with "All", but this is a safeguard or if initialBrandId exists without manufacturer)
+                     if (initialBrandId) { // A brand is selected, but no manufacturer (e.g. "All manufacturers", specific brand)
+                        // This state is a bit ambiguous with the new logic. Typically, a brand implies a manufacturer.
+                        // For now, we assume Thymeleaf populated brands correctly. If a brand is selected, we load its themes.
+                        await fetchAndPopulateThemes(null, initialBrandId, initialThemeId);
+                     } else {
+                        // No manufacturer, no brand selected. Themes should be "All Themes".
+                        // Thymeleaf should have handled this.
+                     }
+                }
+                // At this point, if initialThemeId was set and valid for the (possibly filtered) theme list, it should be selected.
+            }
+
+            initializeFilters();
+        });
+
+        /*]]>*/
+    </script>
 </body>
 </html>

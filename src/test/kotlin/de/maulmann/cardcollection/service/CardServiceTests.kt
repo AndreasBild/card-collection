@@ -436,4 +436,88 @@ class CardServiceTests {
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.player.team.id == targetTeamId && it.rookieCard })
     }
+
+    // Tests for refactored getAllBrands
+    @Test
+    fun `getAllBrands should call repository with manufacturerId if provided`() {
+        val testManufacturerId = 1L
+        val mockBrands = listOf(brand1) // Assuming brand1 is linked to manufacturer1
+        `when`(cardBrandRepository.findAllByManufacturerIdOrderByNameAsc(testManufacturerId)).thenReturn(mockBrands)
+
+        val result = cardService.getAllBrands(testManufacturerId)
+
+        assertEquals(mockBrands, result)
+        verify(cardBrandRepository).findAllByManufacturerIdOrderByNameAsc(testManufacturerId)
+        verify(cardBrandRepository, never()).findAllByOrderByNameAsc()
+    }
+
+    @Test
+    fun `getAllBrands should call repository for all brands if manufacturerId is null`() {
+        val mockAllBrands = listOf(brand1, brand2)
+        `when`(cardBrandRepository.findAllByOrderByNameAsc()).thenReturn(mockAllBrands)
+
+        val result = cardService.getAllBrands(null)
+
+        assertEquals(mockAllBrands, result)
+        verify(cardBrandRepository).findAllByOrderByNameAsc()
+        verify(cardBrandRepository, never()).findAllByManufacturerIdOrderByNameAsc(anyLong())
+    }
+
+    // Tests for refactored getAllThemes
+    @Test
+    fun `getAllThemes should call repository with brandId if provided`() {
+        val testBrandId = brand1.id!!
+        val mockThemes = listOf(theme1) // Assuming theme1 is linked to brand1
+        `when`(cardThemeRepository.findAllByBrandIdOrderByNameAsc(testBrandId)).thenReturn(mockThemes)
+
+        val result = cardService.getAllThemes(brandId = testBrandId) // manufacturerId can be null
+
+        assertEquals(mockThemes, result)
+        verify(cardThemeRepository).findAllByBrandIdOrderByNameAsc(testBrandId)
+        verify(cardThemeRepository, never()).findAllByBrandManufacturerIdOrderByNameAsc(anyLong())
+        verify(cardThemeRepository, never()).findAllByOrderByNameAsc()
+    }
+    
+    @Test
+    fun `getAllThemes should call repository with brandId if both brandId and manufacturerId provided`() {
+        val testBrandId = brand1.id!!
+        val testManufacturerId = manufacturer1.id!! // brand1 belongs to manufacturer1
+        val mockThemes = listOf(theme1) 
+        `when`(cardThemeRepository.findAllByBrandIdOrderByNameAsc(testBrandId)).thenReturn(mockThemes)
+
+        val result = cardService.getAllThemes(manufacturerId = testManufacturerId, brandId = testBrandId)
+
+        assertEquals(mockThemes, result)
+        verify(cardThemeRepository).findAllByBrandIdOrderByNameAsc(testBrandId)
+        verify(cardThemeRepository, never()).findAllByBrandManufacturerIdOrderByNameAsc(anyLong())
+        verify(cardThemeRepository, never()).findAllByOrderByNameAsc()
+    }
+
+
+    @Test
+    fun `getAllThemes should call repository with manufacturerId if brandId is null`() {
+        val testManufacturerId = manufacturer1.id!!
+        val mockThemes = listOf(theme1, theme3) // Themes linked to manufacturer1 via brand1
+        `when`(cardThemeRepository.findAllByBrandManufacturerIdOrderByNameAsc(testManufacturerId)).thenReturn(mockThemes)
+
+        val result = cardService.getAllThemes(manufacturerId = testManufacturerId, brandId = null)
+
+        assertEquals(mockThemes, result)
+        verify(cardThemeRepository).findAllByBrandManufacturerIdOrderByNameAsc(testManufacturerId)
+        verify(cardThemeRepository, never()).findAllByBrandIdOrderByNameAsc(anyLong())
+        verify(cardThemeRepository, never()).findAllByOrderByNameAsc()
+    }
+
+    @Test
+    fun `getAllThemes should call repository for all themes if no IDs provided`() {
+        val mockAllThemes = listOf(theme1, theme2, theme3)
+        `when`(cardThemeRepository.findAllByOrderByNameAsc()).thenReturn(mockAllThemes)
+
+        val result = cardService.getAllThemes(null, null)
+
+        assertEquals(mockAllThemes, result)
+        verify(cardThemeRepository).findAllByOrderByNameAsc()
+        verify(cardThemeRepository, never()).findAllByBrandIdOrderByNameAsc(anyLong())
+        verify(cardThemeRepository, never()).findAllByBrandManufacturerIdOrderByNameAsc(anyLong())
+    }
 }
