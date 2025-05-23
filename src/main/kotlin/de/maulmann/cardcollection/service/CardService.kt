@@ -13,7 +13,12 @@ import de.maulmann.cardcollection.repository.SportRepository
 import de.maulmann.cardcollection.repository.TeamRepository // Import TeamRepository
 import de.maulmann.cardcollection.repository.VariantRepository
 import de.maulmann.cardcollection.service.PrintRunRange // Import PrintRunRange
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
+import jakarta.persistence.criteria.Predicate
+
 
 @Service
 class CardService(
@@ -92,63 +97,103 @@ class CardService(
         variantId: Long?,
         rookieCard: Boolean?,
         printRunRangeKey: String?, // New parameter
-        teamId: Long? // New parameter
-    ): List<Card> {
-        // Initial approach: Fetch all cards and then filter iteratively.
-        // This can be optimized later with JPA Specifications if performance becomes an issue.
-        var filteredCards = cardRepository.findAll() // Start with all cards
-
-        // Print Run Filtering Logic
-        val selectedPrintRunRange = PrintRunRange.fromKey(printRunRangeKey)
-        selectedPrintRunRange?.let { range ->
-            filteredCards = when (range) {
-                PrintRunRange.ONE -> filteredCards.filter { card -> card.printRun == 1 }
-                PrintRunRange.LE_10 -> filteredCards.filter { card -> card.printRun > 0 && card.printRun <= 10 }
-                PrintRunRange.LE_50 -> filteredCards.filter { card -> card.printRun > 0 && card.printRun <= 50 }
-                PrintRunRange.LE_100 -> filteredCards.filter { card -> card.printRun > 0 && card.printRun <= 100 }
-                PrintRunRange.LE_500 -> filteredCards.filter { card -> card.printRun > 0 && card.printRun <= 500 }
-                PrintRunRange.LE_1000 -> filteredCards.filter { card -> card.printRun > 0 && card.printRun <= 1000 }
-                PrintRunRange.ALL_WITH_PRINT_RUN -> filteredCards.filter { card -> card.printRun > 0 }
-            }
-        }
+        teamId: Long?, // New parameter
+        pageable: Pageable
+    ): Page<Card> {
+        val specifications = mutableListOf<Specification<Card>>()
 
         manufacturerId?.let {
-            filteredCards = filteredCards.filter { card -> card.theme.brand.manufacturer.id == it }
+            specifications.add(Specification { root, _, cb ->
+                cb.equal(root.get<CardTheme>("theme").get<CardBrand>("brand").get<Any>("manufacturer").get<Long>("id"), it)
+            })
         }
         brandId?.let {
-            filteredCards = filteredCards.filter { card -> card.theme.brand.id == it }
+            specifications.add(Specification { root, _, cb ->
+                cb.equal(root.get<CardTheme>("theme").get<CardBrand>("brand").get<Long>("id"), it)
+            })
         }
         themeId?.let {
-            filteredCards = filteredCards.filter { card -> card.theme.id == it }
+            specifications.add(Specification { root, _, cb ->
+                cb.equal(root.get<CardTheme>("theme").get<Long>("id"), it)
+            })
         }
         sportId?.let {
-            filteredCards = filteredCards.filter { card -> card.player.sport.id == it }
+            specifications.add(Specification { root, _, cb ->
+                cb.equal(root.get<Player>("player").get<Sport>("sport").get<Long>("id"), it)
+            })
         }
         playerId?.let {
-            filteredCards = filteredCards.filter { card -> card.player.id == it }
+            specifications.add(Specification { root, _, cb ->
+                cb.equal(root.get<Player>("player").get<Long>("id"), it)
+            })
         }
         season?.takeIf { it.isNotBlank() }?.let {
-            filteredCards = filteredCards.filter { card -> card.season == it }
+            specifications.add(Specification { root, _, cb ->
+                cb.equal(root.get<String>("season"), it)
+            })
         }
         gameUsed?.let {
-            filteredCards = filteredCards.filter { card -> card.gameUsedMaterial == it }
+            specifications.add(Specification { root, _, cb ->
+                cb.equal(root.get<Boolean>("gameUsedMaterial"), it)
+            })
         }
         autograph?.let {
-            filteredCards = filteredCards.filter { card -> card.autograph == it }
+            specifications.add(Specification { root, _, cb ->
+                cb.equal(root.get<Boolean>("autograph"), it)
+            })
+        }
+        variantId?.let {
+            specifications.add(Specification { root, _, cb ->
+                cb.equal(root.get<Variant>("variant").get<Long>("id"), it)
+            })
+        }
+        rookieCard?.let {
+            specifications.add(Specification { root, _, cb ->
+                cb.equal(root.get<Boolean>("rookieCard"), it)
+            })
+        }
+        teamId?.let {
+            specifications.add(Specification { root, _, cb ->
+                cb.equal(root.get<Player>("player").get<Team>("team").get<Long>("id"), it)
+            })
         }
 
-        variantId?.let { vId ->
-            filteredCards = filteredCards.filter { card -> card.variant.id == vId }
+        // Handle PrintRunRange
+        val selectedPrintRunRange = PrintRunRange.fromKey(printRunRangeKey)
+        selectedPrintRunRange?.let { range ->
+            specifications.add(Specification { root, _, cb ->
+                when (range) {
+                    PrintRunRange.ONE -> cb.equal(root.get<Int>("printRun"), 1)
+                    PrintRunRange.LE_10 -> cb.and(
+                        cb.greaterThan(root.get<Int>("printRun"), 0),
+                        cb.lessThanOrEqualTo(root.get<Int>("printRun"), 10)
+                    )
+                    PrintRunRange.LE_50 -> cb.and(
+                        cb.greaterThan(root.get<Int>("printRun"), 0),
+                        cb.lessThanOrEqualTo(root.get<Int>("printRun"), 50)
+                    )
+                    PrintRunRange.LE_100 -> cb.and(
+                        cb.greaterThan(root.get<Int>("printRun"), 0),
+                        cb.lessThanOrEqualTo(root.get<Int>("printRun"), 100)
+                    )
+                    PrintRunRange.LE_500 -> cb.and(
+                        cb.greaterThan(root.get<Int>("printRun"), 0),
+                        cb.lessThanOrEqualTo(root.get<Int>("printRun"), 500)
+                    )
+                    PrintRunRange.LE_1000 -> cb.and(
+                        cb.greaterThan(root.get<Int>("printRun"), 0),
+                        cb.lessThanOrEqualTo(root.get<Int>("printRun"), 1000)
+                    )
+                    PrintRunRange.ALL_WITH_PRINT_RUN -> cb.greaterThan(root.get<Int>("printRun"), 0)
+                }
+            })
         }
 
-        rookieCard?.let { isRookie ->
-            filteredCards = filteredCards.filter { card -> card.rookieCard == isRookie }
-        }
+        // Combine all specifications
+        val finalSpecification = specifications.reduceOrNull { acc, spec -> acc.and(spec) }
+            ?: Specification.where(null) // If no filters, return all
 
-        teamId?.let { tId ->
-            filteredCards = filteredCards.filter { card -> card.player.team.id == tId }
-        }
-        return filteredCards
+        return cardRepository.findAll(finalSpecification, pageable)
     }
 
     // New service methods to fetch data for filter dropdowns
@@ -172,7 +217,7 @@ class CardService(
         return sportRepository.findAll()
     }
 
-    fun getAllSeasons(): List<String> {
+    fun getAllSeasons(): List<String> { //This might need to be adjusted if we want it to be dynamic based on current filters
         return cardRepository.findDistinctSeasons()
     }
 
@@ -180,7 +225,7 @@ class CardService(
         return variantRepository.findAll()
     }
 
-    fun getAllTeams(): List<Team> {
+    fun getAllTeams(): List<Team> { //This might need to be adjusted if we want it to be dynamic based on current filters
         return teamRepository.findAll()
     }
 }

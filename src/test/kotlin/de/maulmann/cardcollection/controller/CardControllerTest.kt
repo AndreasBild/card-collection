@@ -4,17 +4,24 @@ import de.maulmann.cardcollection.model.*
 import de.maulmann.cardcollection.service.CardManufacturerService
 import de.maulmann.cardcollection.service.CardService
 import de.maulmann.cardcollection.service.PlayerService
+// import de.maulmann.cardcollection.service.PrintRunRange // Not directly used in controller tests for model attributes
+import org.hamcrest.Matchers.hasSize
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
+import org.mockito.ArgumentCaptor
+import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.ArgumentMatchers.anyLong
+import kotlin.math.ceil
+import kotlin.math.min
 
 @WebMvcTest(CardController::class)
 class CardControllerTest {
@@ -31,200 +38,220 @@ class CardControllerTest {
     @MockBean
     private lateinit var playerService: PlayerService
 
-    // Helper for mock creation, similar to service test
-    private inline fun <reified T> mock(): T = org.mockito.Mockito.mock(T::class.java)
+    private lateinit var mockCards: List<Card>
 
-    @Test
-    fun `getCards_noFilters_shouldReturnCardsViewWithAllData`() {
-        // Given
-        val sportInstance = Sport(id = 1, name = "Basketball") // Real Sport instance for consistency
-        val mockSportsList = listOf(sportInstance)
-
-        val mockTeam = org.mockito.Mockito.mock(Team::class.java) // Explicit mock for Team
-        `when`(mockTeam.id).thenReturn(1L)
-        `when`(mockTeam.name).thenReturn("Michigan Wolverines") // Stub name for the team
-
-        // explicitMockPlayer is used in mockCardsList, ensure its team and team.name are stubbed
-        val explicitMockPlayer = org.mockito.Mockito.mock(Player::class.java)
-        `when`(explicitMockPlayer.id).thenReturn(1L)
-        `when`(explicitMockPlayer.name).thenReturn("Juwan")
-        `when`(explicitMockPlayer.surname).thenReturn("Howard")
-        `when`(explicitMockPlayer.sport).thenReturn(sportInstance)
-        `when`(explicitMockPlayer.team).thenReturn(mockTeam) // ensure this mockTeam has .name stubbed
-
-        val explicitMockTheme = org.mockito.Mockito.mock(CardTheme::class.java)
-        `when`(explicitMockTheme.id).thenReturn(1L) // Stub id
-        `when`(explicitMockTheme.name).thenReturn("Explicit Mock Theme") // Stub name
-
-        val mockBrandForExplicitTheme = org.mockito.Mockito.mock(CardBrand::class.java)
-        `when`(mockBrandForExplicitTheme.id).thenReturn(10L)
-        `when`(mockBrandForExplicitTheme.name).thenReturn("Explicit Mock Brand")
+    // Helper to create a Card instance with minimal valid related entities
+    private fun createMockCard(id: Long, playerName: String, playerSurname: String, manufacturerIdVal: Long? = null): Card {
+        val sport = Sport(id = 1, name = "Basketball") // Reused basic sport
+        val team = Team(id = 1, name = "Some Team")     // Reused basic team
+        val player = Player(id = id, name = playerName, surname = playerSurname, sport = sport, team = team)
         
-        val mockManufacturerForExplicitBrand = org.mockito.Mockito.mock(CardManufacturer::class.java)
-        `when`(mockManufacturerForExplicitBrand.id).thenReturn(100L)
-        `when`(mockManufacturerForExplicitBrand.name).thenReturn("Explicit Mock Manufacturer")
-        `when`(mockBrandForExplicitTheme.manufacturer).thenReturn(mockManufacturerForExplicitBrand)
-        `when`(explicitMockTheme.brand).thenReturn(mockBrandForExplicitTheme)
-
-        val explicitMockVariant = org.mockito.Mockito.mock(Variant::class.java)
-        val mockCardsList = listOf(Card(id = 1, season = "2023", player = explicitMockPlayer, theme = explicitMockTheme, variant = explicitMockVariant, number = "1", printRun = 10, serialNumber = 1, rookieCard = false, gameUsedMaterial = false, autograph = false))
+        val manufacturer = Manufacturer(id = manufacturerIdVal ?: id, name = "Test Manufacturer")
+        val brand = CardBrand(id = id, name = "Test Brand", manufacturer = manufacturer)
+        val theme = CardTheme(id = id, name = "Test Theme", brand = brand)
+        val variant = Variant(id = id, name = "Base")
         
-        val mockManufacturer = org.mockito.Mockito.mock(CardManufacturer::class.java)
-        `when`(mockManufacturer.id).thenReturn(1L)
-        `when`(mockManufacturer.name).thenReturn("Panini")
-        // CardManufacturer does not have a 'sport' property
-        val mockManufacturersList = listOf(mockManufacturer)
-        
-        // mockPlayer for the general players list in the model (if different from explicitMockPlayer)
-        // If explicitMockPlayer is the ONLY player instance needed, this mockPlayer can be removed or merged.
-        // For now, assuming it's for the general model attribute "players".
-        val mockPlayerForList = org.mockito.Mockito.mock(Player::class.java)
-        `when`(mockPlayerForList.id).thenReturn(1L)
-        `when`(mockPlayerForList.name).thenReturn("Juwan")
-        `when`(mockPlayerForList.surname).thenReturn("Howard")
-        `when`(mockPlayerForList.sport).thenReturn(sportInstance)
-        `when`(mockPlayerForList.team).thenReturn(mockTeam) // This team also needs its name stubbed.
-        val mockPlayersList = listOf(mockPlayerForList)
+        return Card(
+            id = id,
+            player = player,
+            theme = theme,
+            variant = variant,
+            printRun = (id * 10).toInt(), // Example data
+            serialNumber = id.toInt(),    // Example data
+            season = "2023-24",
+            number = "C$id",
+            rookieCard = (id % 2 == 0L),  // Example data
+            gameUsedMaterial = (id % 3 == 0L), // Example data
+            autograph = (id % 4 == 0L)      // Example data
+        )
+    }
 
-        val mockBrand = org.mockito.Mockito.mock(CardBrand::class.java)
-        `when`(mockBrand.id).thenReturn(1L)
-        `when`(mockBrand.name).thenReturn("Prizm")
-        `when`(mockBrand.manufacturer).thenReturn(mockManufacturer)
-        val mockBrandsList = listOf(mockBrand)
+    @BeforeEach
+    fun setUp() {
+        mockCards = (1L..25L).map { id ->
+            // Pad surname for predictable sorting: Surname01, Surname02, ...
+            createMockCard(id, "PlayerName$id", "Surname${String.format("%02d", id)}", if (id <=5) 1L else id) 
+        }
 
-        val mockTheme = org.mockito.Mockito.mock(CardTheme::class.java)
-        `when`(mockTheme.id).thenReturn(1L)
-        `when`(mockTheme.name).thenReturn("Base Set")
-        `when`(mockTheme.brand).thenReturn(mockBrand)
-        val mockThemesList = listOf(mockTheme)
-        
-        val mockSeasonsList = listOf("2023", "2024")
+        // Mock filter data services (called by controller to populate model for dropdowns)
+        whenever(cardManufacturerService.getAllCardManufacturers()).thenReturn(emptyList())
+        whenever(playerService.getPlayers()).thenReturn(emptyList())
+        whenever(cardService.getAllBrands(anyOrNull())).thenReturn(emptyList())
+        whenever(cardService.getAllThemes(anyOrNull(), anyOrNull())).thenReturn(emptyList())
+        whenever(cardService.getAllSports()).thenReturn(emptyList())
+        whenever(cardService.getAllSeasons()).thenReturn(emptyList())
+        whenever(cardService.getAllVariants()).thenReturn(emptyList())
+        whenever(cardService.getAllTeams()).thenReturn(emptyList())
+        // PrintRunRange.entries.toTypedArray() is used directly in controller, no service mock needed for it.
 
-        // Stub the generic filter method for no filters
-        `when`(cardService.getCardsFiltered(
-            manufacturerId = org.mockito.ArgumentMatchers.isNull(),
-            brandId = org.mockito.ArgumentMatchers.isNull(),
-            themeId = org.mockito.ArgumentMatchers.isNull(),
-            sportId = org.mockito.ArgumentMatchers.isNull(),
-            playerId = org.mockito.ArgumentMatchers.isNull(),
-            season = org.mockito.ArgumentMatchers.isNull(),
-            gameUsed = org.mockito.ArgumentMatchers.isNull(),
-            autograph = org.mockito.ArgumentMatchers.isNull(),
-            variantId = org.mockito.ArgumentMatchers.isNull(),
-            rookieCard = org.mockito.ArgumentMatchers.isNull(),
-            printRunRangeKey = org.mockito.ArgumentMatchers.isNull(),
-            teamId = org.mockito.ArgumentMatchers.isNull()
-        )).thenReturn(mockCardsList)
+        // General mock for getCardsFiltered, this will be the default behavior.
+        // Specific tests can add more specific whenever().thenAnswer() blocks if needed,
+        // or this one can be made more sophisticated.
+        whenever(cardService.getCardsFiltered(
+            manufacturerId = anyOrNull(), brandId = anyOrNull(), themeId = anyOrNull(), sportId = anyOrNull(),
+            playerId = anyOrNull(), season = anyOrNull(), gameUsed = anyOrNull(), autograph = anyOrNull(),
+            variantId = anyOrNull(), rookieCard = anyOrNull(), printRunRangeKey = anyOrNull(), teamId = anyOrNull(),
+            pageable = any(Pageable::class.java)
+        )).thenAnswer { invocation ->
+            val pageable = invocation.getArgument<Pageable>(12) // 13th argument, index 12
+            
+            // Retrieve filter arguments to simulate filtering if needed for a more complex general mock
+            // For now, this general mock does not filter, only sorts and paginates the full mockCards list.
+            // Specific filter tests will override this mock.
+            var cardsToProcess = mockCards.toList() // Make a mutable copy for sorting
 
-        `when`(cardManufacturerService.getAllCardManufacturers()).thenReturn(mockManufacturersList)
-        `when`(playerService.getPlayers()).thenReturn(mockPlayersList)
-        `when`(cardService.getAllBrands()).thenReturn(mockBrandsList)
-        `when`(cardService.getAllThemes()).thenReturn(mockThemesList)
-        `when`(cardService.getAllSports()).thenReturn(mockSportsList)
-        `when`(cardService.getAllSeasons()).thenReturn(mockSeasonsList)
-
-        // When & Then
-        mockMvc.perform(get("/cards"))
-            .andExpect(status().isOk)
-            .andExpect(view().name("cards"))
-            .andExpect(model().attribute("cards", mockCardsList))
-            .andExpect(model().attribute("manufacturers", mockManufacturersList))
-            .andExpect(model().attribute("players", mockPlayersList))
-            .andExpect(model().attribute("brands", mockBrandsList))
-            .andExpect(model().attribute("themes", mockThemesList))
-            .andExpect(model().attribute("sports", mockSportsList))
-            .andExpect(model().attribute("seasons", mockSeasonsList))
+            // Apply sorting from pageable
+            if (pageable.sort.isSorted) {
+                pageable.sort.forEach { order ->
+                    val comparator = compareBy<Card, Comparable<*>?> { card ->
+                        when (order.property) {
+                            "player.surname" -> card.player.surname
+                            "id" -> card.id // id is Long, directly comparable
+                            // Add other sortable properties as needed for tests
+                            else -> null // Properties not explicitly handled won't be sorted
+                        }
+                    }
+                    cardsToProcess = if (order.isDescending) {
+                        cardsToProcess.sortedWith(comparator.reversed())
+                    } else {
+                        cardsToProcess.sortedWith(comparator)
+                    }
+                }
+            }
+            
+            val start = pageable.offset.toInt()
+            val end = (start + pageable.pageSize).coerceAtMost(cardsToProcess.size)
+            val sublist = if (start >= cardsToProcess.size) emptyList() else cardsToProcess.subList(start, end)
+            PageImpl(sublist, pageable, cardsToProcess.size.toLong())
+        }
     }
 
     @Test
-    fun `getCards_withSeasonFilter_shouldReturnFilteredCards`() {
-        // Given
-        val testSeason = "TestSeason"
+    fun `getCards should return first page with default size when no pagination params provided`() {
+        val expectedPageSize = 20
+        val expectedCards = mockCards.subList(0, min(expectedPageSize, mockCards.size))
 
-        val sportInstanceForFilter = Sport(id = 2, name = "Football")
-        val teamMockForFilter = org.mockito.Mockito.mock(Team::class.java)
-        `when`(teamMockForFilter.id).thenReturn(2L)
-        `when`(teamMockForFilter.name).thenReturn("Filter Test Team") // Stub name
-
-        val playerMockForFilter = org.mockito.Mockito.mock(Player::class.java)
-        `when`(playerMockForFilter.id).thenReturn(2L)
-        `when`(playerMockForFilter.name).thenReturn("Filtered")
-        `when`(playerMockForFilter.surname).thenReturn("Player")
-        `when`(playerMockForFilter.sport).thenReturn(sportInstanceForFilter)
-        `when`(playerMockForFilter.team).thenReturn(teamMockForFilter) // Assign stubbed team
-
-        val themeMockForFilter = org.mockito.Mockito.mock(CardTheme::class.java)
-        `when`(themeMockForFilter.id).thenReturn(2L) // Stub id
-        `when`(themeMockForFilter.name).thenReturn("Filter Mock Theme") // Stub name
-
-        val mockBrandForFilterTheme = org.mockito.Mockito.mock(CardBrand::class.java)
-        `when`(mockBrandForFilterTheme.id).thenReturn(20L)
-        `when`(mockBrandForFilterTheme.name).thenReturn("Filter Mock Brand")
-
-        val mockManufacturerForFilterBrand = org.mockito.Mockito.mock(CardManufacturer::class.java)
-        `when`(mockManufacturerForFilterBrand.id).thenReturn(200L)
-        `when`(mockManufacturerForFilterBrand.name).thenReturn("Filter Mock Manufacturer")
-        `when`(mockBrandForFilterTheme.manufacturer).thenReturn(mockManufacturerForFilterBrand)
-        `when`(themeMockForFilter.brand).thenReturn(mockBrandForFilterTheme)
-
-        val variantMockForFilter = org.mockito.Mockito.mock(Variant::class.java)
-        val mockFilteredCards = listOf(Card(id = 2, season = testSeason, player = playerMockForFilter, theme = themeMockForFilter, variant = variantMockForFilter, number = "2", printRun = 10, serialNumber = 1, rookieCard = false, gameUsedMaterial = false, autograph = false))
-
-        // Stub the generic filter method for season filter
-        `when`(cardService.getCardsFiltered(
-            manufacturerId = org.mockito.ArgumentMatchers.isNull(),
-            brandId = org.mockito.ArgumentMatchers.isNull(),
-            themeId = org.mockito.ArgumentMatchers.isNull(),
-            sportId = org.mockito.ArgumentMatchers.isNull(),
-            playerId = org.mockito.ArgumentMatchers.isNull(),
-            season = org.mockito.ArgumentMatchers.eq(testSeason),
-            gameUsed = org.mockito.ArgumentMatchers.isNull(),
-            autograph = org.mockito.ArgumentMatchers.isNull(),
-            variantId = org.mockito.ArgumentMatchers.isNull(),
-            rookieCard = org.mockito.ArgumentMatchers.isNull(),
-            printRunRangeKey = org.mockito.ArgumentMatchers.isNull(),
-            teamId = org.mockito.ArgumentMatchers.isNull()
-        )).thenReturn(mockFilteredCards)
-
-        // Mock other service calls for dropdowns (can return empty lists or sample data)
-        `when`(cardManufacturerService.getAllCardManufacturers()).thenReturn(emptyList())
-        `when`(playerService.getPlayers()).thenReturn(emptyList())
-        `when`(cardService.getAllBrands()).thenReturn(emptyList())
-        `when`(cardService.getAllThemes()).thenReturn(emptyList())
-        `when`(cardService.getAllSports()).thenReturn(emptyList())
-        `when`(cardService.getAllSeasons()).thenReturn(listOf(testSeason, "OtherSeason")) // include the test season
-
-        // When & Then
-        mockMvc.perform(get("/cards").param("season", testSeason))
+        mockMvc.perform(get("/cards"))
             .andExpect(status().isOk)
             .andExpect(view().name("cards"))
-            .andExpect(model().attribute("cards", mockFilteredCards)) // Check for filtered cards
-            .andExpect(model().attributeExists("manufacturers", "players", "brands", "themes", "sports", "seasons")) // Ensure dropdown data is still present
+            .andExpect(model().attribute("currentPage", 0))
+            .andExpect(model().attribute("pageSize", expectedPageSize))
+            .andExpect(model().attribute("totalPages", ceil(mockCards.size.toDouble() / expectedPageSize.toDouble()).toInt()))
+            .andExpect(model().attribute("totalItems", mockCards.size.toLong()))
+            .andExpect(model().attribute("cards", hasSize(min(expectedPageSize, mockCards.size))))
+            .andExpect(model().attribute("cards", expectedCards))
+    }
 
-        // Verify that the correct service method was called for filtering
-        // Verify that the generic filter method was called with the correct season
+    @Test
+    fun `getCards should return specific page and size when params provided`() {
+        val page = 1
+        val size = 10
+        val expectedCards = mockCards.subList(size * page, min(size * (page + 1), mockCards.size))
+
+
+        mockMvc.perform(get("/cards?page=$page&size=$size"))
+            .andExpect(status().isOk)
+            .andExpect(view().name("cards"))
+            .andExpect(model().attribute("currentPage", page))
+            .andExpect(model().attribute("pageSize", size))
+            .andExpect(model().attribute("totalPages", ceil(mockCards.size.toDouble() / size.toDouble()).toInt()))
+            .andExpect(model().attribute("totalItems", mockCards.size.toLong()))
+            .andExpect(model().attribute("cards", hasSize(min(size, mockCards.size - (size * page) ))))
+            .andExpect(model().attribute("cards", expectedCards))
+    }
+
+    @Test
+    fun `getCards should return empty list for cards when page is out of bounds`() {
+        val page = 100 // Well beyond the number of pages for 25 items
+        val size = 10
+
+        mockMvc.perform(get("/cards?page=$page&size=$size"))
+            .andExpect(status().isOk)
+            .andExpect(view().name("cards"))
+            .andExpect(model().attribute("currentPage", page))
+            .andExpect(model().attribute("pageSize", size))
+            .andExpect(model().attribute("totalPages", ceil(mockCards.size.toDouble() / size.toDouble()).toInt()))
+            .andExpect(model().attribute("totalItems", mockCards.size.toLong()))
+            .andExpect(model().attribute("cards", hasSize(0)))
+    }
+
+    @Test
+    fun `getCards with filter should apply pagination to filtered subset`() {
+        val filterManufacturerId = 1L
+        val filteredMockCards = mockCards.filter { it.theme.brand.manufacturer.id == filterManufacturerId } // Cards with manufacturerId = 1L
+        val page = 0
+        val size = 3
+        
+        // Specific mock for this filter condition
+        whenever(cardService.getCardsFiltered(
+            manufacturerId = eq(filterManufacturerId), brandId = anyOrNull(), themeId = anyOrNull(), sportId = anyOrNull(),
+            playerId = anyOrNull(), season = anyOrNull(), gameUsed = anyOrNull(), autograph = anyOrNull(),
+            variantId = anyOrNull(), rookieCard = anyOrNull(), printRunRangeKey = anyOrNull(), teamId = anyOrNull(),
+            pageable = any(Pageable::class.java)
+        )).thenAnswer { invocation ->
+            val pageable = invocation.getArgument<Pageable>(12)
+            // Apply sorting if any specified in pageable - for this test, none specified in URL
+            var localFilteredCards = filteredMockCards.toList()
+             if (pageable.sort.isSorted) { // Handle default sort if any applied by controller
+                pageable.sort.forEach { order ->
+                    val comparator = compareBy<Card, Comparable<*>?> { card -> if(order.property == "id") card.id else null }
+                    localFilteredCards = if (order.isDescending) localFilteredCards.sortedWith(comparator.reversed()) else localFilteredCards.sortedWith(comparator)
+                }
+            }
+            val start = pageable.offset.toInt()
+            val end = (start + pageable.pageSize).coerceAtMost(localFilteredCards.size)
+            val sublist = if (start >= localFilteredCards.size) emptyList() else localFilteredCards.subList(start, end)
+            PageImpl(sublist, pageable, localFilteredCards.size.toLong())
+        }
+        
+        val expectedCards = filteredMockCards.subList(0, min(size, filteredMockCards.size))
+
+        mockMvc.perform(get("/cards?manufacturerId=$filterManufacturerId&page=$page&size=$size"))
+            .andExpect(status().isOk)
+            .andExpect(view().name("cards"))
+            .andExpect(model().attribute("currentPage", page))
+            .andExpect(model().attribute("pageSize", size))
+            .andExpect(model().attribute("totalPages", ceil(filteredMockCards.size.toDouble() / size.toDouble()).toInt()))
+            .andExpect(model().attribute("totalItems", filteredMockCards.size.toLong()))
+            .andExpect(model().attribute("cards", hasSize(min(size, filteredMockCards.size))))
+            .andExpect(model().attribute("cards", expectedCards))
+    }
+
+    @Test
+    fun `getCards with sort parameter should pass sort to service and apply it`() {
+        val pageableCaptor = ArgumentCaptor.forClass(Pageable::class.java)
+        val page = 0
+        val size = 7
+        
+        // The general mock in setUp already handles sorting.
+        // We just need to verify the captured Pageable and the sorted output.
+        val expectedSortedFirstPage = mockCards.sortedWith(compareBy { it.player.surname }).reversed().subList(page * size, min((page + 1) * size, mockCards.size))
+
+
+        mockMvc.perform(get("/cards?sort=player.surname,desc&page=$page&size=$size"))
+            .andExpect(status().isOk)
+            .andExpect(view().name("cards"))
+            .andExpect(model().attribute("currentPage", page))
+            .andExpect(model().attribute("pageSize", size))
+            .andExpect(model().attribute("totalPages", ceil(mockCards.size.toDouble() / size.toDouble()).toInt()))
+            .andExpect(model().attribute("totalItems", mockCards.size.toLong()))
+            .andExpect(model().attribute("cards", hasSize(min(size, mockCards.size))))
+            .andExpect(model().attribute("cards", expectedSortedFirstPage))
+
         verify(cardService).getCardsFiltered(
-            manufacturerId = org.mockito.ArgumentMatchers.isNull(),
-            brandId = org.mockito.ArgumentMatchers.isNull(),
-            themeId = org.mockito.ArgumentMatchers.isNull(),
-            sportId = org.mockito.ArgumentMatchers.isNull(),
-            playerId = org.mockito.ArgumentMatchers.isNull(),
-            season = org.mockito.ArgumentMatchers.eq(testSeason),
-            gameUsed = org.mockito.ArgumentMatchers.isNull(),
-            autograph = org.mockito.ArgumentMatchers.isNull(),
-            variantId = org.mockito.ArgumentMatchers.isNull(),
-            rookieCard = org.mockito.ArgumentMatchers.isNull(),
-            printRunRangeKey = org.mockito.ArgumentMatchers.isNull(),
-            teamId = org.mockito.ArgumentMatchers.isNull()
+            manufacturerId = anyOrNull(), brandId = anyOrNull(), themeId = anyOrNull(), sportId = anyOrNull(),
+            playerId = anyOrNull(), season = anyOrNull(), gameUsed = anyOrNull(), autograph = anyOrNull(),
+            variantId = anyOrNull(), rookieCard = anyOrNull(), printRunRangeKey = anyOrNull(), teamId = anyOrNull(),
+            pageable = capture(pageableCaptor)
         )
-        // The following verifications might need to be removed or adjusted
-        // if the controller solely relies on getCardsFiltered.
-        // For now, let's keep them to see if getCardsBySeason was also called or not.
-        // verify(cardService, org.mockito.Mockito.never()).getCardsByManufacturerId(anyLong())
-        // verify(cardService, org.mockito.Mockito.never()).getCardsByBrandId(anyLong())
-        // verify(cardService, org.mockito.Mockito.never()).getCardsByThemeId(anyLong())
-        // verify(cardService, org.mockito.Mockito.never()).getCardsBySportId(anyLong())
-        // verify(cardService, org.mockito.Mockito.never()).findAllByPlayerId(anyLong())
-        // verify(cardService, org.mockito.Mockito.never()).getAllCards() 
+
+        val capturedPageable = pageableCaptor.value
+        val sort = capturedPageable.sort
+        assert(sort.isSorted) { "Sort should be applied" }
+        val sortOrder = sort.getOrderFor("player.surname")
+        assert(sortOrder != null) { "Sort order for 'player.surname' should exist" }
+        assert(sortOrder!!.direction == Sort.Direction.DESC) { "Sort direction should be DESC" }
+        assert(capturedPageable.pageNumber == page) { "Captured page number should be $page" }
+        assert(capturedPageable.pageSize == size) { "Captured page size should be $size" }
     }
 }
