@@ -85,19 +85,4 @@ class CardController(
         return "cards"
     }
 
-    // Endpoint for cards by manufacturer (from previous outer controller's functionality, if needed explicitly)
-    // This might be handled by the main getCards with parameters later.
-    // For now, we provide a specific endpoint if direct access to cards by manufacturer is desired.
-    @GetMapping("/byManufacturer/{manufacturerId}")
-    fun getCardsByManufacturer(@PathVariable manufacturerId: Long, model: Model): String {
-        model.addAttribute("cards", cardManufacturerService.getCardsByManufacturerId(manufacturerId))
-        // Add filter data as well, for consistency if user navigates from here
-        model.addAttribute("manufacturers", cardManufacturerService.getAllCardManufacturers())
-        model.addAttribute("players", playerService.getPlayers())
-        model.addAttribute("brands", cardService.getAllBrands())
-        model.addAttribute("themes", cardService.getAllThemes())
-        model.addAttribute("sports", cardService.getAllSports())
-        model.addAttribute("seasons", cardService.getAllSeasons())
-        return "cards"
-    }
 }
