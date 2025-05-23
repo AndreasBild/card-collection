@@ -77,11 +77,6 @@ class CardController(
         return "cards"
     }
 
-    @GetMapping("/run/{printRunValue}") // Path relative to "/cards", made path variable more descriptive
-    fun findAllByPrintRunIsLessThan(@PathVariable printRunValue: Int, model: Model): String {
-        model.addAttribute("cards", cardService.findAllByPrintRunIsLessThan(printRunValue))
-        return "cards"
-    }
 
     @GetMapping("/rookie") // Path relative to "/cards"
     fun findAllRookieCards(model: Model): String {
