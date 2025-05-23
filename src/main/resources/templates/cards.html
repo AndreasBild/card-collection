@@ -202,9 +202,176 @@
     </tbody>
 </table>
 
+<!-- Pagination Controls -->
+<div th:if="${totalPages > 0}" class="pagination-controls">
+    <div>
+        Rows per page:
+        <select id="pageSizeSelector" onchange="changePageSize()">
+            <option th:each="s : ${#asList(10, 20, 50, 100)}" th:value="${s}" th:text="${s}" th:selected="${s == pageSize}">_</option>
+        </select>
+    </div>
+
+    <div>
+        Page <span th:text="${currentPage + 1}">_</span> of <span th:text="${totalPages}">_</span>.
+        Total items: <span th:text="${totalItems}">_</span>.
+    </div>
+
+    <nav>
+        <ul class="pagination">
+            <!-- First Page Link -->
+            <li th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                <a th:href="@{/cards(page=0, size=${pageSize},
+                                sort=${param.sort ?: ''},
+                                manufacturerId=${param.manufacturerId ?: ''},
+                                brandId=${param.brandId ?: ''},
+                                themeId=${param.themeId ?: ''},
+                                sportId=${param.sportId ?: ''},
+                                playerId=${param.playerId ?: ''},
+                                teamId=${param.teamId ?: ''},
+                                season=${param.season ?: ''},
+                                gameUsed=${param.gameUsed ?: ''},
+                                autograph=${param.autograph ?: ''},
+                                variantId=${param.variantId ?: ''},
+                                rookieCard=${param.rookieCard ?: ''},
+                                printRunRangeKey=${param.printRunRangeKey ?: ''}
+                                )}">First</a>
+            </li>
+
+            <!-- Previous Page Link -->
+            <li th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                <a th:href="@{/cards(page=${currentPage - 1}, size=${pageSize},
+                                sort=${param.sort ?: ''},
+                                manufacturerId=${param.manufacturerId ?: ''},
+                                brandId=${param.brandId ?: ''},
+                                themeId=${param.themeId ?: ''},
+                                sportId=${param.sportId ?: ''},
+                                playerId=${param.playerId ?: ''},
+                                teamId=${param.teamId ?: ''},
+                                season=${param.season ?: ''},
+                                gameUsed=${param.gameUsed ?: ''},
+                                autograph=${param.autograph ?: ''},
+                                variantId=${param.variantId ?: ''},
+                                rookieCard=${param.rookieCard ?: ''},
+                                printRunRangeKey=${param.printRunRangeKey ?: ''}
+                                )}"
+                   th:unless="${currentPage == 0}">Previous</a>
+                <span th:if="${currentPage == 0}">Previous</span>
+            </li>
+
+            <!-- Page Number Links -->
+            <!-- Logic for page numbers: show a few pages around current, plus first/last and ellipses -->
+            <th:block th:with="window=2">
+                <th:block th:if="${totalPages <= (2 * window + 5)}"> <!-- Show all if not too many pages -->
+                    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active' : ''">
+                        <a th:href="@{/cards(page=${i}, size=${pageSize},
+                                        sort=${param.sort ?: ''},
+                                        manufacturerId=${param.manufacturerId ?: ''},
+                                        brandId=${param.brandId ?: ''},
+                                        themeId=${param.themeId ?: ''},
+                                        sportId=${param.sportId ?: ''},
+                                        playerId=${param.playerId ?: ''},
+                                        teamId=${param.teamId ?: ''},
+                                        season=${param.season ?: ''},
+                                        gameUsed=${param.gameUsed ?: ''},
+                                        autograph=${param.autograph ?: ''},
+                                        variantId=${param.variantId ?: ''},
+                                        rookieCard=${param.rookieCard ?: ''},
+                                        printRunRangeKey=${param.printRunRangeKey ?: ''}
+                                        )}" th:text="${i + 1}">_</a>
+                    </li>
+                </th:block>
+                <th:block th:unless="${totalPages <= (2 * window + 5)}"> <!-- More complex pagination for many pages -->
+                    <!-- First page -->
+                    <li th:classappend="${0 == currentPage} ? 'active' : ''">
+                         <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, season=${param.season ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''})}" th:text="1">_</a>
+                    </li>
+
+                    <!-- Ellipsis after first if needed -->
+                    <li th:if="${currentPage > window + 1}" class="disabled"><span>...</span></li>
+
+                    <!-- Window around current page -->
+                    <li th:each="i : ${#numbers.sequence( T(java.lang.Math).max(1, currentPage - window), T(java.lang.Math).min(totalPages - 2, currentPage + window) )}" th:classappend="${i == currentPage} ? 'active' : ''">
+                        <a th:href="@{/cards(page=${i}, size=${pageSize},
+                                        sort=${param.sort ?: ''},
+                                        manufacturerId=${param.manufacturerId ?: ''},
+                                        brandId=${param.brandId ?: ''},
+                                        themeId=${param.themeId ?: ''},
+                                        sportId=${param.sportId ?: ''},
+                                        playerId=${param.playerId ?: ''},
+                                        teamId=${param.teamId ?: ''},
+                                        season=${param.season ?: ''},
+                                        gameUsed=${param.gameUsed ?: ''},
+                                        autograph=${param.autograph ?: ''},
+                                        variantId=${param.variantId ?: ''},
+                                        rookieCard=${param.rookieCard ?: ''},
+                                        printRunRangeKey=${param.printRunRangeKey ?: ''}
+                                        )}" th:text="${i + 1}">_</a>
+                    </li>
+
+                    <!-- Ellipsis before last if needed -->
+                    <li th:if="${currentPage < totalPages - window - 2}" class="disabled"><span>...</span></li>
+
+                    <!-- Last page -->
+                    <li th:classappend="${totalPages - 1 == currentPage} ? 'active' : ''">
+                         <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, season=${param.season ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''})}" th:text="${totalPages}">_</a>
+                    </li>
+                </th:block>
+            </th:block>
+
+            <!-- Next Page Link -->
+            <li th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
+                <a th:href="@{/cards(page=${currentPage + 1}, size=${pageSize},
+                                sort=${param.sort ?: ''},
+                                manufacturerId=${param.manufacturerId ?: ''},
+                                brandId=${param.brandId ?: ''},
+                                themeId=${param.themeId ?: ''},
+                                sportId=${param.sportId ?: ''},
+                                playerId=${param.playerId ?: ''},
+                                teamId=${param.teamId ?: ''},
+                                season=${param.season ?: ''},
+                                gameUsed=${param.gameUsed ?: ''},
+                                autograph=${param.autograph ?: ''},
+                                variantId=${param.variantId ?: ''},
+                                rookieCard=${param.rookieCard ?: ''},
+                                printRunRangeKey=${param.printRunRangeKey ?: ''}
+                                )}"
+                   th:unless="${currentPage >= totalPages - 1}">Next</a>
+                <span th:if="${currentPage >= totalPages - 1}">Next</span>
+            </li>
+
+            <!-- Last Page Link -->
+            <li th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
+                <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize},
+                                sort=${param.sort ?: ''},
+                                manufacturerId=${param.manufacturerId ?: ''},
+                                brandId=${param.brandId ?: ''},
+                                themeId=${param.themeId ?: ''},
+                                sportId=${param.sportId ?: ''},
+                                playerId=${param.playerId ?: ''},
+                                teamId=${param.teamId ?: ''},
+                                season=${param.season ?: ''},
+                                gameUsed=${param.gameUsed ?: ''},
+                                autograph=${param.autograph ?: ''},
+                                variantId=${param.variantId ?: ''},
+                                rookieCard=${param.rookieCard ?: ''},
+                                printRunRangeKey=${param.printRunRangeKey ?: ''}
+                                )}">Last</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+<!-- End Pagination Controls -->
+
     <script th:inline="javascript">
         /*<![CDATA[*/
-        
+        function changePageSize() {
+            var selectedSize = document.getElementById('pageSizeSelector').value;
+            var currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('size', selectedSize);
+            currentUrl.searchParams.set('page', '0'); // Reset to first page
+            window.location.href = currentUrl.toString();
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const manufacturerSelect = document.getElementById('manufacturerSelectForm');
             const brandSelect = document.getElementById('brandSelectForm');

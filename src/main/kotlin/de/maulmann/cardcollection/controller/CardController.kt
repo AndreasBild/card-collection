@@ -5,6 +5,9 @@ import de.maulmann.cardcollection.service.CardManufacturerService
 import de.maulmann.cardcollection.service.CardService
 import de.maulmann.cardcollection.service.PlayerService // Added
 import de.maulmann.cardcollection.service.PrintRunRange // Import PrintRunRange
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -34,10 +37,21 @@ class CardController(
         @RequestParam(required = false) variantId: Long?,
         @RequestParam(required = false) rookieCard: Boolean?,
         @RequestParam(required = false) printRunRangeKey: String?, // New parameter
-        @RequestParam(required = false) teamId: Long? // New parameter
+        @RequestParam(required = false) teamId: Long?, // New parameter
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "20") size: Int,
+        @RequestParam(required = false) sort: String?
     ): String {
+        val sortObj = sort?.let {
+            val parts = it.split(",")
+            val direction = if (parts.size > 1 && parts[1].equals("desc", ignoreCase = true)) Sort.Direction.DESC else Sort.Direction.ASC
+            Sort.by(direction, parts[0])
+        } ?: Sort.by("id") // Default sort by ID if not specified
+
+        val pageable = PageRequest.of(page, size, sortObj)
+
         // Call the new service method that handles combined filtering
-        val cards = cardService.getCardsFiltered(
+        val cardsPage: Page<de.maulmann.cardcollection.model.Card> = cardService.getCardsFiltered(
             manufacturerId = manufacturerId,
             brandId = brandId,
             themeId = themeId,
@@ -49,9 +63,17 @@ class CardController(
             variantId = variantId,
             rookieCard = rookieCard,
             printRunRangeKey = printRunRangeKey, // Pass new parameter
-            teamId = teamId // Pass new parameter
+            teamId = teamId, // Pass new parameter
+            pageable = pageable // Pass the pageable object
         )
-        model.addAttribute("cards", cards)
+
+        model.addAttribute("cardPage", cardsPage)
+        model.addAttribute("cards", cardsPage.content) // For existing view compatibility
+        model.addAttribute("currentPage", cardsPage.number)
+        model.addAttribute("totalPages", cardsPage.totalPages)
+        model.addAttribute("totalItems", cardsPage.totalElements)
+        model.addAttribute("pageSize", cardsPage.size)
+
 
         // Fetch data for filters/dropdowns (this part remains the same)
         model.addAttribute("manufacturers", cardManufacturerService.getAllCardManufacturers())
