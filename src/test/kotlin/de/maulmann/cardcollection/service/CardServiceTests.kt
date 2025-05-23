@@ -35,6 +35,9 @@ class CardServiceTests {
     @Mock
     private lateinit var variantRepository: VariantRepository
 
+    @Mock
+    private lateinit var teamRepository: TeamRepository // New mock for TeamRepository
+
     @InjectMocks
     private lateinit var cardService: CardService
 
@@ -42,9 +45,10 @@ class CardServiceTests {
 
     // Helper entities (can be expanded or moved to a setup method if more complex)
     private val sport1 = Sport(1, "Basketball")
-    private val team1 = Team(1, "Chicago Bulls")
+    private val team1 = Team(1, "Chicago Bulls") // Player1's team
+    private val team2 = Team(2, "Los Angeles Lakers") // Player2's team for some cards
     private val player1 = Player(1, "Michael", "Jordan", team1, sport1)
-    private val player2 = Player(2, "Scottie", "Pippen", team1, sport1)
+    private val player2 = Player(2, "Scottie", "Pippen", team2, sport1) // player2 now primarily on team2
 
     private val manufacturer1 = CardManufacturer(1, "Upper Deck")
     private val manufacturer2 = CardManufacturer(2, "Panini")
@@ -78,9 +82,11 @@ class CardServiceTests {
             Card(id = 8, player = player1, theme = theme1, variant = variant1, printRun = 200, serialNumber = 1, season = "S8", number = "N8", rookieCard = true, gameUsedMaterial = true, autograph = true), // LE_500
             Card(id = 9, player = player1, theme = theme1, variant = variant1, printRun = 500, serialNumber = 1, season = "S9", number = "N9", rookieCard = false, gameUsedMaterial = false, autograph = false), // LE_500
             Card(id = 10, player = player1, theme = theme1, variant = variant1, printRun = 600, serialNumber = 1, season = "S10", number = "N10", rookieCard = true, gameUsedMaterial = false, autograph = false), // LE_1000
-            Card(id = 11, player = player1, theme = theme1, variant = variant1, printRun = 1000, serialNumber = 1, season = "S11", number = "N11", rookieCard = false, gameUsedMaterial = true, autograph = false), // LE_1000
-            Card(id = 12, player = player2, theme = theme2, variant = variant2, printRun = 1200, serialNumber = 1, season = "S12", number = "N12", rookieCard = true, gameUsedMaterial = true, autograph = false), // > 1000
-            Card(id = 13, player = player2, theme = theme2, variant = variant2, printRun = 0, serialNumber = 0, season = "S13", number = "N13", rookieCard = false, gameUsedMaterial = false, autograph = false) // Card with printRun = 0
+            Card(id = 11, player = player1, theme = theme1, variant = variant1, printRun = 1000, serialNumber = 1, season = "S11", number = "N11", rookieCard = false, gameUsedMaterial = true, autograph = false), // LE_1000 (Player1, Team1)
+            Card(id = 12, player = player2, theme = theme2, variant = variant2, printRun = 1200, serialNumber = 1, season = "S12", number = "N12", rookieCard = true, gameUsedMaterial = true, autograph = false), // > 1000 (Player2, Team2)
+            Card(id = 13, player = player2, theme = theme2, variant = variant2, printRun = 0, serialNumber = 0, season = "S13", number = "N13", rookieCard = false, gameUsedMaterial = false, autograph = false), // Card with printRun = 0 (Player2, Team2)
+            // Add a card with player1 (team1) to ensure team filtering works
+            Card(id = 14, player = player1, theme = theme2, variant = variant2, printRun = 50, serialNumber = 2, season = "S14", number = "N14", rookieCard = true, gameUsedMaterial = false, autograph = true) // (Player1, Team1)
         )
     }
 
@@ -112,7 +118,7 @@ class CardServiceTests {
     fun `getCardsFiltered when no filters applied should return all cards`() {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
 
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, null)
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, null, null)
 
         assertEquals(sampleCards.size, result.size)
         verify(cardRepository).findAll()
@@ -123,7 +129,7 @@ class CardServiceTests {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { it.gameUsedMaterial }
 
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, true, null, null, null, null)
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, true, null, null, null, null, null)
 
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.gameUsedMaterial })
@@ -134,7 +140,7 @@ class CardServiceTests {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { !it.gameUsedMaterial }
 
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, false, null, null, null, null)
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, false, null, null, null, null, null)
 
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { !it.gameUsedMaterial })
@@ -145,7 +151,7 @@ class CardServiceTests {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { it.autograph }
 
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, true, null, null, null)
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, true, null, null, null, null)
 
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.autograph })
@@ -156,7 +162,7 @@ class CardServiceTests {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { !it.autograph }
 
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, false, null, null, null)
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, false, null, null, null, null)
 
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { !it.autograph })
@@ -167,7 +173,7 @@ class CardServiceTests {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { it.gameUsedMaterial && it.autograph }
 
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, true, true, null, null, null)
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, true, true, null, null, null, null)
 
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.gameUsedMaterial && it.autograph })
@@ -178,7 +184,7 @@ class CardServiceTests {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { it.gameUsedMaterial && !it.autograph }
 
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, true, false, null, null, null)
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, true, false, null, null, null, null)
 
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.gameUsedMaterial && !it.autograph })
@@ -190,7 +196,7 @@ class CardServiceTests {
         val targetManufacturerId = manufacturer1.id
         val expectedCards = sampleCards.filter { it.theme.brand.manufacturer.id == targetManufacturerId && it.gameUsedMaterial }
 
-        val result = cardService.getCardsFiltered(manufacturerId = targetManufacturerId, null, null, null, null, null, gameUsed = true, null, null, null, null)
+        val result = cardService.getCardsFiltered(manufacturerId = targetManufacturerId, null, null, null, null, null, gameUsed = true, null, null, null, null, null)
 
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.theme.brand.manufacturer.id == targetManufacturerId && it.gameUsedMaterial })
@@ -203,7 +209,7 @@ class CardServiceTests {
         val targetPlayerId = player2.id // Updated to match new sample data
         val expectedCards = sampleCards.filter { it.season == targetSeason && !it.autograph && it.player.id == targetPlayerId }
 
-        val result = cardService.getCardsFiltered(null, null, null, null, playerId = targetPlayerId, season = targetSeason, null, autograph = false, null, null, null)
+        val result = cardService.getCardsFiltered(null, null, null, null, playerId = targetPlayerId, season = targetSeason, null, autograph = false, null, null, null, null)
         
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.season == targetSeason && !it.autograph && it.player.id == targetPlayerId })
@@ -214,7 +220,7 @@ class CardServiceTests {
         val targetBrandId = brand1.id
         val expectedCards = sampleCards.filter { it.theme.brand.id == targetBrandId }
 
-        val result = cardService.getCardsFiltered(null, brandId = targetBrandId, null, null, null, null, null, null, null, null, null)
+        val result = cardService.getCardsFiltered(null, brandId = targetBrandId, null, null, null, null, null, null, null, null, null, null)
 
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.theme.brand.id == targetBrandId })
@@ -226,7 +232,7 @@ class CardServiceTests {
         val targetThemeId = theme2.id // Updated to match new sample data
         val expectedCards = sampleCards.filter { it.theme.id == targetThemeId }
 
-        val result = cardService.getCardsFiltered(null, null, themeId = targetThemeId, null, null, null, null, null, null, null, null)
+        val result = cardService.getCardsFiltered(null, null, themeId = targetThemeId, null, null, null, null, null, null, null, null, null)
 
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.theme.id == targetThemeId })
@@ -238,7 +244,7 @@ class CardServiceTests {
         val targetSportId = sport1.id
         val expectedCards = sampleCards.filter { it.player.sport.id == targetSportId }
 
-        val result = cardService.getCardsFiltered(null, null, null, sportId = targetSportId, null, null, null, null, null, null, null)
+        val result = cardService.getCardsFiltered(null, null, null, sportId = targetSportId, null, null, null, null, null, null, null, null)
 
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.player.sport.id == targetSportId })
@@ -295,7 +301,7 @@ class CardServiceTests {
         val targetVariantId = variant1.id
         val expectedCards = sampleCards.filter { it.variant.id == targetVariantId && it.rookieCard }
 
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, variantId = targetVariantId, rookieCard = true, null)
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, variantId = targetVariantId, rookieCard = true, null, null)
         
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.variant.id == targetVariantId && it.rookieCard })
@@ -306,7 +312,7 @@ class CardServiceTests {
         val targetVariantId = variant1.id 
         val expectedCards = sampleCards.filter { it.variant.id == targetVariantId && !it.rookieCard && it.gameUsedMaterial }
 
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, gameUsed = true, null, variantId = targetVariantId, rookieCard = false, null)
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, gameUsed = true, null, variantId = targetVariantId, rookieCard = false, null, null)
         
         assertEquals(expectedCards.size, result.size) 
         assertTrue(result.all { it.variant.id == targetVariantId && !it.rookieCard && it.gameUsedMaterial })
@@ -317,7 +323,7 @@ class CardServiceTests {
     fun `getCardsFiltered with printRunRangeKey ONE`() {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { it.printRun == 1 }
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "ONE")
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "ONE", null)
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.printRun == 1 })
     }
@@ -326,7 +332,7 @@ class CardServiceTests {
     fun `getCardsFiltered with printRunRangeKey LE_10`() {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { it.printRun > 0 && it.printRun <= 10 }
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "LE_10")
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "LE_10", null)
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.printRun > 0 && it.printRun <= 10 })
     }
@@ -335,7 +341,7 @@ class CardServiceTests {
     fun `getCardsFiltered with printRunRangeKey LE_50`() {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { it.printRun > 0 && it.printRun <= 50 }
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "LE_50")
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "LE_50", null)
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.printRun > 0 && it.printRun <= 50 })
     }
@@ -344,7 +350,7 @@ class CardServiceTests {
     fun `getCardsFiltered with printRunRangeKey LE_100`() {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { it.printRun > 0 && it.printRun <= 100 }
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "LE_100")
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "LE_100", null)
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.printRun > 0 && it.printRun <= 100 })
     }
@@ -353,7 +359,7 @@ class CardServiceTests {
     fun `getCardsFiltered with printRunRangeKey LE_500`() {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { it.printRun > 0 && it.printRun <= 500 }
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "LE_500")
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "LE_500", null)
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.printRun > 0 && it.printRun <= 500 })
     }
@@ -362,7 +368,7 @@ class CardServiceTests {
     fun `getCardsFiltered with printRunRangeKey LE_1000`() {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { it.printRun > 0 && it.printRun <= 1000 }
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "LE_1000")
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "LE_1000", null)
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.printRun > 0 && it.printRun <= 1000 })
     }
@@ -371,7 +377,7 @@ class CardServiceTests {
     fun `getCardsFiltered with printRunRangeKey ALL_WITH_PRINT_RUN`() {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { it.printRun > 0 }
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "ALL_WITH_PRINT_RUN")
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, "ALL_WITH_PRINT_RUN", null)
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.printRun > 0 })
     }
@@ -379,9 +385,7 @@ class CardServiceTests {
     @Test
     fun `getCardsFiltered with printRunRangeKey null`() {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
-        // No print run filtering should be applied, so all cards returned by repo (after other filters, if any)
-        // For this specific test, we expect all sampleCards as no other filters are applied.
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, null)
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, null, null)
         assertEquals(sampleCards.size, result.size)
     }
 
@@ -389,8 +393,47 @@ class CardServiceTests {
     fun `getCardsFiltered with rookieCard true AND printRunRangeKey LE_100`() {
         `when`(cardRepository.findAll()).thenReturn(sampleCards)
         val expectedCards = sampleCards.filter { it.rookieCard && (it.printRun > 0 && it.printRun <= 100) }
-        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard = true, "LE_100")
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard = true, "LE_100", null)
         assertEquals(expectedCards.size, result.size)
         assertTrue(result.all { it.rookieCard && (it.printRun > 0 && it.printRun <= 100) })
+    }
+
+    // Tests for Team filtering
+    @Test
+    fun `getAllTeams should return all teams from repository`() {
+        val mockTeams = listOf(team1, team2)
+        `when`(teamRepository.findAll()).thenReturn(mockTeams)
+
+        val result = cardService.getAllTeams()
+
+        assertEquals(mockTeams, result)
+        verify(teamRepository).findAll()
+    }
+
+    @Test
+    fun `getCardsFiltered with teamId`() {
+        `when`(cardRepository.findAll()).thenReturn(sampleCards)
+        val targetTeamId = team1.id!!
+        val expectedCards = sampleCards.filter { it.player.team.id == targetTeamId }
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, null, targetTeamId)
+        assertEquals(expectedCards.size, result.size)
+        assertTrue(result.all { it.player.team.id == targetTeamId })
+    }
+
+    @Test
+    fun `getCardsFiltered with teamId null`() {
+        `when`(cardRepository.findAll()).thenReturn(sampleCards)
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, null, null)
+        assertEquals(sampleCards.size, result.size) // No team filtering should be applied
+    }
+
+    @Test
+    fun `getCardsFiltered with teamId AND rookieCard true`() {
+        `when`(cardRepository.findAll()).thenReturn(sampleCards)
+        val targetTeamId = team2.id!!
+        val expectedCards = sampleCards.filter { it.player.team.id == targetTeamId && it.rookieCard }
+        val result = cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard = true, null, targetTeamId)
+        assertEquals(expectedCards.size, result.size)
+        assertTrue(result.all { it.player.team.id == targetTeamId && it.rookieCard })
     }
 }

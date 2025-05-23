@@ -92,6 +92,17 @@
     </div>
 
     <div>
+        <label for="teamSelectForm">Team:</label>
+        <select id="teamSelectForm" name="teamId">
+            <option value="">All Teams</option>
+            <option th:each="team : ${teams}"
+                    th:value="${team.id}"
+                    th:text="${team.name}"
+                    th:selected="${param.teamId != null && param.teamId == team.id}"></option>
+        </select>
+    </div>
+
+    <div>
         <label for="seasonSelectForm">Season:</label>
         <select id="seasonSelectForm" name="season">
             <option value="">All Seasons</option>

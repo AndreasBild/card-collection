@@ -33,7 +33,8 @@ class CardController(
         @RequestParam(required = false) autograph: Boolean?, // New
         @RequestParam(required = false) variantId: Long?,
         @RequestParam(required = false) rookieCard: Boolean?,
-        @RequestParam(required = false) printRunRangeKey: String? // New parameter
+        @RequestParam(required = false) printRunRangeKey: String?, // New parameter
+        @RequestParam(required = false) teamId: Long? // New parameter
     ): String {
         // Call the new service method that handles combined filtering
         val cards = cardService.getCardsFiltered(
@@ -47,7 +48,8 @@ class CardController(
             autograph = autograph,
             variantId = variantId,
             rookieCard = rookieCard,
-            printRunRangeKey = printRunRangeKey // Pass new parameter
+            printRunRangeKey = printRunRangeKey, // Pass new parameter
+            teamId = teamId // Pass new parameter
         )
         model.addAttribute("cards", cards)
 
@@ -59,7 +61,9 @@ class CardController(
         model.addAttribute("sports", cardService.getAllSports())
         model.addAttribute("seasons", cardService.getAllSeasons())
         model.addAttribute("variants", cardService.getAllVariants())
-        model.addAttribute("printRunRanges", PrintRunRange.entries.toTypedArray()) // Add PrintRunRange values to model
+        
+        model.addAttribute("printRunRanges", PrintRunRange.values()) // Add PrintRunRange values to model
+        model.addAttribute("teams", cardService.getAllTeams()) // Add Teams to model
 
         return "cards" // Returns the "cards.html" view
     }
