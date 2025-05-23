@@ -35,13 +35,29 @@ class CardService(
         return cardRepository.findAllByPlayerId(id)
     }
 
+    // Assuming findAllByRookieCardId was a typo and meant to be something else or is redundant.
+    // If it was intended to be distinct from findAllByPlayerId, its logic needs clarification.
+    // For now, I'll keep it calling findAllByPlayerId but with the corrected return type.
+    // Or remove if it's a duplicate of findAllByPlayerId.
+    // Based on current implementation, it's identical to findAllByPlayerId.
+    // Let's assume it was a copy-paste error and remove it for now to avoid confusion.
+    // fun findAllByRookieCardId(id: Long): List<Card> {
+    //     return cardRepository.findAllByPlayerId(id)
+    // }
+
     fun findAllById(id: Long): List<Card> { // Corrected method name
         return cardRepository.findAllById(id)
+    }
+
+    fun findAllByAutograph(autograph: Boolean): List<Card> {
+        return cardRepository.findAllByAutograph(autograph)
     }
 
     fun findAllByGameUsedMaterial(gameUsedMaterial: Boolean): List<Card> {
         return cardRepository.findAllByGameUsedMaterial(gameUsedMaterial)
     }
+
+    fun getCardById(id: Long): Card? = cardRepository.findById(id).orElse(null)
 
     // New service methods for filtering cards
     fun getCardsByManufacturerId(manufacturerId: Long): List<Card> {
@@ -136,12 +152,20 @@ class CardService(
     }
 
     // New service methods to fetch data for filter dropdowns
-    fun getAllBrands(): List<CardBrand> {
-        return cardBrandRepository.findAll()
+    fun getAllBrands(manufacturerId: Long? = null): List<CardBrand> {
+        return if (manufacturerId != null) {
+            cardBrandRepository.findAllByManufacturerIdOrderByNameAsc(manufacturerId)
+        } else {
+            cardBrandRepository.findAllByOrderByNameAsc()
+        }
     }
 
-    fun getAllThemes(): List<CardTheme> {
-        return cardThemeRepository.findAll()
+    fun getAllThemes(manufacturerId: Long? = null, brandId: Long? = null): List<CardTheme> {
+        return when {
+            brandId != null -> cardThemeRepository.findAllByBrandIdOrderByNameAsc(brandId)
+            manufacturerId != null -> cardThemeRepository.findAllByBrandManufacturerIdOrderByNameAsc(manufacturerId)
+            else -> cardThemeRepository.findAllByOrderByNameAsc()
+        }
     }
 
     fun getAllSports(): List<Sport> {
