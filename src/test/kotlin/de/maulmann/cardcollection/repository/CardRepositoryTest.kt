@@ -38,14 +38,14 @@ class CardRepositoryTest {
 
         // Setup other necessary entities like Player, Team, Sport, Manufacturer, Brand, Theme
         val sport = Sport(name = "Basketball")
-        entityManager.persist(sport)
-        val team = Team(name = "Any Team", sport = sport)
-        entityManager.persist(team)
+        entityManager.persistAndFlush(sport) // Ensure sport is managed and ID is available
+        val team = Team(name = "Any Team") // Team constructor does not take sport
+        entityManager.persistAndFlush(team) // Ensure team is managed
         // Player needs sport and team.
         val player = Player(name = "John", surname = "Doe", team = team, sport = sport)
-        entityManager.persist(player)
+        entityManager.persistAndFlush(player) // Ensure player is managed
         
-        val manufacturer = CardManufacturer(name = "Panini")
+        val manufacturer = CardManufacturer(name = "Panini") // CardManufacturer constructor does not take sport
         entityManager.persist(manufacturer)
         // CardBrand needs manufacturer.
         val brand = CardBrand(name = "Prizm", manufacturer = manufacturer)
@@ -79,12 +79,12 @@ class CardRepositoryTest {
         // Ensure some variants and cards exist to make the test meaningful,
         // but none that will match the nonExistentVariantId.
         val sport = Sport(name = "Soccer")
-        entityManager.persist(sport)
-        val team = Team(name = "Another Team", sport = sport)
-        entityManager.persist(team)
+        entityManager.persistAndFlush(sport) // Ensure sport is managed and ID is available
+        val team = Team(name = "Another Team") // Team constructor does not take sport
+        entityManager.persistAndFlush(team) // Ensure team is managed
         val player = Player(name = "Jane", surname = "Doe", team = team, sport = sport)
-        entityManager.persist(player)
-        val manufacturer = CardManufacturer(name = "Topps")
+        entityManager.persistAndFlush(player) // Ensure player is managed
+        val manufacturer = CardManufacturer(name = "Topps") // CardManufacturer constructor does not take sport
         entityManager.persist(manufacturer)
         val brand = CardBrand(name = "Chrome", manufacturer = manufacturer)
         entityManager.persist(brand)
@@ -111,12 +111,12 @@ class CardRepositoryTest {
 
         // Ensure other cards and variants exist to make the test meaningful
         val sport = Sport(name = "Baseball")
-        entityManager.persist(sport)
-        val team = Team(name = "Yet Another Team", sport = sport)
-        entityManager.persist(team)
+        entityManager.persistAndFlush(sport) // Ensure sport is managed and ID is available
+        val team = Team(name = "Yet Another Team") // Team constructor does not take sport
+        entityManager.persistAndFlush(team) // Ensure team is managed
         val player = Player(name = "Jim", surname = "Beam", team = team, sport = sport)
-        entityManager.persist(player)
-        val manufacturer = CardManufacturer(name = "Upper Deck")
+        entityManager.persistAndFlush(player) // Ensure player is managed
+        val manufacturer = CardManufacturer(name = "Upper Deck") // CardManufacturer constructor does not take sport
         entityManager.persist(manufacturer)
         val brand = CardBrand(name = "Artifacts", manufacturer = manufacturer)
         entityManager.persist(brand)
@@ -134,10 +134,10 @@ class CardRepositoryTest {
 
     // Helper function to set up common entities to avoid repetition
     private fun setupCommonEntities(): Triple<Player, CardTheme, Variant> {
-        val sport = Sport(name = "TestSportCommon"); entityManager.persist(sport)
-        val team = Team(name = "TestTeamCommon", sport = sport); entityManager.persist(team)
-        val player = Player(name = "TestPlayerCommon", surname = "TestSurnameCommon", team = team, sport = sport); entityManager.persist(player)
-        val manufacturer = CardManufacturer(name = "TestManuCommon"); entityManager.persist(manufacturer)
+        val sport = Sport(name = "TestSportCommon"); entityManager.persistAndFlush(sport) // Ensure sport is managed
+        val team = Team(name = "TestTeamCommon"); entityManager.persistAndFlush(team) // Ensure team is managed (Team constructor does not take sport)
+        val player = Player(name = "TestPlayerCommon", surname = "TestSurnameCommon", team = team, sport = sport); entityManager.persistAndFlush(player) // Ensure player is managed
+        val manufacturer = CardManufacturer(name = "TestManuCommon"); entityManager.persist(manufacturer) // CardManufacturer constructor does not take sport
         val brand = CardBrand(name = "TestBrandCommon", manufacturer = manufacturer); entityManager.persist(brand)
         val theme = CardTheme(name = "TestThemeCommon", brand = brand); entityManager.persist(theme)
         val variant = Variant(name = "TestVariantCommon"); entityManager.persist(variant)
@@ -149,10 +149,10 @@ class CardRepositoryTest {
     fun `should find cards by exact printRun`() {
         val (player, theme, variant) = setupCommonEntities()
 
-        val cardPR1 = Card(player = player, theme = theme, variant = variant, printRun = 1, serialNumber = 1, season = "S1", number = "N1")
-        val cardPR10 = Card(player = player, theme = theme, variant = variant, printRun = 10, serialNumber = 2, season = "S2", number = "N2")
-        val cardPR50 = Card(player = player, theme = theme, variant = variant, printRun = 50, serialNumber = 3, season = "S3", number = "N3")
-        val anotherCardPR1 = Card(player = player, theme = theme, variant = variant, printRun = 1, serialNumber = 4, season = "S4", number = "N4")
+        val cardPR1 = Card(player = player, theme = theme, variant = variant, printRun = 1, serialNumber = 1, season = "S1", number = "N1", rookieCard = false, gameUsedMaterial = false, autograph = false)
+        val cardPR10 = Card(player = player, theme = theme, variant = variant, printRun = 10, serialNumber = 2, season = "S2", number = "N2", rookieCard = true, gameUsedMaterial = false, autograph = false)
+        val cardPR50 = Card(player = player, theme = theme, variant = variant, printRun = 50, serialNumber = 3, season = "S3", number = "N3", rookieCard = false, gameUsedMaterial = true, autograph = false)
+        val anotherCardPR1 = Card(player = player, theme = theme, variant = variant, printRun = 1, serialNumber = 4, season = "S4", number = "N4", rookieCard = false, gameUsedMaterial = false, autograph = true)
 
         entityManager.persist(cardPR1)
         entityManager.persist(cardPR10)
@@ -178,7 +178,7 @@ class CardRepositoryTest {
         
         // Test for printRun = 0 (assuming printRun is non-negative, and 0 means not specified or very rare)
         // If 0 is a valid print run value you want to test, ensure some cards have printRun = 0
-        val cardPR0 = Card(player = player, theme = theme, variant = variant, printRun = 0, serialNumber = 5, season = "S5", number = "N5")
+        val cardPR0 = Card(player = player, theme = theme, variant = variant, printRun = 0, serialNumber = 5, season = "S5", number = "N5", rookieCard = false, gameUsedMaterial = false, autograph = false)
         entityManager.persist(cardPR0)
         entityManager.flush()
         foundCards = cardRepository.findAllByPrintRun(0)
@@ -192,10 +192,10 @@ class CardRepositoryTest {
         val (player, theme, variant) = setupCommonEntities()
 
         // Using slightly different print runs for this test
-        val cardPR1_gt = Card(player = player, theme = theme, variant = variant, printRun = 1, serialNumber = 11, season = "S11", number = "N11")
-        val cardPR10_gt = Card(player = player, theme = theme, variant = variant, printRun = 10, serialNumber = 12, season = "S12", number = "N12")
-        val cardPR50_gt = Card(player = player, theme = theme, variant = variant, printRun = 50, serialNumber = 13, season = "S13", number = "N13")
-        val cardPR0_gt = Card(player = player, theme = theme, variant = variant, printRun = 0, serialNumber = 14, season = "S14", number = "N14") // Card with printRun = 0
+        val cardPR1_gt = Card(player = player, theme = theme, variant = variant, printRun = 1, serialNumber = 11, season = "S11", number = "N11", rookieCard = false, gameUsedMaterial = false, autograph = false)
+        val cardPR10_gt = Card(player = player, theme = theme, variant = variant, printRun = 10, serialNumber = 12, season = "S12", number = "N12", rookieCard = true, gameUsedMaterial = true, autograph = false)
+        val cardPR50_gt = Card(player = player, theme = theme, variant = variant, printRun = 50, serialNumber = 13, season = "S13", number = "N13", rookieCard = false, gameUsedMaterial = false, autograph = true)
+        val cardPR0_gt = Card(player = player, theme = theme, variant = variant, printRun = 0, serialNumber = 14, season = "S14", number = "N14", rookieCard = true, gameUsedMaterial = false, autograph = true) // Card with printRun = 0
 
         entityManager.persist(cardPR1_gt)
         entityManager.persist(cardPR10_gt)
