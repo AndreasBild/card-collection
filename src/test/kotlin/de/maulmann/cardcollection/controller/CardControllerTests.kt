@@ -4,6 +4,7 @@ import de.maulmann.cardcollection.model.*
 import de.maulmann.cardcollection.service.CardManufacturerService
 import de.maulmann.cardcollection.service.CardService
 import de.maulmann.cardcollection.service.PlayerService
+import de.maulmann.cardcollection.service.PrintRunRange // Import PrintRunRange
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
@@ -60,7 +61,7 @@ class CardControllerTests {
 
     @Test
     fun `getCards when no parameters should call getCardsFiltered with nulls and return cards view`() {
-        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null))
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, null))
             .thenReturn(sampleCards)
 
         mockMvc.perform(get("/cards"))
@@ -75,14 +76,15 @@ class CardControllerTests {
             .andExpect(model().attributeExists("sports"))
             .andExpect(model().attributeExists("seasons"))
             .andExpect(model().attributeExists("variants")) // Check for variants
+            .andExpect(model().attributeExists("printRunRanges")) // Check for printRunRanges
 
-        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, null, null)
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, null, null, null)
     }
 
     @Test
     fun `getCards with gameUsed true should call getCardsFiltered with gameUsed true`() {
         val gameUsed = true
-        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, gameUsed, null, null, null))
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, gameUsed, null, null, null, null))
             .thenReturn(sampleCards.filter { it.gameUsedMaterial == gameUsed })
 
         mockMvc.perform(get("/cards").param("gameUsed", gameUsed.toString()))
@@ -90,14 +92,15 @@ class CardControllerTests {
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
             .andExpect(model().attributeExists("variants"))
+            .andExpect(model().attributeExists("printRunRanges"))
 
-        verify(cardService).getCardsFiltered(null, null, null, null, null, null, gameUsed, null, null, null)
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, gameUsed, null, null, null, null)
     }
 
     @Test
     fun `getCards with autograph false should call getCardsFiltered with autograph false`() {
         val autograph = false
-        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, autograph, null, null))
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, autograph, null, null, null))
             .thenReturn(sampleCards.filter { it.autograph == autograph })
 
         mockMvc.perform(get("/cards").param("autograph", autograph.toString()))
@@ -105,8 +108,9 @@ class CardControllerTests {
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
             .andExpect(model().attributeExists("variants"))
+            .andExpect(model().attributeExists("printRunRanges"))
 
-        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, autograph, null, null)
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, autograph, null, null, null)
     }
 
     @Test
@@ -114,7 +118,7 @@ class CardControllerTests {
         val manufacturerId = 1L
         val gameUsed = true
         val autograph = false
-        `when`(cardService.getCardsFiltered(manufacturerId, null, null, null, null, null, gameUsed, autograph, null, null))
+        `when`(cardService.getCardsFiltered(manufacturerId, null, null, null, null, null, gameUsed, autograph, null, null, null))
             .thenReturn(sampleCards) // Actual filtering is tested in service layer
 
         mockMvc.perform(get("/cards")
@@ -125,15 +129,16 @@ class CardControllerTests {
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
             .andExpect(model().attributeExists("variants"))
+            .andExpect(model().attributeExists("printRunRanges"))
 
-        verify(cardService).getCardsFiltered(manufacturerId, null, null, null, null, null, gameUsed, autograph, null, null)
+        verify(cardService).getCardsFiltered(manufacturerId, null, null, null, null, null, gameUsed, autograph, null, null, null)
     }
 
     @Test
     fun `getCards with season and playerId`() {
         val season = "1997-98"
         val playerId = 1L
-        `when`(cardService.getCardsFiltered(null, null, null, null, playerId, season, null, null, null, null))
+        `when`(cardService.getCardsFiltered(null, null, null, null, playerId, season, null, null, null, null, null))
             .thenReturn(sampleCards)
 
         mockMvc.perform(get("/cards")
@@ -143,12 +148,13 @@ class CardControllerTests {
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
             .andExpect(model().attributeExists("variants"))
+            .andExpect(model().attributeExists("printRunRanges"))
 
-        verify(cardService).getCardsFiltered(null, null, null, null, playerId, season, null, null, null, null)
+        verify(cardService).getCardsFiltered(null, null, null, null, playerId, season, null, null, null, null, null)
     }
     
     @Test
-    fun `getCards with all parameters set excluding new ones`() {
+    fun `getCards with all parameters set excluding new ones and printRunRangeKey`() {
         val manufacturerId = 1L
         val brandId = 1L
         val themeId = 1L
@@ -158,7 +164,7 @@ class CardControllerTests {
         val gameUsed = true
         val autograph = false
 
-        `when`(cardService.getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph, null, null))
+        `when`(cardService.getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph, null, null, null))
             .thenReturn(sampleCards)
 
         mockMvc.perform(get("/cards")
@@ -174,14 +180,15 @@ class CardControllerTests {
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
             .andExpect(model().attributeExists("variants"))
+            .andExpect(model().attributeExists("printRunRanges"))
 
-        verify(cardService).getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph, null, null)
+        verify(cardService).getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph, null, null, null)
     }
 
     @Test
     fun `getCards with variantId should call getCardsFiltered with variantId`() {
         val variantId = 123L
-        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, variantId, null))
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, variantId, null, null))
             .thenReturn(sampleCards)
 
         mockMvc.perform(get("/cards").param("variantId", variantId.toString()))
@@ -189,14 +196,15 @@ class CardControllerTests {
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
             .andExpect(model().attributeExists("variants"))
+            .andExpect(model().attributeExists("printRunRanges"))
 
-        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, variantId, null)
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, variantId, null, null)
     }
 
     @Test
     fun `getCards with rookieCard true should call getCardsFiltered with rookieCard true`() {
         val rookieCard = true
-        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard))
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard, null))
             .thenReturn(sampleCards)
 
         mockMvc.perform(get("/cards").param("rookieCard", rookieCard.toString()))
@@ -204,14 +212,15 @@ class CardControllerTests {
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
             .andExpect(model().attributeExists("variants"))
+            .andExpect(model().attributeExists("printRunRanges"))
 
-        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard)
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard, null)
     }
 
     @Test
     fun `getCards with rookieCard false should call getCardsFiltered with rookieCard false`() {
         val rookieCard = false
-        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard))
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard, null))
             .thenReturn(sampleCards)
 
         mockMvc.perform(get("/cards").param("rookieCard", rookieCard.toString()))
@@ -219,15 +228,16 @@ class CardControllerTests {
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
             .andExpect(model().attributeExists("variants"))
+            .andExpect(model().attributeExists("printRunRanges"))
 
-        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard)
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard, null)
     }
 
     @Test
     fun `getCards with variantId and rookieCard true should call getCardsFiltered with both`() {
         val variantId = 456L
         val rookieCard = true
-        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, variantId, rookieCard))
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, variantId, rookieCard, null))
             .thenReturn(sampleCards)
 
         mockMvc.perform(get("/cards")
@@ -237,12 +247,13 @@ class CardControllerTests {
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
             .andExpect(model().attributeExists("variants"))
+            .andExpect(model().attributeExists("printRunRanges"))
 
-        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, variantId, rookieCard)
+        verify(cardService).getCardsFiltered(null, null, null, null, null, null, null, null, variantId, rookieCard, null)
     }
     
     @Test
-    fun `getCards with all parameters set including new ones`() {
+    fun `getCards with all parameters set including new ones but printRunRangeKey`() {
         val manufacturerId = 1L
         val brandId = 2L
         val themeId = 3L
@@ -254,7 +265,7 @@ class CardControllerTests {
         val variantId = 789L
         val rookieCard = false
 
-        `when`(cardService.getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph, variantId, rookieCard))
+        `when`(cardService.getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph, variantId, rookieCard, null))
             .thenReturn(sampleCards)
 
         mockMvc.perform(get("/cards")
@@ -272,7 +283,50 @@ class CardControllerTests {
             .andExpect(view().name("cards"))
             .andExpect(model().attributeExists("cards"))
             .andExpect(model().attributeExists("variants"))
+            .andExpect(model().attributeExists("printRunRanges"))
 
-        verify(cardService).getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph, variantId, rookieCard)
+        verify(cardService).getCardsFiltered(manufacturerId, brandId, themeId, sportId, playerId, season, gameUsed, autograph, variantId, rookieCard, null)
+    }
+
+    @Test
+    fun `getCards with printRunRangeKey should call getCardsFiltered with printRunRangeKey`() {
+        val printRunRangeKey = "LE_100"
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, null, printRunRangeKey))
+            .thenReturn(sampleCards)
+
+        mockMvc.perform(get("/cards").param("printRunRangeKey", printRunRangeKey))
+            .andExpect(status().isOk)
+            .andExpect(view().name("cards"))
+            .andExpect(model().attributeExists("cards"))
+            .andExpect(model().attributeExists("variants"))
+            .andExpect(model().attributeExists("printRunRanges"))
+            .andExpect(model().attribute("printRunRanges", PrintRunRange.values()))
+
+
+        verify(cardService).getCardsFiltered(
+            eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(printRunRangeKey)
+        )
+    }
+
+    @Test
+    fun `getCards with printRunRangeKey and rookieCard true should call getCardsFiltered with both`() {
+        val printRunRangeKey = "ONE"
+        val rookieCard = true
+        `when`(cardService.getCardsFiltered(null, null, null, null, null, null, null, null, null, rookieCard, printRunRangeKey))
+            .thenReturn(sampleCards)
+
+        mockMvc.perform(get("/cards")
+            .param("printRunRangeKey", printRunRangeKey)
+            .param("rookieCard", rookieCard.toString()))
+            .andExpect(status().isOk)
+            .andExpect(view().name("cards"))
+            .andExpect(model().attributeExists("cards"))
+            .andExpect(model().attributeExists("variants"))
+            .andExpect(model().attributeExists("printRunRanges"))
+            .andExpect(model().attribute("printRunRanges", PrintRunRange.values()))
+
+        verify(cardService).getCardsFiltered(
+            eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(rookieCard), eq(printRunRangeKey)
+        )
     }
 }

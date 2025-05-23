@@ -10,6 +10,7 @@ import de.maulmann.cardcollection.repository.CardRepository
 import de.maulmann.cardcollection.repository.CardThemeRepository
 import de.maulmann.cardcollection.repository.SportRepository
 import de.maulmann.cardcollection.repository.VariantRepository
+import de.maulmann.cardcollection.service.PrintRunRange // Import PrintRunRange
 import org.springframework.stereotype.Service
 
 @Service
@@ -43,10 +44,6 @@ class CardService(
 
     fun findAllById(id: Long): List<Card> { // Corrected method name
         return cardRepository.findAllById(id)
-    }
-
-    fun findAllByPrintRunIsLessThan(printRunIsLessThan: Int): List<Card> {
-        return cardRepository.findAllByPrintRunLessThanEqual(printRunIsLessThan)
     }
 
     fun findAllByAutograph(autograph: Boolean): List<Card> {
@@ -90,11 +87,26 @@ class CardService(
         gameUsed: Boolean?, // New
         autograph: Boolean?,  // New
         variantId: Long?,
-        rookieCard: Boolean?
+        rookieCard: Boolean?,
+        printRunRangeKey: String? // New parameter
     ): List<Card> {
         // Initial approach: Fetch all cards and then filter iteratively.
         // This can be optimized later with JPA Specifications if performance becomes an issue.
         var filteredCards = cardRepository.findAll() // Start with all cards
+
+        // Print Run Filtering Logic
+        val selectedPrintRunRange = PrintRunRange.fromKey(printRunRangeKey)
+        selectedPrintRunRange?.let { range ->
+            filteredCards = when (range) {
+                PrintRunRange.ONE -> filteredCards.filter { card -> card.printRun == 1 }
+                PrintRunRange.LE_10 -> filteredCards.filter { card -> card.printRun > 0 && card.printRun <= 10 }
+                PrintRunRange.LE_50 -> filteredCards.filter { card -> card.printRun > 0 && card.printRun <= 50 }
+                PrintRunRange.LE_100 -> filteredCards.filter { card -> card.printRun > 0 && card.printRun <= 100 }
+                PrintRunRange.LE_500 -> filteredCards.filter { card -> card.printRun > 0 && card.printRun <= 500 }
+                PrintRunRange.LE_1000 -> filteredCards.filter { card -> card.printRun > 0 && card.printRun <= 1000 }
+                PrintRunRange.ALL_WITH_PRINT_RUN -> filteredCards.filter { card -> card.printRun > 0 }
+            }
+        }
 
         manufacturerId?.let {
             filteredCards = filteredCards.filter { card -> card.theme.brand.manufacturer.id == it }
