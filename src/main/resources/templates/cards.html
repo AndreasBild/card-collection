@@ -22,65 +22,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="../css/main.css" rel="stylesheet" type="text/css">
     <meta name="robots" content="index,follow">
-    <style>
-        /* Filter Layout Styles */
-        .filter-form {
-            display: flex;
-            flex-wrap: wrap; /* Allow items to wrap to the next line on smaller screens */
-            align-items: center; /* Align items nicely if they have different heights */
-            gap: 15px; /* Spacing between filter groups and buttons */
-            margin-bottom: 20px; /* Space below the entire filter bar */
-        }
 
-        /* Remove bottom margin from individual filter divs if gap is handling spacing */
-        .filter-form div {
-            margin-bottom: 0; 
-            /* Optionally, if each filter group should grow:
-            display: flex;
-            flex-direction: column; 
-            flex-grow: 1; */
-        }
-
-        .filter-form label {
-            display: block; /* Make labels take their own line above select */
-            margin-bottom: 3px; /* Small space between label and select */
-            font-size: 0.9em;
-            margin-right: 0; /* Reset original margin-right as label is now block */
-        }
-
-        .filter-form select {
-            width: 180px; /* Uniform width for dropdowns */
-            padding: 8px; /* Slightly larger padding for better touch interaction */
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box; /* Important for width calculation if padding/border is added */
-        }
-        
-        /* Original button styles - will be largely overridden or complemented by new styles below */
-        /* .filter-form button { padding: 8px 15px; } */ /* Covered by new styles or default browser */
-        /* .filter-form .button { text-decoration: none; padding: 8px 15px; background-color: #f0f0f0; color: #333; border: 1px solid #ccc; border-radius: 4px; } */ /* Overridden */
-        /* .filter-form .button:hover { background-color: #e0e0e0; } */ /* Overridden */
-
-        /* Button Styles (from previous step, ensure they align with flex layout) */
-        .filter-form button[type="submit"],
-        .filter-form a.button {
-            background-color: #FFA500; /* Orange */
-            color: white; /* White text for better contrast on orange */
-            border: 1px solid #E69500; /* Darker orange border */
-            border-radius: 4px;
-            padding: 8px 15px;
-            text-decoration: none; /* For the <a> tag styled as a button */
-            cursor: pointer; /* Indicate clickable */
-            font-weight: bold; /* Make text a bit bolder */
-        }
-
-        .filter-form button[type="submit"]:hover,
-        .filter-form a.button:hover {
-            background-color: #E69500; /* Darker Orange for hover */
-            color: white; /* Keep text white on hover */
-            border-color: #CC7A00; /* Even darker border for hover */
-        }
-    </style>
 </head>
 <body>
 <h1>Card Collection</h1>
@@ -212,7 +154,6 @@
                     th:selected="${param.printRunRangeKey != null && param.printRunRangeKey == prRange.key}"></option>
         </select>
     </div>
-
     <button type="submit">Filter</button>
     <a th:href="@{/cards}" class="button">Clear Filters</a>
 </form>
