@@ -61,8 +61,7 @@ class CardController(
         model.addAttribute("sports", cardService.getAllSports())
         model.addAttribute("seasons", cardService.getAllSeasons())
         model.addAttribute("variants", cardService.getAllVariants())
-        
-        model.addAttribute("printRunRanges", PrintRunRange.entries.toTypedArray())
+        model.addAttribute("printRunRanges", PrintRunRange.values()) // Add PrintRunRange values to model
         model.addAttribute("teams", cardService.getAllTeams()) // Add Teams to model
 
         return "cards" // Returns the "cards.html" view
