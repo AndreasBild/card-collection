@@ -20,6 +20,7 @@ class CardThemeRepositoryTest {
 
     // Helper to create common entities
     private fun setupManufacturerAndBrand(mName: String, bName: String): CardBrand {
+        // Sport is not a direct property of CardManufacturer or Team
         val manufacturer = CardManufacturer(name = mName)
         entityManager.persist(manufacturer)
         entityManager.flush() // Ensure manufacturer ID is generated
@@ -45,7 +46,8 @@ class CardThemeRepositoryTest {
         val themes = cardThemeRepository.findAllByBrandIdOrderByNameAsc(brand1.id!!)
         
         assertThat(themes).hasSize(2)
-        assertThat(themes).extracting(CardTheme::name).containsExactly("Prizm Theme A", "Prizm Theme C")
+        val extractedNames: List<String> = themes.map { it.name }
+        assertThat(extractedNames).containsExactlyElementsOf(listOf("Prizm Theme A", "Prizm Theme C"))
         assertThat(themes).allSatisfy { theme ->
             assertThat(theme.brand.id).isEqualTo(brand1.id)
         }
@@ -67,6 +69,7 @@ class CardThemeRepositoryTest {
 
     @Test
     fun `should find all themes by brand manufacturer id ordered by name ascending`() {
+        // Sport instances are not directly related to CardManufacturer
         val manufacturer1 = CardManufacturer(name = "Panini M1")
         entityManager.persist(manufacturer1)
         entityManager.flush()
@@ -99,7 +102,8 @@ class CardThemeRepositoryTest {
         
         assertThat(themes).hasSize(2)
         // Order should be by theme name, across brands of the same manufacturer
-        assertThat(themes).extracting(CardTheme::name).containsExactly("Theme X for B1M1", "Theme Z for A2M1")
+        val extractedNamesForManu: List<String> = themes.map { it.name }
+        assertThat(extractedNamesForManu).containsExactlyElementsOf(listOf("Theme X for B1M1", "Theme Z for A2M1"))
         assertThat(themes).allSatisfy { theme ->
             assertThat(theme.brand.manufacturer.id).isEqualTo(manufacturer1.id)
         }
@@ -107,6 +111,7 @@ class CardThemeRepositoryTest {
 
     @Test
     fun `should return empty list when no themes match manufacturer id for findAllByBrandManufacturerId`() {
+        // Sport instances are not directly related to CardManufacturer
         val manufacturer1 = CardManufacturer(name = "Panini M1")
         entityManager.persist(manufacturer1)
         val manufacturerWithNoThemes = CardManufacturer(name = "EmptyManufacturer")
@@ -140,7 +145,8 @@ class CardThemeRepositoryTest {
         val themes = cardThemeRepository.findAllByOrderByNameAsc()
         
         assertThat(themes).hasSize(3)
-        assertThat(themes).extracting(CardTheme::name).containsExactly("Theme X", "Theme Y", "Theme Z")
+        val extractedNamesGlobal: List<String> = themes.map { it.name }
+        assertThat(extractedNamesGlobal).containsExactlyElementsOf(listOf("Theme X", "Theme Y", "Theme Z"))
     }
 
     @Test

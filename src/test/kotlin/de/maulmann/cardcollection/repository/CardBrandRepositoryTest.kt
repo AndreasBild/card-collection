@@ -19,6 +19,7 @@ class CardBrandRepositoryTest {
 
     @Test
     fun `should find all brands by manufacturer id ordered by name ascending`() {
+        // Sport is not a direct property of CardManufacturer
         val manufacturer1 = CardManufacturer(name = "Panini")
         val manufacturer2 = CardManufacturer(name = "Topps")
         entityManager.persist(manufacturer1)
@@ -36,7 +37,8 @@ class CardBrandRepositoryTest {
         val brands = cardBrandRepository.findAllByManufacturerIdOrderByNameAsc(manufacturer1.id!!)
         
         assertThat(brands).hasSize(2)
-        assertThat(brands).extracting(CardBrand::name).containsExactly("Donruss A", "Prizm C")
+        val extractedNames: List<String> = brands.map { it.name }
+        assertThat(extractedNames).containsExactlyElementsOf(listOf("Donruss A", "Prizm C"))
         assertThat(brands).allSatisfy { brand ->
             assertThat(brand.manufacturer.id).isEqualTo(manufacturer1.id)
         }
@@ -44,6 +46,7 @@ class CardBrandRepositoryTest {
 
     @Test
     fun `should return empty list when no brands match manufacturer id`() {
+        // Sport is not a direct property of CardManufacturer
         val manufacturer1 = CardManufacturer(name = "Panini")
         val manufacturer2 = CardManufacturer(name = "Topps") // Exists but no brands linked for this test
         entityManager.persist(manufacturer1)
@@ -60,6 +63,7 @@ class CardBrandRepositoryTest {
 
     @Test
     fun `should find all brands ordered by name ascending`() {
+        // Sport is not a direct property of CardManufacturer
         val manufacturer1 = CardManufacturer(name = "Panini")
         val manufacturer2 = CardManufacturer(name = "Topps")
         entityManager.persist(manufacturer1)
@@ -81,7 +85,8 @@ class CardBrandRepositoryTest {
         val brands = cardBrandRepository.findAllByOrderByNameAsc()
         
         assertThat(brands).hasSize(4)
-        assertThat(brands).extracting(CardBrand::name).containsExactly("Alpha A", "Museum M", "Select X", "Zenith Z")
+        val extractedNamesGlobal: List<String> = brands.map { it.name }
+        assertThat(extractedNamesGlobal).containsExactlyElementsOf(listOf("Alpha A", "Museum M", "Select X", "Zenith Z"))
     }
 
     @Test
