@@ -9,7 +9,9 @@ import org.springframework.data.repository.query.QueryByExampleExecutor
 
 interface CardRepository : JpaRepository<Card, Long>, QueryByExampleExecutor<Card> {
     fun findAllByRookieCard(rookieCard: Boolean): List<Card>
+    fun findAllByPrintRun(printRun: Int): List<Card>
     fun findAllByPrintRunLessThanEqual(printRunIsLessThan: Int): List<Card>
+    fun findAllByPrintRunGreaterThan(value: Int): List<Card>
     fun findAllByPlayerId(id: Long): List<Card>
     fun findAllById(id: Long): List<Card> // Consider if this is needed, JpaRepository has findById
     fun findAllByAutograph(autograph: Boolean): List<Card>

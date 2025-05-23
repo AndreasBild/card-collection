@@ -140,6 +140,17 @@
         </select>
     </div>
 
+    <div>
+        <label for="printRunRangeSelectForm">Print Run:</label>
+        <select id="printRunRangeSelectForm" name="printRunRangeKey">
+            <option value="">Any</option> <!-- Default option -->
+            <option th:each="prRange : ${printRunRanges}"
+                    th:value="${prRange.key}"
+                    th:text="${prRange.displayName}"
+                    th:selected="${param.printRunRangeKey != null && param.printRunRangeKey == prRange.key}"></option>
+        </select>
+    </div>
+
     <button type="submit">Filter</button>
     <a th:href="@{/cards}" class="button">Clear Filters</a>
 </form>

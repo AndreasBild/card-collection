@@ -131,4 +131,98 @@ class CardRepositoryTest {
         val foundCards = cardRepository.findAllByVariantId(variantWithNoCards.id!!)
         assertThat(foundCards).isEmpty()
     }
+
+    // Helper function to set up common entities to avoid repetition
+    private fun setupCommonEntities(): Triple<Player, CardTheme, Variant> {
+        val sport = Sport(name = "TestSportCommon"); entityManager.persist(sport)
+        val team = Team(name = "TestTeamCommon", sport = sport); entityManager.persist(team)
+        val player = Player(name = "TestPlayerCommon", surname = "TestSurnameCommon", team = team, sport = sport); entityManager.persist(player)
+        val manufacturer = CardManufacturer(name = "TestManuCommon"); entityManager.persist(manufacturer)
+        val brand = CardBrand(name = "TestBrandCommon", manufacturer = manufacturer); entityManager.persist(brand)
+        val theme = CardTheme(name = "TestThemeCommon", brand = brand); entityManager.persist(theme)
+        val variant = Variant(name = "TestVariantCommon"); entityManager.persist(variant)
+        entityManager.flush()
+        return Triple(player, theme, variant)
+    }
+
+    @Test
+    fun `should find cards by exact printRun`() {
+        val (player, theme, variant) = setupCommonEntities()
+
+        val cardPR1 = Card(player = player, theme = theme, variant = variant, printRun = 1, serialNumber = 1, season = "S1", number = "N1")
+        val cardPR10 = Card(player = player, theme = theme, variant = variant, printRun = 10, serialNumber = 2, season = "S2", number = "N2")
+        val cardPR50 = Card(player = player, theme = theme, variant = variant, printRun = 50, serialNumber = 3, season = "S3", number = "N3")
+        val anotherCardPR1 = Card(player = player, theme = theme, variant = variant, printRun = 1, serialNumber = 4, season = "S4", number = "N4")
+
+        entityManager.persist(cardPR1)
+        entityManager.persist(cardPR10)
+        entityManager.persist(cardPR50)
+        entityManager.persist(anotherCardPR1)
+        entityManager.flush()
+
+        // Test for printRun = 1
+        var foundCards = cardRepository.findAllByPrintRun(1)
+        assertThat(foundCards).hasSize(2)
+        assertThat(foundCards).containsExactlyInAnyOrder(cardPR1, anotherCardPR1)
+        assertThat(foundCards).allMatch { it.printRun == 1 }
+
+        // Test for printRun = 10
+        foundCards = cardRepository.findAllByPrintRun(10)
+        assertThat(foundCards).hasSize(1)
+        assertThat(foundCards).containsExactly(cardPR10)
+        assertThat(foundCards.first().printRun).isEqualTo(10)
+        
+        // Test for a print run that doesn't exist
+        foundCards = cardRepository.findAllByPrintRun(999)
+        assertThat(foundCards).isEmpty()
+        
+        // Test for printRun = 0 (assuming printRun is non-negative, and 0 means not specified or very rare)
+        // If 0 is a valid print run value you want to test, ensure some cards have printRun = 0
+        val cardPR0 = Card(player = player, theme = theme, variant = variant, printRun = 0, serialNumber = 5, season = "S5", number = "N5")
+        entityManager.persist(cardPR0)
+        entityManager.flush()
+        foundCards = cardRepository.findAllByPrintRun(0)
+        assertThat(foundCards).hasSize(1)
+        assertThat(foundCards).containsExactly(cardPR0)
+
+    }
+
+    @Test
+    fun `should find cards by printRunGreaterThan`() {
+        val (player, theme, variant) = setupCommonEntities()
+
+        // Using slightly different print runs for this test
+        val cardPR1_gt = Card(player = player, theme = theme, variant = variant, printRun = 1, serialNumber = 11, season = "S11", number = "N11")
+        val cardPR10_gt = Card(player = player, theme = theme, variant = variant, printRun = 10, serialNumber = 12, season = "S12", number = "N12")
+        val cardPR50_gt = Card(player = player, theme = theme, variant = variant, printRun = 50, serialNumber = 13, season = "S13", number = "N13")
+        val cardPR0_gt = Card(player = player, theme = theme, variant = variant, printRun = 0, serialNumber = 14, season = "S14", number = "N14") // Card with printRun = 0
+
+        entityManager.persist(cardPR1_gt)
+        entityManager.persist(cardPR10_gt)
+        entityManager.persist(cardPR50_gt)
+        entityManager.persist(cardPR0_gt)
+        entityManager.flush()
+
+        // Test for printRun > 0
+        // This should exclude cardPR0_gt
+        var foundCards = cardRepository.findAllByPrintRunGreaterThan(0)
+        assertThat(foundCards).hasSize(3)
+        assertThat(foundCards).containsExactlyInAnyOrder(cardPR1_gt, cardPR10_gt, cardPR50_gt)
+        assertThat(foundCards).allMatch { it.printRun > 0 }
+
+        // Test for printRun > 10
+        // This should include cardPR50_gt
+        foundCards = cardRepository.findAllByPrintRunGreaterThan(10)
+        assertThat(foundCards).hasSize(1)
+        assertThat(foundCards).containsExactly(cardPR50_gt)
+        assertThat(foundCards.first().printRun).isEqualTo(50)
+
+        // Test for printRun > 50 (greater than any existing print run)
+        foundCards = cardRepository.findAllByPrintRunGreaterThan(50)
+        assertThat(foundCards).isEmpty()
+        
+        // Test for printRun > 100 (also greater than any existing)
+        foundCards = cardRepository.findAllByPrintRunGreaterThan(100)
+        assertThat(foundCards).isEmpty()
+    }
 }
