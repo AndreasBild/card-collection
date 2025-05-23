@@ -4,10 +4,11 @@ package de.maulmann.cardcollection.repository
 import de.maulmann.cardcollection.model.Card
 //import de.maulmann.cardcollection.model.CardTheme // Unused import
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor // Add this import
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.QueryByExampleExecutor
 
-interface CardRepository : JpaRepository<Card, Long>, QueryByExampleExecutor<Card> {
+interface CardRepository : JpaRepository<Card, Long>, QueryByExampleExecutor<Card>, JpaSpecificationExecutor<Card> { // Add JpaSpecificationExecutor
     fun findAllByRookieCard(rookieCard: Boolean): List<Card>
     fun findAllByPrintRun(printRun: Int): List<Card>
     fun findAllByPrintRunLessThanEqual(printRunIsLessThan: Int): List<Card>
