@@ -18,7 +18,7 @@ enum class PrintRunRange(
     companion object {
         fun fromKey(key: String?): PrintRunRange? {
             // Using .values() is efficient for enums
-            return values().find { it.key == key }
+            return entries.find { it.key == key }
         }
     }
 }
