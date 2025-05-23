@@ -4,11 +4,13 @@ import de.maulmann.cardcollection.model.Card
 import de.maulmann.cardcollection.model.CardBrand
 import de.maulmann.cardcollection.model.CardTheme
 import de.maulmann.cardcollection.model.Sport
+import de.maulmann.cardcollection.model.Team // Import Team
 import de.maulmann.cardcollection.model.Variant
 import de.maulmann.cardcollection.repository.CardBrandRepository
 import de.maulmann.cardcollection.repository.CardRepository
 import de.maulmann.cardcollection.repository.CardThemeRepository
 import de.maulmann.cardcollection.repository.SportRepository
+import de.maulmann.cardcollection.repository.TeamRepository // Import TeamRepository
 import de.maulmann.cardcollection.repository.VariantRepository
 import de.maulmann.cardcollection.service.PrintRunRange // Import PrintRunRange
 import org.springframework.stereotype.Service
@@ -19,7 +21,8 @@ class CardService(
     private val cardBrandRepository: CardBrandRepository,
     private val cardThemeRepository: CardThemeRepository,
     private val sportRepository: SportRepository,
-    private val variantRepository: VariantRepository
+    private val variantRepository: VariantRepository,
+    private val teamRepository: TeamRepository // New injection
 ) {
 
     fun getAllCards(): List<Card> = cardRepository.findAll()
@@ -88,7 +91,8 @@ class CardService(
         autograph: Boolean?,  // New
         variantId: Long?,
         rookieCard: Boolean?,
-        printRunRangeKey: String? // New parameter
+        printRunRangeKey: String?, // New parameter
+        teamId: Long? // New parameter
     ): List<Card> {
         // Initial approach: Fetch all cards and then filter iteratively.
         // This can be optimized later with JPA Specifications if performance becomes an issue.
@@ -140,6 +144,10 @@ class CardService(
         rookieCard?.let { isRookie ->
             filteredCards = filteredCards.filter { card -> card.rookieCard == isRookie }
         }
+
+        teamId?.let { tId ->
+            filteredCards = filteredCards.filter { card -> card.player.team.id == tId }
+        }
         return filteredCards
     }
 
@@ -162,6 +170,10 @@ class CardService(
 
     fun getAllVariants(): List<Variant> {
         return variantRepository.findAll()
+    }
+
+    fun getAllTeams(): List<Team> {
+        return teamRepository.findAll()
     }
 }
 
