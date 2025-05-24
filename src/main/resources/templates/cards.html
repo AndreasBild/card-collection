@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <title>Juwan Howard Basketball Trading Card Collection</title>
     <meta charset="UTF-8">
@@ -365,8 +365,8 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         function changePageSize() {
-            var selectedSize = document.getElementById('pageSizeSelector').value;
-            var currentUrl = new URL(window.location.href);
+            const selectedSize = document.getElementById('pageSizeSelector').value;
+            const currentUrl = new URL(window.location.href);
             currentUrl.searchParams.set('size', selectedSize);
             currentUrl.searchParams.set('page', '0'); // Reset to first page
             window.location.href = currentUrl.toString();
@@ -377,7 +377,6 @@
             const brandSelect = document.getElementById('brandSelectForm');
             const themeSelect = document.getElementById('themeSelectForm');
 
-            const initialManufacturerId = /*[[${param.manufacturerId}]]*/ null;
             const initialBrandId = /*[[${param.brandId}]]*/ null;
             const initialThemeId = /*[[${param.themeId}]]*/ null;
 
@@ -493,11 +492,10 @@
                 }
             });
 
-            // Initial population annd state setting on page load
+            // Initial population and state setting on page load
             async function initializeFilters() {
                 let currentManufacturerId = manufacturerSelect.value; // Value from Thymeleaf (param or empty)
                 let currentBrandId = brandSelect.value; 
-                let currentThemeId = themeSelect.value;
 
                 // If there's an initial manufacturer ID from URL params, it means Thymeleaf has already set it.
                 // We need to ensure the Brand and Theme dropdowns are correctly populated based on this initial manufacturer.
