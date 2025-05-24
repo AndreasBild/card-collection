@@ -43,10 +43,22 @@ class CardController(
         @RequestParam(required = false) sort: String?
     ): String {
         val sortObj = sort?.let {
-            val parts = it.split(",")
-            val direction = if (parts.size > 1 && parts[1].equals("desc", ignoreCase = true)) Sort.Direction.DESC else Sort.Direction.ASC
-            Sort.by(direction, parts[0])
-        } ?: Sort.by("id") // Default sort by ID if not specified
+            val parts = it.split(",").map { it.trim() }
+            if (parts.isEmpty()) {
+                Sort.by("id")
+            } else {
+                val field = parts[0].takeIf { it.isNotBlank() } ?: "id"
+                val direction = when {
+                    parts.size > 1 && parts[1].matches(Regex("desc|DESC|DESCENDING", RegexOption.IGNORE_CASE)) -> Sort.Direction.DESC
+                    else -> Sort.Direction.ASC
+                }
+                try {
+                    Sort.by(direction, field)
+                } catch (e: Exception) {
+                    Sort.by("id") // Fallback bei ungültigem Feld
+                }
+            }
+        } ?: Sort.by("id")
 
         val pageable = PageRequest.of(page, size, sortObj)
 
