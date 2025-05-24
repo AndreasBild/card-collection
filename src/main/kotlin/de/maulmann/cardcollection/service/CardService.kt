@@ -3,6 +3,7 @@ package de.maulmann.cardcollection.service
 import de.maulmann.cardcollection.model.Card
 import de.maulmann.cardcollection.model.CardBrand
 import de.maulmann.cardcollection.model.CardTheme
+import de.maulmann.cardcollection.model.Player
 import de.maulmann.cardcollection.model.Sport
 import de.maulmann.cardcollection.model.Team // Import Team
 import de.maulmann.cardcollection.model.Variant
