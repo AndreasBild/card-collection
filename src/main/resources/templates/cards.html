@@ -154,8 +154,10 @@
                     th:selected="${param.printRunRangeKey != null && param.printRunRangeKey == prRange.key}"></option>
         </select>
     </div>
-    <button type="submit">Filter</button>
-    <a th:href="@{/cards}" class="button">Clear Filters</a>
+    <div class="filter-buttons-container">
+        <button type="submit">Filter</button>
+        <a th:href="@{/cards}" class="button">Clear Filters</a>
+    </div>
 </form>
 <!-- End New Filter Form -->
 

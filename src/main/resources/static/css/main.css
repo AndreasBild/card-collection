@@ -86,3 +86,63 @@ p, th {
     color: white; /* Keep text white on hover */
     border-color: #CC7A00; /* Even darker border for hover */
 }
+
+/* Styles for the filter buttons container */
+.filter-form .filter-buttons-container {
+    display: flex; /* Use flex to align buttons inside */
+    justify-content: flex-start; /* Align buttons to the start of the container */
+    gap: 10px; /* Space between the buttons */
+    width: 100%; /* Make the container take full width to force it onto a new line */
+    margin-top: 10px; /* Add some space above the button row */
+    padding-left: 0; /* Align with the start of the dropdowns if they have no padding */
+}
+
+/* Pagination Styles */
+ul.pagination {
+    list-style-type: none;
+    padding: 0;
+    display: flex; /* Helps align items and manage spacing if needed */
+    justify-content: center; /* Center the pagination buttons */
+    flex-wrap: wrap;
+}
+
+ul.pagination li {
+    margin: 0 2px; /* Spacing between li elements */
+}
+
+ul.pagination li a,
+ul.pagination li span { /* Apply to both links and spans for consistency */
+    display: inline-block;
+    background-color: #FFA500;
+    color: white;
+    border: 1px solid #E69500;
+    border-radius: 4px;
+    padding: 8px 15px;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+ul.pagination li a:hover {
+    background-color: #E69500;
+    color: white;
+    border-color: #CC7A00;
+}
+
+ul.pagination li.active a {
+    background-color: #E69500; /* Active state same as hover for now, or a distinct color */
+    border-color: #CC7A00;
+}
+
+ul.pagination li.active a:hover {
+    background-color: #CC7A00; /* Darker for active hover */
+    border-color: #b36b00;
+}
+
+ul.pagination li.disabled a,
+ul.pagination li.disabled span {
+    background-color: #E0E0E0; /* Lighter gray for disabled */
+    color: #A0A0A0; /* Lighter text for disabled */
+    border-color: #C0C0C0; /* Lighter border */
+    cursor: not-allowed;
+}
