@@ -54,12 +54,21 @@ p, th {
     margin-right: 0; /* Reset original margin-right as label is now block */
 }
 
-.filter-form select {
-    width: 180px; /* Uniform width for dropdowns */
-    padding: 8px; /* Slightly larger padding for better touch interaction */
-    border: 1px solid #ccc;
+.styled-select {
+    width: 180px; /* Or consider making width more flexible or specific per instance */
+    padding: 8px;
+    border: 1px solid #bbb;
     border-radius: 4px;
-    box-sizing: border-box; /* Important for width calculation if padding/border is added */
+    box-sizing: border-box;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.styled-select:focus {
+    border-color: #FFA500;
+    outline: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 0 0 0.2rem rgba(255,165,0,.25);
 }
 
 /* Original button styles - will be largely overridden or complemented by new styles below */
@@ -95,6 +104,29 @@ p, th {
     width: 100%; /* Make the container take full width to force it onto a new line */
     margin-top: 10px; /* Add some space above the button row */
     padding-left: 0; /* Align with the start of the dropdowns if they have no padding */
+}
+
+#pageSizeSelector.styled-select {
+    width: auto; /* Or a more appropriate fixed width like 80px */
+    min-width: 80px;
+}
+
+.pagination-controls {
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    align-items: center;   /* Center children horizontally */
+    gap: 10px;             /* Space between children */
+    margin-top: 20px;      /* Space above the whole section */
+    margin-bottom: 20px;   /* Space below the whole section */
+}
+
+.pagination-info-block {
+    border: 1px solid #e0e0e0; /* Light border */
+    padding: 10px 15px;
+    background-color: #f9f9f9; /* Light background */
+    border-radius: 4px;
+    text-align: center; /* Center text within the block */
+    font-size: 0.9em;
 }
 
 /* Pagination Styles */
