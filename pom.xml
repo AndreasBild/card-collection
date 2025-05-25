@@ -12,7 +12,7 @@
 	<artifactId>card-collection</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Card Collection</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Trading Card Collection application based on Spring Boot</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -27,8 +27,8 @@
 		<url/>
 	</scm>
 	<properties>
-		<java.version>20</java.version>
-		<kotlin.version>2.1.20</kotlin.version>
+		<java.version>23</java.version>
+		<kotlin.version>2.1.21</kotlin.version>
 	</properties>
 	<dependencies>
 		<dependency>
