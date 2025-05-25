@@ -74,15 +74,16 @@ class CardServiceTest {
     private fun createMockVariant(): Variant = mock { // Corrected CardVariant to Variant
         on { id } doReturn 1L
         on { name } doReturn "Silver"
+        on { theme } doReturn createMockTheme() // Ensure variant's theme is set for tests
     }
 
     // Corrected: Removed 'notes' as it's not a property of Card
-    private fun createMockCard(id: Long): Card = Card(
+    private fun createMockCard(id: Long): Card = Card( // This is a direct instantiation, not a mock builder like in controller test
         id = id,
         player = createMockPlayer(),
         season = "1994-95",
-        theme = createMockTheme(),
-        variant = createMockVariant(), // Now calls the corrected createMockVariant returning Variant
+        // theme parameter removed from Card constructor call
+        variant = createMockVariant(), // Variant itself might have a theme setup by createMockVariant
         number = "101",
         printRun = 1000,
         serialNumber = 123,

@@ -67,15 +67,24 @@ class CardService(
 
     // New service methods for filtering cards
     fun getCardsByManufacturerId(manufacturerId: Long): List<Card> {
-        return cardRepository.findAllByThemeBrandManufacturerId(manufacturerId)
+        val spec = Specification<Card> { root, _, cb ->
+            cb.equal(root.get<Variant>("variant").get<CardTheme>("theme").get<CardBrand>("brand").get<CardManufacturer>("manufacturer").get<Long>("id"), manufacturerId)
+        }
+        return cardRepository.findAll(spec)
     }
 
     fun getCardsByBrandId(brandId: Long): List<Card> {
-        return cardRepository.findAllByThemeBrandId(brandId)
+        val spec = Specification<Card> { root, _, cb ->
+            cb.equal(root.get<Variant>("variant").get<CardTheme>("theme").get<CardBrand>("brand").get<Long>("id"), brandId)
+        }
+        return cardRepository.findAll(spec)
     }
 
     fun getCardsByThemeId(themeId: Long): List<Card> {
-        return cardRepository.findAllByThemeId(themeId)
+        val spec = Specification<Card> { root, _, cb ->
+            cb.equal(root.get<Variant>("variant").get<CardTheme>("theme").get<Long>("id"), themeId)
+        }
+        return cardRepository.findAll(spec)
     }
 
     fun getCardsBySportId(sportId: Long): List<Card> {
@@ -105,17 +114,17 @@ class CardService(
 
         manufacturerId?.let {
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<CardTheme>("theme").get<CardBrand>("brand").get<Any>("manufacturer").get<Long>("id"), it)
+                cb.equal(root.get<Variant>("variant").get<CardTheme>("theme").get<CardBrand>("brand").get<CardManufacturer>("manufacturer").get<Long>("id"), it)
             })
         }
         brandId?.let {
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<CardTheme>("theme").get<CardBrand>("brand").get<Long>("id"), it)
+                cb.equal(root.get<Variant>("variant").get<CardTheme>("theme").get<CardBrand>("brand").get<Long>("id"), it)
             })
         }
         themeId?.let {
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<CardTheme>("theme").get<Long>("id"), it)
+                cb.equal(root.get<Variant>("variant").get<CardTheme>("theme").get<Long>("id"), it)
             })
         }
         sportId?.let {

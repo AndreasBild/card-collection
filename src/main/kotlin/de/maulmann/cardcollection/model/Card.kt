@@ -19,11 +19,6 @@ data class Card(
     val player: Player,
 
     @ManyToOne
-    @JoinColumn(name = "theme_id")
-    val theme: CardTheme,
-
-
-    @ManyToOne
     @JoinColumn(name = "variant_id")
     val variant: Variant
 )
