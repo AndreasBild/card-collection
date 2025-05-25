@@ -18,13 +18,9 @@ interface CardRepository : JpaRepository<Card, Long>, QueryByExampleExecutor<Car
     fun findAllByAutograph(autograph: Boolean): List<Card>
     fun findAllByGameUsedMaterial(gameUsedMaterial: Boolean): List<Card>
 
-    @Query("SELECT c FROM Card c WHERE c.theme.brand.manufacturer.id = :manufacturerId")
-    fun findAllByThemeBrandManufacturerId(manufacturerId: Long): List<Card>
-
-    @Query("SELECT c FROM Card c WHERE c.theme.brand.id = :brandId")
-    fun findAllByThemeBrandId(brandId: Long): List<Card>
-
-    fun findAllByThemeId(themeId: Long): List<Card>
+    // Removed findAllByThemeBrandManufacturerId
+    // Removed findAllByThemeBrandId
+    // Removed findAllByThemeId
 
     @Query("SELECT c FROM Card c WHERE c.player.sport.id = :sportId")
     fun findAllByPlayerSportId(sportId: Long): List<Card>

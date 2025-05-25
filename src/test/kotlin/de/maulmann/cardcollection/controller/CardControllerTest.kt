@@ -171,8 +171,8 @@ class CardControllerTest {
     private fun createMockCard(
         id: Long,
         player: Player = createMockPlayer(),
-        theme: CardTheme = createMockCardTheme(), // Corrected helper name
-        variant: Variant = createMockVariant(),
+        // theme parameter removed
+        variant: Variant = createMockVariant(), // Variant itself might have a theme, handled by createMockVariant
         number: String = "101",
         season: String = "2023-24",
         printRun: Int = 100,
@@ -183,7 +183,7 @@ class CardControllerTest {
     ): Card = mock {
         on { this.id } doReturn id
         on { this.player } doReturn player
-        on { this.theme } doReturn theme
+        // on { this.theme } doReturn theme // Line removed
         on { this.variant } doReturn variant
         on { this.number } doReturn number
         on { this.season } doReturn season
