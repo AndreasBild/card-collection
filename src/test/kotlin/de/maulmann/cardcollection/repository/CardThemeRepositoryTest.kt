@@ -123,7 +123,7 @@ class CardThemeRepositoryTest {
         entityManager.flush()
         val themeXB1M1 = CardTheme(name = "Theme X for B1M1", brand = brand1M1)
         entityManager.persist(themeXB1M1)
-        entityManager.flush();
+        entityManager.flush()
 
         val themes = cardThemeRepository.findAllByBrandManufacturerIdOrderByNameAsc(manufacturerWithNoThemes.id!!)
         assertThat(themes).isEmpty()

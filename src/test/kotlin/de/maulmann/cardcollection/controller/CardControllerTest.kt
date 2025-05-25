@@ -1,6 +1,6 @@
 package de.maulmann.cardcollection.controller
 
-import de.maulmann.cardcollection.model.Card
+import de.maulmann.cardcollection.model.*
 import de.maulmann.cardcollection.service.CardManufacturerService
 import de.maulmann.cardcollection.service.CardService
 import de.maulmann.cardcollection.service.PlayerService
@@ -206,66 +206,4 @@ class CardControllerTest {
         whenever(cardService.getAllTeams()).thenReturn(emptyList())
     }
 
-
-    @Test
-    fun `testGetCardById_returnsOkAndCardsViewWithCard`() {
-        // GIVEN
-        val cardId = 1L
-        val sampleCard = createMockCard(cardId)
-        val cardList = listOf(sampleCard)
-        whenever(cardService.findAllById(cardId)).thenReturn(cardList)
-        mockDropdownServices() // Mock dropdowns as they are also populated
-
-        // WHEN & THEN
-        mockMvc.get("/cards/{id}", cardId)
-            .andExpect {
-                status { isOk() }
-                view { name("cards") } // Assuming it reuses the "cards" view
-                model { attributeExists("cards") }
-                model { attribute("cards", cardList) }
-                // Check for dropdown attributes as well, since the controller method populates them
-                model { attributeExists("manufacturers", "players", "brands", "themes", "sports", "seasons", "variants", "printRunRanges", "teams") }
-            }
-        verify(cardService).findAllById(cardId)
-    }
-
-    @Test
-    fun `testGetCardsByNonExistentId_returnsOkAndCardsViewWithEmptyList`() {
-        // GIVEN
-        val cardId = 999L
-        whenever(cardService.findAllById(cardId)).thenReturn(emptyList())
-        mockDropdownServices()
-
-        // WHEN & THEN
-        mockMvc.get("/cards/{id}", cardId)
-            .andExpect {
-                status { isOk() }
-                view { name("cards") }
-                model { attributeExists("cards") }
-                model { attribute("cards", emptyList<Card>()) }
-                model { attributeExists("manufacturers", "players", "brands", "themes", "sports", "seasons", "variants", "printRunRanges", "teams") }
-            }
-        verify(cardService).findAllById(cardId)
-    }
-
-    @Test
-    fun `testFindAllRookieCards_returnsOkAndCardsViewWithRookieCards`() {
-        // GIVEN
-        val rookieCard1 = createMockCard(1L, isRookie = true)
-        val rookieCard2 = createMockCard(2L, isRookie = true)
-        val rookieCardList = listOf(rookieCard1, rookieCard2)
-        whenever(cardService.findAllByRookieCard(true)).thenReturn(rookieCardList)
-        mockDropdownServices()
-
-        // WHEN & THEN
-        mockMvc.get("/cards/rookie")
-            .andExpect {
-                status { isOk() }
-                view { name("cards") }
-                model { attributeExists("cards") }
-                model { attribute("cards", rookieCardList) }
-                model { attributeExists("manufacturers", "players", "brands", "themes", "sports", "seasons", "variants", "printRunRanges", "teams") }
-            }
-        verify(cardService).findAllByRookieCard(true)
-    }
 }

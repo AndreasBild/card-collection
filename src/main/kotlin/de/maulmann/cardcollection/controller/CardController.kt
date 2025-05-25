@@ -55,6 +55,7 @@ class CardController(
                 try {
                     Sort.by(direction, field)
                 } catch (e: Exception) {
+                    e.message?.let { model.addAttribute("error", it) }
                     Sort.by("id") // Fallback bei ungültigem Feld
                 }
             }
@@ -100,22 +101,4 @@ class CardController(
 
         return "cards" // Returns the "cards.html" view
     }
-
-    @GetMapping("/{id}") // Path relative to "/cards"
-    fun getCardById(@PathVariable id: Long, model: Model): String {
-        // Assuming cardService.findAllById returns a List<Card> for consistency with the view.
-        // If it's meant to be a single card, the view or model attribute might need adjustment.
-        // Based on previous structure, it added a list to the "cards" attribute.
-        model.addAttribute("cards", cardService.findAllById(id)) // Corrected service method name
-        return "cards"
-    }
-
-
-    @GetMapping("/rookie") // Path relative to "/cards"
-    fun findAllRookieCards(model: Model): String {
-        // Changed model attribute to "cards" and view to "cards" for consistency
-        model.addAttribute("cards", cardService.findAllByRookieCard(rookieCard = true))
-        return "cards"
-    }
-
 }
