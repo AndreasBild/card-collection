@@ -31,7 +31,7 @@
 <form th:action="@{/cards}" method="GET" class="filter-form">
     <div>
         <label for="manufacturerSelectForm">Vendor/Manufacturer:</label>
-        <select id="manufacturerSelectForm" name="manufacturerId">
+        <select id="manufacturerSelectForm" name="manufacturerId" class="styled-select">
             <option value="">All Manufacturers</option>
             <option th:each="man : ${manufacturers}"
                     th:value="${man.id}"
@@ -42,7 +42,7 @@
 
     <div>
         <label for="brandSelectForm">Brand:</label>
-        <select id="brandSelectForm" name="brandId">
+        <select id="brandSelectForm" name="brandId" class="styled-select">
             <option value="">All Brands</option>
             <option th:each="brand : ${brands}"
                     th:value="${brand.id}"
@@ -53,7 +53,7 @@
 
     <div>
         <label for="themeSelectForm">Theme:</label>
-        <select id="themeSelectForm" name="themeId">
+        <select id="themeSelectForm" name="themeId" class="styled-select">
             <option value="">All Themes</option>
             <option th:each="theme : ${themes}"
                     th:value="${theme.id}"
@@ -64,7 +64,7 @@
 
     <div>
         <label for="sportSelectForm">Sport:</label>
-        <select id="sportSelectForm" name="sportId">
+        <select id="sportSelectForm" name="sportId" class="styled-select">
             <option value="">All Sports</option>
             <option th:each="sport : ${sports}"
                     th:value="${sport.id}"
@@ -75,7 +75,7 @@
 
     <div>
         <label for="playerSelectForm">Player:</label>
-        <select id="playerSelectForm" name="playerId">
+        <select id="playerSelectForm" name="playerId" class="styled-select">
             <option value="">All Players</option>
             <option th:each="player : ${players}"
                     th:value="${player.id}"
@@ -86,7 +86,7 @@
 
     <div>
         <label for="teamSelectForm">Team:</label>
-        <select id="teamSelectForm" name="teamId">
+        <select id="teamSelectForm" name="teamId" class="styled-select">
             <option value="">All Teams</option>
             <option th:each="team : ${teams}"
                     th:value="${team.id}"
@@ -97,7 +97,7 @@
 
     <div>
         <label for="seasonSelectForm">Season:</label>
-        <select id="seasonSelectForm" name="season">
+        <select id="seasonSelectForm" name="season" class="styled-select">
             <option value="">All Seasons</option>
             <option th:each="s : ${seasons}"
                     th:value="${s}"
@@ -108,7 +108,7 @@
 
     <div>
         <label for="gameUsedSelectForm">Game Used Material:</label>
-        <select id="gameUsedSelectForm" name="gameUsed">
+        <select id="gameUsedSelectForm" name="gameUsed" class="styled-select">
             <option value="">Any</option>
             <option value="true" th:selected="${param.gameUsed == 'true'}">Yes</option>
             <option value="false" th:selected="${param.gameUsed == 'false'}">No</option>
@@ -117,7 +117,7 @@
 
     <div>
         <label for="autographSelectForm">Autograph:</label>
-        <select id="autographSelectForm" name="autograph">
+        <select id="autographSelectForm" name="autograph" class="styled-select">
             <option value="">Any</option>
             <option value="true" th:selected="${param.autograph == 'true'}">Yes</option>
             <option value="false" th:selected="${param.autograph == 'false'}">No</option>
@@ -126,7 +126,7 @@
 
     <div>
         <label for="variantSelectForm">Variant:</label>
-        <select id="variantSelectForm" name="variantId">
+        <select id="variantSelectForm" name="variantId" class="styled-select">
             <option value="">All Variants</option>
             <option th:each="variant : ${variants}"
                     th:value="${variant.id}"
@@ -137,7 +137,7 @@
 
     <div>
         <label for="rookieCardSelectForm">Rookie Card:</label>
-        <select id="rookieCardSelectForm" name="rookieCard">
+        <select id="rookieCardSelectForm" name="rookieCard" class="styled-select">
             <option value="">Any</option>
             <option value="true" th:selected="${param.rookieCard == 'true'}">Yes</option>
             <option value="false" th:selected="${param.rookieCard == 'false'}">No</option>
@@ -146,7 +146,7 @@
 
     <div>
         <label for="printRunRangeSelectForm">Print Run:</label>
-        <select id="printRunRangeSelectForm" name="printRunRangeKey">
+        <select id="printRunRangeSelectForm" name="printRunRangeKey" class="styled-select">
             <option value="">Any</option> <!-- Default option -->
             <option th:each="prRange : ${printRunRanges}"
                     th:value="${prRange.key}"
@@ -154,8 +154,10 @@
                     th:selected="${param.printRunRangeKey != null && param.printRunRangeKey == prRange.key}"></option>
         </select>
     </div>
-    <button type="submit">Filter</button>
-    <a th:href="@{/cards}" class="button">Clear Filters</a>
+    <div class="filter-buttons-container">
+        <button type="submit">Filter</button>
+        <a th:href="@{/cards}" class="button">Clear Filters</a>
+    </div>
 </form>
 <!-- End New Filter Form -->
 
@@ -204,14 +206,14 @@
 
 <!-- Pagination Controls -->
 <div th:if="${totalPages > 0}" class="pagination-controls">
-    <div>
+    <div class="pagination-info-block">
         Rows per page:
-        <select id="pageSizeSelector" onchange="changePageSize()">
+        <select id="pageSizeSelector" onchange="changePageSize()" class="styled-select">
             <option th:each="s : ${#numbers.sequence(10, 100)}" th:if="${s == 10 || s == 20 || s == 50 || s == 100}" th:value="${s}" th:text="${s}" th:selected="${s == pageSize}">_</option>
         </select>
     </div>
 
-    <div>
+    <div class="pagination-info-block">
         Page <span th:text="${currentPage + 1}">_</span> of <span th:text="${totalPages}">_</span>.
         Total items: <span th:text="${totalItems}">_</span>.
     </div>
