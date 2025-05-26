@@ -188,9 +188,9 @@
         <td th:text="${card.player.team.name}"></td> <!-- Display the Team name -->
         <td th:text="${card.player.sport.name}"></td> <!-- Display the Team name -->
         <td th:text="${card.season}"></td>
-        <td th:text="${card?.variant?.theme?.brand?.manufacturer?.name}"></td>
-        <td th:text="${card?.variant?.theme?.brand?.name}"></td>
-        <td th:text="${card?.variant?.theme?.name} + ' (ID: ' + ${card?.variant?.theme?.id} + ')'"></td>
+        <td th:text="${card?.theme?.brand?.manufacturer?.name}"></td>
+        <td th:text="${card?.theme?.brand?.name}"></td>
+        <td th:text="${card?.theme?.name} + ' (ID: ' + ${card?.theme?.id} + ')'"></td>
         <td th:text="${card.variant.name}"></td>
         <td th:text="${card.number}"></td>
         <td th:text="${card.printRun}"></td>
