@@ -99,9 +99,9 @@
         <label for="seasonSelectForm">Season:</label>
         <select id="seasonSelectForm" name="seasonId" class="styled-select"> <!-- Changed name to seasonId -->
             <option value="">All Seasons</option>
-            <option th:each="s : ${seasons}" <!-- ${seasons} is now List<Season> -->
-                    th:value="${s.id}" <!-- Use s.id -->
-                    th:text="${s.name}" <!-- Use s.name -->
+            <option th:each="s : ${seasons}"
+                    th:value="${s.id}"
+                    th:text="${s.name}"
                     th:selected="${param.seasonId != null && param.seasonId == s.id}"></option> <!-- Use param.seasonId and s.id -->
         </select>
     </div>
@@ -230,8 +230,7 @@
                                 sportId=${param.sportId ?: ''},
                                 playerId=${param.playerId ?: ''},
                                 teamId=${param.teamId ?: ''},
-                                seasonId=${param.seasonId ?: ''}, <!-- Changed to seasonId -->
-                                seasonId=${param.seasonId ?: ''}, <!-- Changed to seasonId -->
+                                seasonId=${param.seasonId ?: ''},
                                 gameUsed=${param.gameUsed ?: ''},
                                 autograph=${param.autograph ?: ''},
                                 variantId=${param.variantId ?: ''},
@@ -274,7 +273,7 @@
                                         sportId=${param.sportId ?: ''},
                                         playerId=${param.playerId ?: ''},
                                         teamId=${param.teamId ?: ''},
-                                        seasonId=${param.seasonId ?: ''}, <!-- Changed to seasonId -->
+                                        seasonId=${param.seasonId ?: ''},
                                         gameUsed=${param.gameUsed ?: ''},
                                         autograph=${param.autograph ?: ''},
                                         variantId=${param.variantId ?: ''},
@@ -302,7 +301,7 @@
                                         sportId=${param.sportId ?: ''},
                                         playerId=${param.playerId ?: ''},
                                         teamId=${param.teamId ?: ''},
-                                        seasonId=${param.seasonId ?: ''}, <!-- Changed to seasonId -->
+                                        seasonId=${param.seasonId ?: ''},
                                         gameUsed=${param.gameUsed ?: ''},
                                         autograph=${param.autograph ?: ''},
                                         variantId=${param.variantId ?: ''},
@@ -331,8 +330,7 @@
                                 sportId=${param.sportId ?: ''},
                                 playerId=${param.playerId ?: ''},
                                 teamId=${param.teamId ?: ''},
-                                seasonId=${param.seasonId ?: ''}, <!-- Changed to seasonId -->
-                                seasonId=${param.seasonId ?: ''}, <!-- Changed to seasonId -->
+                                seasonId=${param.seasonId ?: ''},
                                 gameUsed=${param.gameUsed ?: ''},
                                 autograph=${param.autograph ?: ''},
                                 variantId=${param.variantId ?: ''},
