@@ -6,9 +6,5 @@ import jakarta.persistence.*
 data class Variant(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-    val name: String,
-
-    @ManyToOne
-    @JoinColumn(name = "theme_id")
-    val theme: CardTheme
+    val name: String
 )
