@@ -190,7 +190,7 @@
         <td th:text="${card?.season?.name}"></td> <!-- Null-safe season name -->
         <td th:text="${card?.theme?.brand?.manufacturer?.name}"></td>
         <td th:text="${card?.theme?.brand?.name}"></td>
-        <td th:text="${card?.theme?.name} + ' (ID: ' + ${card?.theme?.id} + ')'"></td>
+        <td th:text="${card?.theme?.name}"></td>
         <td th:text="${card.variant.name}"></td>
         <td th:text="${card.number}"></td>
         <td th:text="${card.printRun}"></td>
