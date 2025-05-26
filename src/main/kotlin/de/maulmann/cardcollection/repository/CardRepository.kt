@@ -25,12 +25,8 @@ interface CardRepository : JpaRepository<Card, Long>, QueryByExampleExecutor<Car
     @Query("SELECT c FROM Card c WHERE c.player.sport.id = :sportId")
     fun findAllByPlayerSportId(sportId: Long): List<Card>
 
-    fun findAllBySeason(season: String): List<Card>
-
     fun findAllByVariantId(variantId: Long): List<Card>
 
-    @Query("SELECT DISTINCT c.season FROM Card c ORDER BY c.season ASC")
-    fun findDistinctSeasons(): List<String>
 }
 
 

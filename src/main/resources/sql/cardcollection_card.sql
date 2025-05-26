@@ -28,31 +28,33 @@ CREATE TABLE `card` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `print_run` int NOT NULL,
   `serial_number` int NOT NULL,
-  `season` varchar(10) NOT NULL,
+  -- `season` varchar(10) NOT NULL, -- REMOVED
   `number` varchar(10) NOT NULL,
   `rookie_card` tinyint(1) NOT NULL DEFAULT '0',
   `game_used_material` tinyint(1) NOT NULL DEFAULT '0',
   `player_id` bigint DEFAULT NULL,
   `theme_id` bigint DEFAULT NULL,
+  `season_id` BIGINT DEFAULT NULL, -- ADDED
   `autograph` tinyint(1) NOT NULL DEFAULT '0',
   `variant_id` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FKbyb0u8pl0bms3a11dql17ut0b` (`player_id`),
   KEY `FKrhm60fo96t7r89farfjnmg0n9` (`theme_id`),
+  KEY `FK_card_season_idx` (`season_id`), -- ADDED
   CONSTRAINT `FKbyb0u8pl0bms3a11dql17ut0b` FOREIGN KEY (`player_id`) REFERENCES `player` (`id`),
-  CONSTRAINT `FKrhm60fo96t7r89farfjnmg0n9` FOREIGN KEY (`theme_id`) REFERENCES `card_theme` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `FKrhm60fo96t7r89farfjnmg0n9` FOREIGN KEY (`theme_id`) REFERENCES `card_theme` (`id`),
+  CONSTRAINT `FK_card_season` FOREIGN KEY (`season_id`) REFERENCES `season` (`id`) ON DELETE SET NULL ON UPDATE CASCADE -- ADDED
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `card`
 --
-
-LOCK TABLES `card` WRITE;
-/*!40000 ALTER TABLE `card` DISABLE KEYS */;
-INSERT INTO `card` VALUES (1,1,1,'1994-95','278',1,0,1,1,0,1),(2,1,1,'1994-95','278',1,0,1,1,0,1),(3,1,1,'1994-95','278',1,0,1,1,0,1),(4,1,1,'1994-95','S4',1,0,1,1,0,1),(5,1,1,'1994-95','S4',1,0,1,1,0,1),(6,1,1,'1994-95','S4',1,0,1,1,0,1);
-/*!40000 ALTER TABLE `card` ENABLE KEYS */;
-UNLOCK TABLES;
+-- LOCK TABLES `card` WRITE; -- REMOVED
+-- /*!40000 ALTER TABLE `card` DISABLE KEYS */; -- REMOVED
+-- INSERT INTO `card` VALUES (1,1,1,'1994-95','278',1,0,1,1,0,1),(2,1,1,'1994-95','278',1,0,1,1,0,1),(3,1,1,'1994-95','278',1,0,1,1,0,1),(4,1,1,'1994-95','S4',1,0,1,1,0,1),(5,1,1,'1994-95','S4',1,0,1,1,0,1),(6,1,1,'1994-95','S4',1,0,1,1,0,1); -- REMOVED
+-- /*!40000 ALTER TABLE `card` ENABLE KEYS */; -- REMOVED
+-- UNLOCK TABLES; -- REMOVED
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

@@ -31,7 +31,7 @@ class CardController(
         @RequestParam(required = false) themeId: Long?,
         @RequestParam(required = false) sportId: Long?,
         @RequestParam(required = false) playerId: Long?,
-        @RequestParam(required = false) season: String?,
+        @RequestParam(required = false) seasonId: Long?, // Changed from season: String?
         @RequestParam(required = false) gameUsed: Boolean?, // New
         @RequestParam(required = false) autograph: Boolean?, // New
         @RequestParam(required = false) variantId: Long?,
@@ -70,7 +70,7 @@ class CardController(
             themeId = themeId,
             sportId = sportId,
             playerId = playerId,
-            season = season,
+            seasonId = seasonId, // Changed from season = season
             gameUsed = gameUsed,
             autograph = autograph,
             variantId = variantId,
