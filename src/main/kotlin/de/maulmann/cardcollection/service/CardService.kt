@@ -8,12 +8,14 @@ import de.maulmann.cardcollection.model.Sport
 import de.maulmann.cardcollection.model.Team // Import Team
 import de.maulmann.cardcollection.model.CardManufacturer
 import de.maulmann.cardcollection.model.Variant
+import de.maulmann.cardcollection.model.Season // Import Season model
 import de.maulmann.cardcollection.repository.CardBrandRepository
 import de.maulmann.cardcollection.repository.CardRepository
 import de.maulmann.cardcollection.repository.CardThemeRepository
 import de.maulmann.cardcollection.repository.SportRepository
 import de.maulmann.cardcollection.repository.TeamRepository // Import TeamRepository
 import de.maulmann.cardcollection.repository.VariantRepository
+import de.maulmann.cardcollection.repository.SeasonRepository // Import SeasonRepository
 import de.maulmann.cardcollection.service.PrintRunRange // Import PrintRunRange
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -29,7 +31,8 @@ class CardService(
     private val cardThemeRepository: CardThemeRepository,
     private val sportRepository: SportRepository,
     private val variantRepository: VariantRepository,
-    private val teamRepository: TeamRepository // New injection
+    private val teamRepository: TeamRepository, // New injection
+    private val seasonRepository: SeasonRepository // Add SeasonRepository
 ) {
 
     fun getAllCards(): List<Card> = cardRepository.findAll()
@@ -71,17 +74,13 @@ class CardService(
         return cardRepository.findAllByPlayerSportId(sportId)
     }
 
-    fun getCardsBySeason(season: String): List<Card> {
-        return cardRepository.findAllBySeason(season)
-    }
-
     fun getCardsFiltered(
         manufacturerId: Long?,
         brandId: Long?,
         themeId: Long?,
         sportId: Long?,
         playerId: Long?,
-        season: String?,
+        seasonId: Long?, // Changed from season: String?
         gameUsed: Boolean?, // New
         autograph: Boolean?,  // New
         variantId: Long?,
@@ -117,9 +116,9 @@ class CardService(
                 cb.equal(root.get<Player>("player").get<Long>("id"), it)
             })
         }
-        season?.takeIf { it.isNotBlank() }?.let {
+        seasonId?.let { // Changed from season to seasonId
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<String>("season"), it)
+                cb.equal(root.get<Season>("season").get<Long>("id"), it) // Updated specification for Season
             })
         }
         gameUsed?.let {
@@ -207,8 +206,8 @@ class CardService(
         return sportRepository.findAll()
     }
 
-    fun getAllSeasons(): List<String> { //This might need to be adjusted if we want it to be dynamic based on current filters
-        return cardRepository.findDistinctSeasons()
+    fun getAllSeasons(): List<Season> { // Changed return type to List<Season>
+        return seasonRepository.findAll().sortedBy { it.name } // Use seasonRepository and sort
     }
 
     fun getAllVariants(): List<Variant> {

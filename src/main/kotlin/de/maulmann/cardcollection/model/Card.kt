@@ -8,7 +8,10 @@ data class Card(
     val id: Long = 0,
     val printRun: Int,
     val serialNumber: Int,
-    val season: String,
+
+    @ManyToOne
+    @JoinColumn(name = "season_id")
+    val season: Season,
     val number: String,
     val rookieCard: Boolean,
     val gameUsedMaterial: Boolean,

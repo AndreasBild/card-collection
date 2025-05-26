@@ -97,12 +97,12 @@
 
     <div>
         <label for="seasonSelectForm">Season:</label>
-        <select id="seasonSelectForm" name="season" class="styled-select">
+        <select id="seasonSelectForm" name="seasonId" class="styled-select"> <!-- Changed name to seasonId -->
             <option value="">All Seasons</option>
-            <option th:each="s : ${seasons}"
-                    th:value="${s}"
-                    th:text="${s}"
-                    th:selected="${param.season != null && param.season == s}"></option>
+            <option th:each="s : ${seasons}" <!-- ${seasons} is now List<Season> -->
+                    th:value="${s.id}" <!-- Use s.id -->
+                    th:text="${s.name}" <!-- Use s.name -->
+                    th:selected="${param.seasonId != null && param.seasonId == s.id}"></option> <!-- Use param.seasonId and s.id -->
         </select>
     </div>
 
@@ -187,7 +187,7 @@
         <td th:text="${card.player.surname}"></td>
         <td th:text="${card.player.team.name}"></td> <!-- Display the Team name -->
         <td th:text="${card.player.sport.name}"></td> <!-- Display the Team name -->
-        <td th:text="${card.season}"></td>
+        <td th:text="${card?.season?.name}"></td> <!-- Null-safe season name -->
         <td th:text="${card?.theme?.brand?.manufacturer?.name}"></td>
         <td th:text="${card?.theme?.brand?.name}"></td>
         <td th:text="${card?.theme?.name} + ' (ID: ' + ${card?.theme?.id} + ')'"></td>
@@ -230,7 +230,8 @@
                                 sportId=${param.sportId ?: ''},
                                 playerId=${param.playerId ?: ''},
                                 teamId=${param.teamId ?: ''},
-                                season=${param.season ?: ''},
+                                seasonId=${param.seasonId ?: ''}, <!-- Changed to seasonId -->
+                                seasonId=${param.seasonId ?: ''}, <!-- Changed to seasonId -->
                                 gameUsed=${param.gameUsed ?: ''},
                                 autograph=${param.autograph ?: ''},
                                 variantId=${param.variantId ?: ''},
@@ -273,7 +274,7 @@
                                         sportId=${param.sportId ?: ''},
                                         playerId=${param.playerId ?: ''},
                                         teamId=${param.teamId ?: ''},
-                                        season=${param.season ?: ''},
+                                        seasonId=${param.seasonId ?: ''}, <!-- Changed to seasonId -->
                                         gameUsed=${param.gameUsed ?: ''},
                                         autograph=${param.autograph ?: ''},
                                         variantId=${param.variantId ?: ''},
@@ -285,7 +286,7 @@
                 <th:block th:unless="${totalPages <= (2 * window + 5)}"> <!-- More complex pagination for many pages -->
                     <!-- First page -->
                     <li th:classappend="${0 == currentPage} ? 'active' : ''">
-                         <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, season=${param.season ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''})}" th:text="1">_</a>
+                         <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''})}" th:text="1">_</a> <!-- Changed to seasonId -->
                     </li>
 
                     <!-- Ellipsis after first if needed -->
@@ -301,7 +302,7 @@
                                         sportId=${param.sportId ?: ''},
                                         playerId=${param.playerId ?: ''},
                                         teamId=${param.teamId ?: ''},
-                                        season=${param.season ?: ''},
+                                        seasonId=${param.seasonId ?: ''}, <!-- Changed to seasonId -->
                                         gameUsed=${param.gameUsed ?: ''},
                                         autograph=${param.autograph ?: ''},
                                         variantId=${param.variantId ?: ''},
@@ -315,7 +316,7 @@
 
                     <!-- Last page -->
                     <li th:classappend="${totalPages - 1 == currentPage} ? 'active' : ''">
-                         <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, season=${param.season ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''})}" th:text="${totalPages}">_</a>
+                         <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''})}" th:text="${totalPages}">_</a> <!-- Changed to seasonId -->
                     </li>
                 </th:block>
             </th:block>
@@ -330,7 +331,8 @@
                                 sportId=${param.sportId ?: ''},
                                 playerId=${param.playerId ?: ''},
                                 teamId=${param.teamId ?: ''},
-                                season=${param.season ?: ''},
+                                seasonId=${param.seasonId ?: ''}, <!-- Changed to seasonId -->
+                                seasonId=${param.seasonId ?: ''}, <!-- Changed to seasonId -->
                                 gameUsed=${param.gameUsed ?: ''},
                                 autograph=${param.autograph ?: ''},
                                 variantId=${param.variantId ?: ''},
