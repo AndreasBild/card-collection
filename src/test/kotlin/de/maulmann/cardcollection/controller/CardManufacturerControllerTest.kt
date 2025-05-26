@@ -64,7 +64,6 @@ class CardManufacturerControllerTest {
         return mock {
             on { this.id } doReturn id
             on { this.player } doReturn createMockPlayer()
-            on { this.theme } doReturn createMockTheme()
             on { this.variant } doReturn createMockVariant() // Now calls the corrected createMockVariant
             on { this.number } doReturn number // Card number is a good property to check
             on { this.season } doReturn "2023-24"

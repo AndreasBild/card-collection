@@ -6,6 +6,7 @@ import de.maulmann.cardcollection.model.CardTheme
 import de.maulmann.cardcollection.model.Player
 import de.maulmann.cardcollection.model.Sport
 import de.maulmann.cardcollection.model.Team // Import Team
+import de.maulmann.cardcollection.model.CardManufacturer
 import de.maulmann.cardcollection.model.Variant
 import de.maulmann.cardcollection.repository.CardBrandRepository
 import de.maulmann.cardcollection.repository.CardRepository
