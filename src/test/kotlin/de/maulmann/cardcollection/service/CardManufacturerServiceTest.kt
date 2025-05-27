@@ -23,24 +23,12 @@ class CardManufacturerServiceTest {
     @InjectMocks
     private lateinit var cardManufacturerService: CardManufacturerService
 
-    // Pre-configured stable mock instances - further simplified
-    private val stableMockPlayer: Player = mock { on { id } doReturn 1L } 
-    private val mockTheme: CardTheme = mock { on { id } doReturn 1L }
-    private val mockVariant: Variant = mock { on { id } doReturn 1L }
-    private val mockSeason: Season = mock { on { id } doReturn 1L }
+    // Removed all helper fields (stableMockPlayer, mockTheme, etc.) and getMockPlayer()
+    // Removed mockTeam, mockSport, mockManufacturer, mockBrand as they are no longer used.
 
-    private fun getMockPlayer(): Player = stableMockPlayer
-    
-    // Helper function to create a mock Card instance using highly simplified stable mocks
-    private fun createMockCard(id: Long): Card {
-        return mock {
-            on { this.id } doReturn id // Essential for comparison
-            // Stubbing only ID for related entities if other properties were flagged as unnecessary
-            on { player } doReturn getMockPlayer()
-            on { theme } doReturn mockTheme
-            on { variant } doReturn mockVariant
-            on { season } doReturn mockSeason
-        }
+    // Helper function to create a mock Card instance - further simplified, no stubs
+    private fun createMockCard(id: Long): Card { // id parameter might be unused now, but let's keep for structure
+        return mock() 
     }
 
     @Test
@@ -63,18 +51,10 @@ class CardManufacturerServiceTest {
     @Test
     fun testGetAllCardManufacturers_returnsListOfManufacturers() {
         // GIVEN
-        // CardManufacturer is a data class, 'name' is a primary constructor param, likely used in equals().
-        // 'id' is also a primary constructor param.
-        // If UnnecessaryStubbingException listed 'id', it implies equals might not have been called or only name mattered.
-        // Let's keep 'name' as it's more descriptive and was NOT listed as unnecessary for the mock objects themselves.
-        val mockManufacturer1: CardManufacturer = mock {
-            on { id } doReturn 1L 
-            on { name } doReturn "Panini" 
-        }
-        val mockManufacturer2: CardManufacturer = mock {
-            on { id } doReturn 2L
-            on { name } doReturn "Topps"
-        }
+        // Removed stubs for id and name as per instruction
+        val mockManufacturer1: CardManufacturer = mock()
+        val mockManufacturer2: CardManufacturer = mock()
+        
         val expectedManufacturers = listOf(mockManufacturer1, mockManufacturer2)
         whenever(actualCardManufacturerRepository.findAll()).thenReturn(expectedManufacturers)
 
