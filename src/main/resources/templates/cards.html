@@ -25,7 +25,7 @@
 
 </head>
 <body>
-<h1>Card Collection</h1>
+<h1>Sports Card Collection</h1>
 
 <!-- New Filter Form -->
 <form th:action="@{/cards}" method="GET" class="filter-form">
@@ -107,7 +107,7 @@
     </div>
 
     <div>
-        <label for="gameUsedSelectForm">Game Used Material:</label>
+        <label for="gameUsedSelectForm">Game Used:</label>
         <select id="gameUsedSelectForm" name="gameUsed" class="styled-select">
             <option value="">Any</option>
             <option value="true" th:selected="${param.gameUsed == 'true'}">Yes</option>
@@ -136,7 +136,7 @@
     </div>
 
     <div>
-        <label for="rookieCardSelectForm">Rookie Card:</label>
+        <label for="rookieCardSelectForm">Rookie:</label>
         <select id="rookieCardSelectForm" name="rookieCard" class="styled-select">
             <option value="">Any</option>
             <option value="true" th:selected="${param.rookieCard == 'true'}">Yes</option>
@@ -164,8 +164,7 @@
 <table>
     <thead>
     <tr>
-        <th>Name</th>
-        <th>Surname</th>
+        <th>Player</th>
         <th>Team</th>
         <th>Sport</th>
         <th>Season</th>
@@ -173,9 +172,9 @@
         <th>Brand</th>
         <th>Theme</th>
         <th>Variant</th>
-        <th>Card Number</th>
-        <th>Print Run</th>
+        <th>Number</th>
         <th>Serial</th>
+        <th>Print Run</th>
         <th>Rookie</th>
         <th>Game Used</th>
         <th>Autograph</th>
@@ -183,8 +182,7 @@
     </thead>
     <tbody>
     <tr th:each="card : ${cards}">
-        <td th:text="${card.player.name}"></td>
-        <td th:text="${card.player.surname}"></td>
+        <td th:text="${card.player.name + ' ' + card.player.surname}"></td>
         <td th:text="${card.player.team.name}"></td>
         <td th:text="${card.player.sport.name}"></td>
         <td th:text="${card?.season?.name}"></td>
@@ -193,8 +191,8 @@
         <td th:text="${card?.theme?.name}"></td>
         <td th:text="${card.variant.name}"></td>
         <td th:text="${card.number}"></td>
-        <td th:text="${card.printRun}"></td>
         <td th:text="${card.serialNumber}"></td>
+        <td th:text="${card.printRun}"></td>
         <td th:text="${card.rookieCard ? 'Yes' : 'No'}"></td>
         <td th:text="${card.gameUsedMaterial ? 'Yes' : 'No'}"></td>
         <td th:text="${card.autograph ? 'Yes' : 'No'}"></td>
