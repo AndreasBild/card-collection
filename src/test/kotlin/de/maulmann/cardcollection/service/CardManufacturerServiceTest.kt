@@ -23,57 +23,32 @@ class CardManufacturerServiceTest {
     @InjectMocks
     private lateinit var cardManufacturerService: CardManufacturerService
 
-    // Helper function to create a mock Player
-    private fun createMockPlayer(): Player = mock {
-        on { id } doReturn 1L
-        on { name } doReturn "Test"
-        on { surname } doReturn "Player"
-        on { team } doReturn mock<Team>()
-        on { sport } doReturn mock<Sport>()
-    }
+    // Pre-configured stable mock instances - further simplified
+    private val stableMockPlayer: Player = mock { on { id } doReturn 1L } 
+    private val mockTheme: CardTheme = mock { on { id } doReturn 1L }
+    private val mockVariant: Variant = mock { on { id } doReturn 1L }
+    private val mockSeason: Season = mock { on { id } doReturn 1L }
 
-    // Helper function to create a mock Theme
-    private fun createMockTheme(): CardTheme = mock {
-        on { id } doReturn 1L
-        on { name } doReturn "Test Theme"
-        on { brand } doReturn mock<CardBrand>()
-    }
-
-    // Helper function to create a mock Variant
-    private fun createMockVariant(): Variant = mock { // Corrected CardVariant to Variant
-        on { id } doReturn 1L
-        on { name } doReturn "Test Variant"
-        // Assuming Variant might have a theme, if so, mock it:
-        // on { this.theme } doReturn createMockTheme() 
-    }
-
-    private fun createMockSeason(id: Long = 1L, name: String = "2023-24"): Season = mock {
-        on { this.id } doReturn id
-        on { this.name } doReturn name
-    }
+    private fun getMockPlayer(): Player = stableMockPlayer
     
-    // Helper function to create a mock Card
-    private fun createMockCard(id: Long): Card = mock {
-        on { this.id } doReturn id
-        on { this.player } doReturn createMockPlayer()
-        on { this.theme } doReturn createMockTheme()
-        on { this.variant } doReturn createMockVariant() // Now calls the corrected createMockVariant
-        on { this.number } doReturn "101"
-        on { this.season } doReturn createMockSeason() // Changed to Season object
-        on { this.printRun } doReturn 100
-        on { this.serialNumber } doReturn 10
-        on { this.rookieCard } doReturn false
-        on { this.gameUsedMaterial } doReturn false
-        on { this.autograph } doReturn false
-        // on { this.notes } doReturn "Mock card notes" // Removed as 'notes' is not a property of Card
+    // Helper function to create a mock Card instance using highly simplified stable mocks
+    private fun createMockCard(id: Long): Card {
+        return mock {
+            on { this.id } doReturn id // Essential for comparison
+            // Stubbing only ID for related entities if other properties were flagged as unnecessary
+            on { player } doReturn getMockPlayer()
+            on { theme } doReturn mockTheme
+            on { variant } doReturn mockVariant
+            on { season } doReturn mockSeason
+        }
     }
 
     @Test
     fun `testGetCardsByManufacturerId_returnsListOfCards`() {
         // GIVEN
         val manufacturerId = 1L
-        val mockCard1 = createMockCard(1L)
-        val mockCard2 = createMockCard(2L)
+        val mockCard1 = createMockCard(1L) 
+        val mockCard2 = createMockCard(2L) 
         val expectedCards = listOf(mockCard1, mockCard2)
         whenever(customCardQueriesRepository.findByManufacturerIdWithDetails(manufacturerId)).thenReturn(expectedCards)
 
@@ -88,9 +63,13 @@ class CardManufacturerServiceTest {
     @Test
     fun `testGetAllCardManufacturers_returnsListOfManufacturers`() {
         // GIVEN
+        // CardManufacturer is a data class, 'name' is a primary constructor param, likely used in equals().
+        // 'id' is also a primary constructor param.
+        // If UnnecessaryStubbingException listed 'id', it implies equals might not have been called or only name mattered.
+        // Let's keep 'name' as it's more descriptive and was NOT listed as unnecessary for the mock objects themselves.
         val mockManufacturer1: CardManufacturer = mock {
-            on { id } doReturn 1L
-            on { name } doReturn "Panini"
+            on { id } doReturn 1L 
+            on { name } doReturn "Panini" 
         }
         val mockManufacturer2: CardManufacturer = mock {
             on { id } doReturn 2L

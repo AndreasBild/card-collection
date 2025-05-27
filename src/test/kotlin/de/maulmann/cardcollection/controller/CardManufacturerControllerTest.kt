@@ -25,54 +25,38 @@ class CardManufacturerControllerTest {
     private lateinit var objectMapper: ObjectMapper
 
     // Helper function to create a mock Player
-    private fun createMockPlayer(): Player = mock {
+    // Stable mock instances for dependencies
+    private val stableMockTeam: Team = mock()
+    private val stableMockSport: Sport = mock()
+    private val stableMockPlayerInstance: Player = mock {
         on { id } doReturn 1L
         on { name } doReturn "Test"
         on { surname } doReturn "Player"
-        on { team } doReturn mock<Team>()
-        on { sport } doReturn mock<Sport>()
+        on { team } doReturn stableMockTeam
+        on { sport } doReturn stableMockSport
     }
+    private val stableMockManufacturer: CardManufacturer = mock { on { id } doReturn 1L; on { name } doReturn "Panini" }
+    private val stableMockBrand: CardBrand = mock { on { id } doReturn 1L; on { name } doReturn "Prizm"; on { manufacturer } doReturn stableMockManufacturer }
+    private val stableMockTheme: CardTheme = mock { on { id } doReturn 1L; on { name } doReturn "Test Theme"; on { brand } doReturn stableMockBrand }
+    private val stableMockVariant: Variant = mock { on { id } doReturn 1L; on { name } doReturn "Test Variant"; on {theme} doReturn stableMockTheme }
+    private val stableMockSeason: Season = mock { on { id } doReturn 1L; on { name } doReturn "2023-24" }
     
-    // Helper function to create a mock Manufacturer (part of CardBrand)
-    private fun createMockCardManufacturer(): CardManufacturer = mock {
-        on { id } doReturn 1L
-        on { name } doReturn "Panini"
-    }
+    private fun getStableMockPlayer(): Player = stableMockPlayerInstance
+    private fun getStableMockTheme(): CardTheme = stableMockTheme
+    private fun getStableMockVariant(): Variant = stableMockVariant
+    private fun getStableMockSeason(): Season = stableMockSeason
 
-    // Helper function to create a mock CardBrand (part of CardTheme)
-    private fun createMockCardBrand(): CardBrand = mock {
-        on { id } doReturn 1L
-        on { name } doReturn "Prizm"
-        on { manufacturer } doReturn createMockCardManufacturer()
-    }
-
-    // Helper function to create a mock Theme
-    private fun createMockTheme(): CardTheme = mock {
-        on { id } doReturn 1L
-        on { name } doReturn "Test Theme"
-        on { brand } doReturn createMockCardBrand()
-    }
-
-    // Helper function to create a mock Variant
-    private fun createMockVariant(): Variant = mock { // Corrected CardVariant to Variant
-        on { id } doReturn 1L
-        on { name } doReturn "Test Variant"
-    }
-
-    private fun createMockSeason(id: Long = 1L, name: String = "2023-24"): Season = mock {
-        on { this.id } doReturn id
-        on { this.name } doReturn name
-    }
 
     // Helper function to create a mock Card
     private fun createMockCard(id: Long, number: String = "123"): Card {
         return mock {
             on { this.id } doReturn id
-            on { this.player } doReturn createMockPlayer()
-            on { this.variant } doReturn createMockVariant() // Now calls the corrected createMockVariant
-            on { this.number } doReturn number // Card number is a good property to check
-            on { this.season } doReturn createMockSeason() // Changed String to Season object
-            on { this.printRun } doReturn 100
+            on { player } doReturn getStableMockPlayer()
+            on { variant } doReturn getStableMockVariant()
+            on { this.number } doReturn number 
+            on { season } doReturn getStableMockSeason()
+            on { theme } doReturn getStableMockTheme() // Added theme directly to card mock
+            on { printRun } doReturn 100
             on { this.serialNumber } doReturn 10
             on { this.rookieCard } doReturn false
             on { this.gameUsedMaterial } doReturn false

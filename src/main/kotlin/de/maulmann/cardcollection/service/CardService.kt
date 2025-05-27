@@ -178,7 +178,7 @@ class CardService(
         val finalSpecification = specifications.reduceOrNull { acc, spec -> acc.and(spec) }
             ?: Specification.where(null) // If no filters, return all
 
-        return cardRepository.findAllWithDetailsPaginated(finalSpecification, pageable)
+        return cardRepository.findAll(finalSpecification, pageable)
     }
 
     // New service methods to fetch data for filter dropdowns
