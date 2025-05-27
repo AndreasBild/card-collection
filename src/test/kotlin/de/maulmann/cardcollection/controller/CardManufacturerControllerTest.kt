@@ -59,6 +59,11 @@ class CardManufacturerControllerTest {
         on { name } doReturn "Test Variant"
     }
 
+    private fun createMockSeason(id: Long = 1L, name: String = "2023-24"): Season = mock {
+        on { this.id } doReturn id
+        on { this.name } doReturn name
+    }
+
     // Helper function to create a mock Card
     private fun createMockCard(id: Long, number: String = "123"): Card {
         return mock {
@@ -66,7 +71,7 @@ class CardManufacturerControllerTest {
             on { this.player } doReturn createMockPlayer()
             on { this.variant } doReturn createMockVariant() // Now calls the corrected createMockVariant
             on { this.number } doReturn number // Card number is a good property to check
-            on { this.season } doReturn "2023-24"
+            on { this.season } doReturn createMockSeason() // Changed String to Season object
             on { this.printRun } doReturn 100
             on { this.serialNumber } doReturn 10
             on { this.rookieCard } doReturn false

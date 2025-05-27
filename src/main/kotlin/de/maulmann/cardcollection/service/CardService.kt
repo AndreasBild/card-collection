@@ -35,14 +35,14 @@ class CardService(
     private val seasonRepository: SeasonRepository // Add SeasonRepository
 ) {
 
-    fun getAllCards(): List<Card> = cardRepository.findAll()
+    fun getAllCards(): List<Card> = cardRepository.findAllWithDetails()
 
     fun findAllByRookieCard(rookieCard: Boolean): List<Card> {
-        return cardRepository.findAllByRookieCard(rookieCard)
+        return cardRepository.findAllByRookieCardWithDetails(rookieCard)
     }
 
     fun findAllByPlayerId(id: Long): List<Card> {
-        return cardRepository.findAllByPlayerId(id)
+        return cardRepository.findAllByPlayerIdWithDetails(id)
     }
 
     // Assuming findAllByRookieCardId was a typo and meant to be something else or is redundant.
@@ -55,23 +55,19 @@ class CardService(
     //     return cardRepository.findAllByPlayerId(id)
     // }
 
-    fun findAllById(id: Long): List<Card> { // Corrected method name
-        return cardRepository.findAllById(id)
-    }
-
     fun findAllByAutograph(autograph: Boolean): List<Card> {
-        return cardRepository.findAllByAutograph(autograph)
+        return cardRepository.findAllByAutographWithDetails(autograph)
     }
 
     fun findAllByGameUsedMaterial(gameUsedMaterial: Boolean): List<Card> {
-        return cardRepository.findAllByGameUsedMaterial(gameUsedMaterial)
+        return cardRepository.findAllByGameUsedMaterialWithDetails(gameUsedMaterial)
     }
 
-    fun getCardById(id: Long): Card? = cardRepository.findById(id).orElse(null)
+    fun getCardById(id: Long): Card? = cardRepository.findById(id).orElse(null) // For single card, findById is fine. Details can be fetched if needed by EntityGraph on Card or specific DTO projection.
 
     // New service methods for filtering cards
     fun getCardsBySportId(sportId: Long): List<Card> {
-        return cardRepository.findAllByPlayerSportId(sportId)
+        return cardRepository.findAllByPlayerSportIdWithDetails(sportId)
     }
 
     fun getCardsFiltered(
@@ -182,7 +178,7 @@ class CardService(
         val finalSpecification = specifications.reduceOrNull { acc, spec -> acc.and(spec) }
             ?: Specification.where(null) // If no filters, return all
 
-        return cardRepository.findAll(finalSpecification, pageable)
+        return cardRepository.findAllWithDetailsPaginated(finalSpecification, pageable)
     }
 
     // New service methods to fetch data for filter dropdowns
@@ -206,8 +202,8 @@ class CardService(
         return sportRepository.findAll()
     }
 
-    fun getAllSeasons(): List<Season> { // Changed return type to List<Season>
-        return seasonRepository.findAll().sortedBy { it.name } // Use seasonRepository and sort
+    fun getAllSeasons(): List<Season> {
+        return seasonRepository.findAllByOrderByNameAsc()
     }
 
     fun getAllVariants(): List<Variant> {

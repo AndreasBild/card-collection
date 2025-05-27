@@ -78,11 +78,13 @@ class CardServiceTest {
     }
 
     // Corrected: Removed 'notes' as it's not a property of Card
+    private fun createMockSeason(id: Long = 1L, name: String = "1994-95"): Season = Season(id = id, name = name)
+
     private fun createMockCard(id: Long): Card = Card( // This is a direct instantiation, not a mock builder like in controller test
         id = id,
         player = createMockPlayer(),
-        season = "1994-95",
-        // theme parameter removed from Card constructor call
+        season = createMockSeason(), // Changed to Season object
+        theme = createMockTheme(), // Added missing theme parameter
         variant = createMockVariant(), // Variant itself might have a theme setup by createMockVariant
         number = "101",
         printRun = 1000,
@@ -175,7 +177,7 @@ class CardServiceTest {
             sportId = null,
             playerId = null,
             teamId = null,
-            season = null,
+            seasonId = null, // Changed from season to seasonId
             gameUsed = null,
             autograph = null,
             variantId = null,
@@ -206,7 +208,7 @@ class CardServiceTest {
             sportId = null,
             playerId = null,
             teamId = null,
-            season = null,
+            seasonId = null, // Changed from season to seasonId
             gameUsed = null,
             autograph = null,
             variantId = null,
@@ -238,7 +240,7 @@ class CardServiceTest {
             sportId = null,
             playerId = null,
             teamId = null,
-            season = null,
+            seasonId = null, // Changed from season to seasonId
             gameUsed = null,
             autograph = null,
             variantId = null,
@@ -268,7 +270,7 @@ class CardServiceTest {
             sportId = null,
             playerId = null,
             teamId = null,
-            season = null,
+            seasonId = null, // Changed from season to seasonId
             gameUsed = null,
             autograph = null,
             variantId = null,
@@ -298,7 +300,7 @@ class CardServiceTest {
             sportId = null,
             playerId = null,
             teamId = null,
-            season = null,
+            seasonId = null, // Changed from season to seasonId
             gameUsed = null,
             autograph = null,
             variantId = null,

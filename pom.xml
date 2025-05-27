@@ -77,11 +77,6 @@
 			<version>5.3.1</version> <!-- Or the latest compatible version with Mockito 5.x -->
 			<scope>test</scope>
 		</dependency>
-		<!-- 
-		The mockito-inline functionality is included in mockito-core for versions 5.x.x+.
-		Spring Boot starter test (via parent 3.4.5) provides mockito-core 5.11.0,
-		which includes inline mocking. So, this separate dependency is redundant and potentially problematic.
-		-->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>

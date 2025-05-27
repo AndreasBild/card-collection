@@ -9,6 +9,6 @@ import org.springframework.data.jpa.repository.Query
 
 interface CustomCardQueriesRepository : JpaRepository<Card, Long> {
 
-    @Query("SELECT c FROM Card c JOIN c.theme ct JOIN ct.brand cb JOIN cb.manufacturer cm WHERE cm.id = :manufacturerId")
-    fun findByManufacturerId(manufacturerId: Long): List<Card>
+    @Query("SELECT c FROM Card c JOIN FETCH c.player JOIN FETCH c.theme ct JOIN FETCH ct.brand cb JOIN FETCH cb.manufacturer cm JOIN FETCH c.season JOIN FETCH c.variant WHERE cm.id = :manufacturerId")
+    fun findByManufacturerIdWithDetails(manufacturerId: Long): List<Card>
 }
