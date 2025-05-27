@@ -44,14 +44,14 @@ class PlayerServiceTest {
         val mockPlayer1 = createMockPlayer(1L, "Michael", "Jordan", sampleTeam, sampleSport)
         val mockPlayer2 = createMockPlayer(2L, "Scottie", "Pippen", sampleTeam, sampleSport)
         val expectedPlayers = listOf(mockPlayer1, mockPlayer2)
-        whenever(playerRepository.findAll()).thenReturn(expectedPlayers)
+        whenever(playerRepository.findAllWithTeamAndSportSorted()).thenReturn(expectedPlayers) // Corrected method
 
         // WHEN
         val result = playerService.getPlayers()
 
         // THEN
         assertThat(result).isEqualTo(expectedPlayers)
-        verify(playerRepository).findAll()
+        verify(playerRepository).findAllWithTeamAndSportSorted() // Corrected verification
     }
 
     @Test

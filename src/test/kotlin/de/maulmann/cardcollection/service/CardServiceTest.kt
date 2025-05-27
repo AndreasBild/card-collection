@@ -36,6 +36,9 @@ class CardServiceTest {
 
     @Mock
     private lateinit var teamRepository: TeamRepository
+
+    @Mock // Added missing mock
+    private lateinit var seasonRepository: SeasonRepository
     
     // playerRepository and manufacturerRepository are not direct dependencies of CardService
     // and are not needed as @Mock fields for CardService testing.
@@ -45,47 +48,47 @@ class CardServiceTest {
     @InjectMocks
     private lateinit var cardService: CardService
 
-    private fun createMockPlayer(): Player = mock {
+    // Stable mock instances for dependencies
+    private val stableTestSport: Sport = mock { on { id } doReturn 1L; on { name } doReturn "Basketball" }
+    private val stableTestTeam: Team = mock { on { id } doReturn 1L; on { name } doReturn "Chicago Bulls" }
+    private val stableTestPlayer: Player = mock {
         on { id } doReturn 1L
         on { name } doReturn "Juwan"
         on { surname } doReturn "Howard"
-        on { team } doReturn mock<Team>()
-        on { sport } doReturn mock<Sport>()
+        on { team } doReturn stableTestTeam
+        on { sport } doReturn stableTestSport
     }
-
-    // Corrected to CardManufacturer as per model definitions (assuming Manufacturer was a typo)
-    private fun createMockCardManufacturer(): CardManufacturer = mock {
-        on { id } doReturn 1L
-        on { name } doReturn "Panini"
-    }
-    
-    private fun createMockBrand(): CardBrand = mock {
+    private val stableTestManufacturer: CardManufacturer = mock { on { id } doReturn 1L; on { name } doReturn "Panini" }
+    private val stableTestBrand: CardBrand = mock {
         on { id } doReturn 1L
         on { name } doReturn "Prizm"
-        on { manufacturer } doReturn createMockCardManufacturer()
+        on { manufacturer } doReturn stableTestManufacturer
     }
-
-    private fun createMockTheme(): CardTheme = mock {
+    private val stableTestTheme: CardTheme = mock {
         on { id } doReturn 1L
         on { name } doReturn "Base Set"
-        on { brand } doReturn createMockBrand()
+        on { brand } doReturn stableTestBrand
     }
-    
-    private fun createMockVariant(): Variant = mock { // Corrected CardVariant to Variant
+    private val stableTestVariant: Variant = mock {
         on { id } doReturn 1L
         on { name } doReturn "Silver"
-        on { theme } doReturn createMockTheme() // Ensure variant's theme is set for tests
+        on { theme } doReturn stableTestTheme
     }
 
-    // Corrected: Removed 'notes' as it's not a property of Card
+    // Helper methods now primarily return stable instances or create simple data objects
+    private fun createMockPlayer(): Player = stableTestPlayer
+    private fun createMockBrand(): CardBrand = stableTestBrand
+    private fun createMockTheme(): CardTheme = stableTestTheme
+    private fun createMockVariant(): Variant = stableTestVariant
     private fun createMockSeason(id: Long = 1L, name: String = "1994-95"): Season = Season(id = id, name = name)
 
-    private fun createMockCard(id: Long): Card = Card( // This is a direct instantiation, not a mock builder like in controller test
+
+    private fun createMockCard(id: Long): Card = Card(
         id = id,
-        player = createMockPlayer(),
-        season = createMockSeason(), // Changed to Season object
-        theme = createMockTheme(), // Added missing theme parameter
-        variant = createMockVariant(), // Variant itself might have a theme setup by createMockVariant
+        player = createMockPlayer(),      // Uses stableTestPlayer
+        season = createMockSeason(),      // Uses real Season object
+        theme = createMockTheme(),        // Uses stableTestTheme
+        variant = createMockVariant(),    // Uses stableTestVariant
         number = "101",
         printRun = 1000,
         serialNumber = 123,
@@ -106,14 +109,14 @@ class CardServiceTest {
         val mockCard1 = createMockCard(1L)
         val mockCard2 = createMockCard(2L)
         val expectedCards = listOf(mockCard1, mockCard2)
-        whenever(cardRepository.findAll()).thenReturn(expectedCards)
+        whenever(cardRepository.findAllWithDetails()).thenReturn(expectedCards) // Corrected method
 
         // WHEN
         val result = cardService.getAllCards()
 
         // THEN
         assertThat(result).isEqualTo(expectedCards)
-        verify(cardRepository).findAll()
+        verify(cardRepository).findAllWithDetails() // Corrected verification
     }
 
     @Test
