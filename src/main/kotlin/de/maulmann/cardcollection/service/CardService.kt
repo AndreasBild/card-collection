@@ -16,12 +16,10 @@ import de.maulmann.cardcollection.repository.SportRepository
 import de.maulmann.cardcollection.repository.TeamRepository // Import TeamRepository
 import de.maulmann.cardcollection.repository.VariantRepository
 import de.maulmann.cardcollection.repository.SeasonRepository // Import SeasonRepository
-import de.maulmann.cardcollection.service.PrintRunRange // Import PrintRunRange
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
-import jakarta.persistence.criteria.Predicate
 
 
 @Service
@@ -36,30 +34,8 @@ class CardService(
 ) {
 
     fun getAllCards(): List<Card> = cardRepository.findAllWithDetails()
-
-    fun findAllByRookieCard(rookieCard: Boolean): List<Card> {
-        return cardRepository.findAllByRookieCardWithDetails(rookieCard)
-    }
-
-    fun findAllByPlayerId(id: Long): List<Card> {
-        return cardRepository.findAllByPlayerIdWithDetails(id)
-    }
-
-
-    fun findAllByAutograph(autograph: Boolean): List<Card> {
-        return cardRepository.findAllByAutographWithDetails(autograph)
-    }
-
-    fun findAllByGameUsedMaterial(gameUsedMaterial: Boolean): List<Card> {
-        return cardRepository.findAllByGameUsedMaterialWithDetails(gameUsedMaterial)
-    }
-
     fun getCardById(id: Long): Card? = cardRepository.findById(id).orElse(null) // For single card, findById is fine. Details can be fetched if needed by EntityGraph on Card or specific DTO projection.
-
-    // New service methods for filtering cards
-    fun getCardsBySportId(sportId: Long): List<Card> {
-        return cardRepository.findAllByPlayerSportIdWithDetails(sportId)
-    }
+    
 
     fun getCardsFiltered(
         manufacturerId: Long?,

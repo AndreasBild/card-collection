@@ -44,7 +44,7 @@ class CardManufacturerServiceTest {
     }
 
     @Test
-    fun `testGetCardsByManufacturerId_returnsListOfCards`() {
+    fun testGetCardsByManufacturerId_returnsListOfCards() {
         // GIVEN
         val manufacturerId = 1L
         val mockCard1 = createMockCard(1L) 
@@ -61,7 +61,7 @@ class CardManufacturerServiceTest {
     }
 
     @Test
-    fun `testGetAllCardManufacturers_returnsListOfManufacturers`() {
+    fun testGetAllCardManufacturers_returnsListOfManufacturers() {
         // GIVEN
         // CardManufacturer is a data class, 'name' is a primary constructor param, likely used in equals().
         // 'id' is also a primary constructor param.
