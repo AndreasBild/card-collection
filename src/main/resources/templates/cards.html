@@ -166,18 +166,18 @@
     <tr>
         <th>Name</th>
         <th>Surname</th>
-        <th>Team</th> <!-- Updated to reflect the new Team relationship -->
-        <th>Sport</th> <!-- Updated to reflect the new Team relationship -->
+        <th>Team</th>
+        <th>Sport</th>
         <th>Season</th>
         <th>Company</th>
         <th>Brand</th>
         <th>Theme</th>
         <th>Variant</th>
         <th>Card Number</th>
-        <th>Serial/Print Run</th>
-        <th>Serial Numbered</th>
-        <th>Rookie Card</th>
-        <th>Game Used Material</th>
+        <th>Print Run</th>
+        <th>Serial</th>
+        <th>Rookie</th>
+        <th>Game Used</th>
         <th>Autograph</th>
     </tr>
     </thead>
@@ -185,9 +185,9 @@
     <tr th:each="card : ${cards}">
         <td th:text="${card.player.name}"></td>
         <td th:text="${card.player.surname}"></td>
-        <td th:text="${card.player.team.name}"></td> <!-- Display the Team name -->
-        <td th:text="${card.player.sport.name}"></td> <!-- Display the Team name -->
-        <td th:text="${card?.season?.name}"></td> <!-- Null-safe season name -->
+        <td th:text="${card.player.team.name}"></td>
+        <td th:text="${card.player.sport.name}"></td>
+        <td th:text="${card?.season?.name}"></td>
         <td th:text="${card?.theme?.brand?.manufacturer?.name}"></td>
         <td th:text="${card?.theme?.brand?.name}"></td>
         <td th:text="${card?.theme?.name}"></td>
