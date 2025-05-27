@@ -34,8 +34,8 @@ class CardService(
 ) {
 
     fun getAllCards(): List<Card> = cardRepository.findAllWithDetails()
-    fun getCardById(id: Long): Card? = cardRepository.findById(id).orElse(null) // For single card, findById is fine. Details can be fetched if needed by EntityGraph on Card or specific DTO projection.
-    
+    fun getCardById(id: Long): Card? = cardRepository.findById(id).orElse(null) // For the single card, findById is fine. Details can be fetched if needed by EntityGraph on Card or specific DTO projection.
+
 
     fun getCardsFiltered(
         manufacturerId: Long?,

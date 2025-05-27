@@ -208,7 +208,7 @@
 <div th:if="${totalPages > 0}" class="pagination-controls">
     <div class="pagination-info-block">
         Rows per page:
-        <select id="pageSizeSelector" onchange="changePageSize()" class="styled-select">
+        <label for="pageSizeSelector"></label><select id="pageSizeSelector" onchange="changePageSize()" class="styled-select">
             <option th:each="s : ${#numbers.sequence(10, 100)}" th:if="${s == 10 || s == 20 || s == 50 || s == 100}" th:value="${s}" th:text="${s}" th:selected="${s == pageSize}">_</option>
         </select>
     </div>
