@@ -43,6 +43,13 @@ class CardManufacturerServiceTest {
     private fun createMockVariant(): Variant = mock { // Corrected CardVariant to Variant
         on { id } doReturn 1L
         on { name } doReturn "Test Variant"
+        // Assuming Variant might have a theme, if so, mock it:
+        // on { this.theme } doReturn createMockTheme() 
+    }
+
+    private fun createMockSeason(id: Long = 1L, name: String = "2023-24"): Season = mock {
+        on { this.id } doReturn id
+        on { this.name } doReturn name
     }
     
     // Helper function to create a mock Card
@@ -52,7 +59,7 @@ class CardManufacturerServiceTest {
         on { this.theme } doReturn createMockTheme()
         on { this.variant } doReturn createMockVariant() // Now calls the corrected createMockVariant
         on { this.number } doReturn "101"
-        on { this.season } doReturn "2023-24"
+        on { this.season } doReturn createMockSeason() // Changed to Season object
         on { this.printRun } doReturn 100
         on { this.serialNumber } doReturn 10
         on { this.rookieCard } doReturn false
@@ -68,14 +75,14 @@ class CardManufacturerServiceTest {
         val mockCard1 = createMockCard(1L)
         val mockCard2 = createMockCard(2L)
         val expectedCards = listOf(mockCard1, mockCard2)
-        whenever(customCardQueriesRepository.findByManufacturerId(manufacturerId)).thenReturn(expectedCards)
+        whenever(customCardQueriesRepository.findByManufacturerIdWithDetails(manufacturerId)).thenReturn(expectedCards)
 
         // WHEN
         val result = cardManufacturerService.getCardsByManufacturerId(manufacturerId)
 
         // THEN
         assertThat(result).isEqualTo(expectedCards)
-        verify(customCardQueriesRepository).findByManufacturerId(manufacturerId)
+        verify(customCardQueriesRepository).findByManufacturerIdWithDetails(manufacturerId)
     }
 
     @Test

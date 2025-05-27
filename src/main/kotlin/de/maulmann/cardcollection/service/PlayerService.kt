@@ -15,7 +15,7 @@ class PlayerService(
 ) {
 
     fun getPlayers(): List<Player> {
-        return playerRepository.findAll()
+        return playerRepository.findAllWithTeamAndSportSorted()
     }
 
     fun addPlayer(name: String, surname: String, teamId: Long, sportId: Long): Player {

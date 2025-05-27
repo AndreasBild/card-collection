@@ -166,6 +166,11 @@ class CardControllerTest {
         on { this.id } doReturn id
         on { this.name } doReturn name
     }
+    
+    private fun createMockSeason(id: Long = 1L, name: String = "2023-24"): Season = mock {
+        on { this.id } doReturn id
+        on { this.name } doReturn name
+    }
 
     // Updated createMockCard to include detailed nested mocks
     private fun createMockCard(
@@ -174,7 +179,7 @@ class CardControllerTest {
         // theme parameter removed
         variant: Variant = createMockVariant(), // Variant itself might have a theme, handled by createMockVariant
         number: String = "101",
-        season: String = "2023-24",
+        season: Season = createMockSeason(), // Changed String to Season object
         printRun: Int = 100,
         serialNumber: Int = 10,
         rookieCard: Boolean = false,
@@ -186,7 +191,7 @@ class CardControllerTest {
         // on { this.theme } doReturn theme // Line removed
         on { this.variant } doReturn variant
         on { this.number } doReturn number
-        on { this.season } doReturn season
+        on { this.season } doReturn season // Now a Season object
         on { this.printRun } doReturn printRun
         on { this.serialNumber } doReturn serialNumber
         on { this.rookieCard } doReturn rookieCard

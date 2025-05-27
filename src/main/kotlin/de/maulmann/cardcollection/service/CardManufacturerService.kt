@@ -13,7 +13,7 @@ class CardManufacturerService(
 ) {
 
     fun getCardsByManufacturerId(manufacturerId: Long): List<Card> {
-        return customCardQueriesRepository.findByManufacturerId(manufacturerId)
+        return customCardQueriesRepository.findByManufacturerIdWithDetails(manufacturerId)
     }
 
     fun getAllCardManufacturers(): List<CardManufacturer> {

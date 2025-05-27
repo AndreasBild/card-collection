@@ -4,6 +4,7 @@ import de.maulmann.cardcollection.model.CardBrand
 import de.maulmann.cardcollection.model.CardManufacturer
 import de.maulmann.cardcollection.model.CardTheme
 import de.maulmann.cardcollection.model.Variant
+import de.maulmann.cardcollection.repository.ActualCardManufacturerRepository // Corrected import
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,7 +27,7 @@ class VariantRepositoryTest {
     private lateinit var cardBrandRepository: CardBrandRepository
 
     @Autowired
-    private lateinit var cardManufacturerRepository: CardManufacturerRepository
+    private lateinit var cardManufacturerRepository: ActualCardManufacturerRepository // Corrected type
 
     @Test
     fun `should save and retrieve variant with theme`() {
