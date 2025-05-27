@@ -1,6 +1,5 @@
 package de.maulmann.cardcollection.controller
 
-import de.maulmann.cardcollection.model.Player // Added
 import de.maulmann.cardcollection.service.CardManufacturerService
 import de.maulmann.cardcollection.service.CardService
 import de.maulmann.cardcollection.service.PlayerService // Added
@@ -11,7 +10,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam // Added
 
@@ -42,7 +40,7 @@ class CardController(
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(required = false) sort: String?
     ): String {
-        val sortObj = sort?.let {
+        val sortObj = sort?.let { it ->
             val parts = it.split(",").map { it.trim() }
             if (parts.isEmpty()) {
                 Sort.by("id")
@@ -97,7 +95,7 @@ class CardController(
         model.addAttribute("seasons", cardService.getAllSeasons())
         model.addAttribute("variants", cardService.getAllVariants())
         model.addAttribute("printRunRanges", PrintRunRange.entries.toTypedArray())
-        model.addAttribute("teams", cardService.getAllTeams()) // Add Teams to model
+        model.addAttribute("teams", cardService.getAllTeams()) // Add Teams to the model
 
         return "cards" // Returns the "cards.html" view
     }
