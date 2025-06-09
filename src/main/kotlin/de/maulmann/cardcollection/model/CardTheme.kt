@@ -12,5 +12,5 @@ data class CardTheme(
 
     @ManyToOne
     @JoinColumn(name = "brand_id")
-    val brand: CardBrand
+    val brand: CardBrand?
 )
