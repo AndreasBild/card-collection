@@ -7,7 +7,7 @@
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -27,11 +27,11 @@ CREATE TABLE `card` (
   `print_run` int NOT NULL,
   `serial_number` int NOT NULL,
   `number` varchar(255) DEFAULT NULL,
-  `rookie_card` tinyint(1) NOT NULL DEFAULT '0',
-  `game_used_material` tinyint(1) NOT NULL DEFAULT '0',
+  `rookie_card` tinyint NOT NULL DEFAULT '0',
+  `game_used_material` tinyint NOT NULL DEFAULT '0',
   `player_id` bigint DEFAULT NULL,
   `theme_id` bigint DEFAULT NULL,
-  `autograph` tinyint(1) NOT NULL DEFAULT '0',
+  `autograph` tinyint NOT NULL DEFAULT '0',
   `season_id` bigint DEFAULT NULL,
   `variant_id` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
