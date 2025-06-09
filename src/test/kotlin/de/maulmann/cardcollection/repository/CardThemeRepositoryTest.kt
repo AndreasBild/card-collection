@@ -49,7 +49,7 @@ class CardThemeRepositoryTest {
         val extractedNames: List<String> = themes.map { it.name }
         assertThat(extractedNames).containsExactlyElementsOf(listOf("Prizm Theme A", "Prizm Theme C"))
         assertThat(themes).allSatisfy { theme ->
-            assertThat(theme.brand.id).isEqualTo(brand1.id)
+            assertThat(theme.brand!!.id).isEqualTo(brand1.id)
         }
     }
 
@@ -105,7 +105,7 @@ class CardThemeRepositoryTest {
         val extractedNamesForManu: List<String> = themes.map { it.name }
         assertThat(extractedNamesForManu).containsExactlyElementsOf(listOf("Theme X for B1M1", "Theme Z for A2M1"))
         assertThat(themes).allSatisfy { theme ->
-            assertThat(theme.brand.manufacturer.id).isEqualTo(manufacturer1.id)
+            assertThat(theme.brand!!.manufacturer.id).isEqualTo(manufacturer1.id)
         }
     }
 
