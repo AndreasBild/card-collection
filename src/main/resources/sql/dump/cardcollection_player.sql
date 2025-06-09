@@ -33,10 +33,8 @@ CREATE TABLE `player` (
   PRIMARY KEY (`id`),
   KEY `fk_player_sport_idx` (`sport_id`),
   KEY `FKdvd6ljes11r44igawmpm1mc5s` (`team_id`),
-  CONSTRAINT `FK4h1qd1hwwbpng4lklwhcpa3vl` FOREIGN KEY (`sport_id`) REFERENCES `sport` (`id`),
-  CONSTRAINT `fk_player_sport` FOREIGN KEY (`sport_id`) REFERENCES `Sport` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-  CONSTRAINT `fk_player_team` FOREIGN KEY (`team_id`) REFERENCES `Team` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `FKdvd6ljes11r44igawmpm1mc5s` FOREIGN KEY (`team_id`) REFERENCES `team` (`id`)
+  CONSTRAINT `FK4h1qd1hwwbpng4lklwhcpa3vl` FOREIGN KEY (`sport_id`) REFERENCES `Sport` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT `fk_player_team` FOREIGN KEY (`team_id`) REFERENCES `Team` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
