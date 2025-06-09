@@ -136,6 +136,30 @@ INSERT INTO `card_theme` VALUES (1,'Base Set',1),(2,'Signature',1),(3,'Autograph
 UNLOCK TABLES;
 
 --
+-- Table structure for table `Sport`
+--
+
+DROP TABLE IF EXISTS `Sport`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Sport` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `Sport`
+--
+
+LOCK TABLES `Sport` WRITE;
+/*!40000 ALTER TABLE `Sport` DISABLE KEYS */;
+INSERT INTO `Sport` VALUES (1,'Basketball'),(2,'Baseball'),(3,'Football');
+/*!40000 ALTER TABLE `Sport` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `player`
 --
 
@@ -151,10 +175,8 @@ CREATE TABLE `player` (
   PRIMARY KEY (`id`),
   KEY `fk_player_sport_idx` (`sport_id`),
   KEY `FKdvd6ljes11r44igawmpm1mc5s` (`team_id`),
-  CONSTRAINT `FK4h1qd1hwwbpng4lklwhcpa3vl` FOREIGN KEY (`sport_id`) REFERENCES `sport` (`id`),
-  CONSTRAINT `fk_player_sport` FOREIGN KEY (`sport_id`) REFERENCES `Sport` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-  CONSTRAINT `fk_player_team` FOREIGN KEY (`team_id`) REFERENCES `Team` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `FKdvd6ljes11r44igawmpm1mc5s` FOREIGN KEY (`team_id`) REFERENCES `team` (`id`)
+  CONSTRAINT `FK4h1qd1hwwbpng4lklwhcpa3vl` FOREIGN KEY (`sport_id`) REFERENCES `Sport` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT `fk_player_team` FOREIGN KEY (`team_id`) REFERENCES `Team` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -191,30 +213,6 @@ LOCK TABLES `season` WRITE;
 /*!40000 ALTER TABLE `season` DISABLE KEYS */;
 INSERT INTO `season` VALUES (1,'1994-95'),(2,'1995-96');
 /*!40000 ALTER TABLE `season` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `Sport`
---
-
-DROP TABLE IF EXISTS `Sport`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Sport` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Sport`
---
-
-LOCK TABLES `Sport` WRITE;
-/*!40000 ALTER TABLE `Sport` DISABLE KEYS */;
-INSERT INTO `Sport` VALUES (1,'Basketball'),(2,'Baseball'),(3,'Football');
-/*!40000 ALTER TABLE `Sport` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
