@@ -60,7 +60,8 @@ class CardControllerTest {
             status { isOk() }
             view { name("cards") }
             model { attributeExists("cardPage", "currentPage", "totalPages", "totalItems", "pageSize") }
-            model { attributeExists("manufacturers", "players", "brands", "themes", "sports", "seasons", "variants", "printRunRanges", "teams") }
+            model { attributeExists("manufacturers", "players", "brands", "themes", "sports", "seasons", "variants", "printRunRanges", "teams", "gradingCompanies") }
+            model { attribute("gradingCompanies", GradingCompany.entries) }
         }
 
         verify(cardService).getCardsFiltered(
@@ -101,7 +102,8 @@ class CardControllerTest {
             status { isOk() }
             view { name("cards") }
             model { attributeExists("cardPage", "currentPage", "totalPages", "totalItems", "pageSize") }
-            model { attributeExists("manufacturers", "players", "brands", "themes", "sports", "seasons", "variants", "printRunRanges", "teams") }
+            model { attributeExists("manufacturers", "players", "brands", "themes", "sports", "seasons", "variants", "printRunRanges", "teams", "gradingCompanies") }
+            model { attribute("gradingCompanies", GradingCompany.entries) }
         }
 
         verify(cardService).getCardsFiltered(

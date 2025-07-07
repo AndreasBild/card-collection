@@ -6,6 +6,11 @@ import jakarta.persistence.*
 data class Card(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
+
+    @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "grading_id", nullable = true)
+    var grading: Grading? = null,
+
     val printRun: Int,
     val serialNumber: Int,
 
