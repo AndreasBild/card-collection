@@ -1,10 +1,15 @@
 package de.maulmann.cardcollection.controller
 
+// Model imports
 import de.maulmann.cardcollection.model.GradingCompany
+
+// Service imports
 import de.maulmann.cardcollection.service.CardManufacturerService
 import de.maulmann.cardcollection.service.CardService
-import de.maulmann.cardcollection.service.PlayerService // Added
-import de.maulmann.cardcollection.service.PrintRunRange // Import PrintRunRange
+import de.maulmann.cardcollection.service.PlayerService
+import de.maulmann.cardcollection.service.PrintRunRange
+
+// Spring imports
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -12,7 +17,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam // Added
+import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
 @RequestMapping("/cards")
