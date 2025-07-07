@@ -42,6 +42,7 @@ class CardController(
         @RequestParam(required = false) rookieCard: Boolean?,
         @RequestParam(required = false) printRunRangeKey: String?, // New parameter
         @RequestParam(required = false) teamId: Long?, // New parameter
+        @RequestParam(required = false) isGradedNullable: Boolean?, // New parameter for grading status
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(required = false) sort: String?

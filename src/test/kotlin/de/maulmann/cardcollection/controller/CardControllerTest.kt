@@ -37,9 +37,10 @@ class CardControllerTest {
         val emptyPage = PageImpl<Card>(emptyList(), defaultPageable, 0)
 
         whenever(cardService.getCardsFiltered(
-            anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), 
-            anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), 
-            eq(defaultPageable) // Match the specific Pageable object
+            anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(),
+            anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(),
+            anyOrNull(), // for isGradedNullable
+            eq(defaultPageable)
         )).thenReturn(emptyPage)
 
         // Mock calls for dropdown population
@@ -66,7 +67,8 @@ class CardControllerTest {
 
         verify(cardService).getCardsFiltered(
             eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null),
-            eq(defaultPageable) // Verify with the default pageable defined in the controller
+            eq(null), // for isGradedNullable
+            eq(defaultPageable)
         )
     }
 
@@ -74,14 +76,15 @@ class CardControllerTest {
     fun `testGetCards_withManufacturerIdParam_callsServiceWithParam`() {
         // GIVEN
         val manufacturerId = 1L
-        val pageable = PageRequest.of(0, 20, Sort.by("id")) // Default pageable
+        val pageable = PageRequest.of(0, 20, Sort.by("id"))
         val emptyPage = PageImpl<Card>(emptyList(), pageable, 0)
 
         whenever(cardService.getCardsFiltered(
-            eq(manufacturerId), // Expect manufacturerId to be 1L
-            anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), 
+            eq(manufacturerId),
+            anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(),
             anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(),
-            eq(pageable) // Match the specific Pageable object
+            anyOrNull(), // for isGradedNullable
+            eq(pageable)
         )).thenReturn(emptyPage)
 
         // Mock calls for dropdown population
@@ -109,9 +112,44 @@ class CardControllerTest {
         verify(cardService).getCardsFiltered(
             eq(manufacturerId),
             eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null),
+            eq(null), // for isGradedNullable
             eq(pageable)
         )
     }
+
+    @Test
+    fun `testGetCards_withIsGradedNullableParam_callsServiceWithParam`() {
+        // GIVEN
+        val isGraded = true
+        val pageable = PageRequest.of(0, 20, Sort.by("id"))
+        val emptyPage = PageImpl<Card>(emptyList(), pageable, 0)
+
+        whenever(cardService.getCardsFiltered(
+            anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(),
+            anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(),
+            eq(isGraded), // Expect isGradedNullable to be true
+            eq(pageable)
+        )).thenReturn(emptyPage)
+
+        mockDropdownServices() // Mock other service calls
+
+        // WHEN & THEN
+        mockMvc.get("/cards") {
+            param("isGradedNullable", isGraded.toString())
+        }.andExpect {
+            status { isOk() }
+            view { name("cards") }
+            model { attributeExists("cardPage") }
+            model { attribute("gradingCompanies", GradingCompany.entries) }
+        }
+
+        verify(cardService).getCardsFiltered(
+            eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null),
+            eq(isGraded), // Verify isGradedNullable
+            eq(pageable)
+        )
+    }
+
 
     // --- START Enhanced Mock Helper Functions ---
     private fun createMockSport(id: Long = 1L, name: String = "Basketball"): Sport = mock {
