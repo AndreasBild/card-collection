@@ -11,7 +11,7 @@
 	<groupId>de.maulmann</groupId>
 	<artifactId>card-collection</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Card Collection</name>
+	<name>Trading Card Collection</name>
 	<description>Trading Card Collection application based on Spring Boot</description>
 	<url/>
 	<licenses>
@@ -84,7 +84,7 @@
 		<dependency>
 			<groupId>org.mockito.kotlin</groupId>
 			<artifactId>mockito-kotlin</artifactId>
-			<version>5.3.1</version> <!-- Or the latest compatible version with Mockito 5.x -->
+			<version>5.4.0</version> <!-- Or the latest compatible version with Mockito 5.x -->
 			<scope>test</scope>
 		</dependency>
 		<dependency>
