@@ -41,8 +41,4 @@ interface CardRepository : JpaRepository<Card, Long>, QueryByExampleExecutor<Car
 
     @Query("SELECT c FROM Card c JOIN FETCH c.season JOIN FETCH c.player p JOIN FETCH p.sport JOIN FETCH p.team ps JOIN FETCH c.variant JOIN FETCH c.theme t JOIN FETCH t.brand b JOIN FETCH b.manufacturer WHERE p.sport.id = :sportId")
     fun findAllByPlayerSportIdWithDetails(sportId: Long): List<Card>
-
-    // This is the method that takes Specification and Pageable, ensuring it's correctly named and overridden
-    @EntityGraph(attributePaths = ["player.team", "player.sport", "theme.brand.manufacturer", "season", "variant"])
-    override fun findAll(spec: org.springframework.data.jpa.domain.Specification<Card>?, pageable: org.springframework.data.domain.Pageable): org.springframework.data.domain.Page<Card>
 }
