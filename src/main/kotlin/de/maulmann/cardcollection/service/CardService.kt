@@ -48,8 +48,9 @@ class CardService(
         autograph: Boolean?,  // New
         variantId: Long?,
         rookieCard: Boolean?,
-        printRunRangeKey: String?, // New parameter
-        teamId: Long?, // New parameter
+        printRunRangeKey: String?,
+        teamId: Long?,
+        isGradedNullable: Boolean?, // New parameter for grading status
         pageable: Pageable
     ): Page<Card> {
         val specifications = mutableListOf<Specification<Card>>()
@@ -107,6 +108,17 @@ class CardService(
         teamId?.let {
             specifications.add(Specification { root, _, cb ->
                 cb.equal(root.get<Player>("player").get<Team>("team").get<Long>("id"), it)
+            })
+        }
+
+        // Handle isGradedNullable filter
+        isGradedNullable?.let { isGraded ->
+            specifications.add(Specification { root, _, cb ->
+                if (isGraded) {
+                    cb.isNotNull(root.get<Any>("grading")) // Check if 'grading' field is not null
+                } else {
+                    cb.isNull(root.get<Any>("grading")) // Check if 'grading' field is null
+                }
             })
         }
 

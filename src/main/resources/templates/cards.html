@@ -154,6 +154,16 @@
                     th:selected="${param.printRunRangeKey != null && param.printRunRangeKey == prRange.key}"></option>
         </select>
     </div>
+
+    <div>
+        <label for="gradingStatusSelectForm">Graded:</label>
+        <select id="gradingStatusSelectForm" name="isGradedNullable" class="styled-select">
+            <option value="">Any</option>
+            <option value="true" th:selected="${param.isGradedNullable == 'true'}">Yes</option>
+            <option value="false" th:selected="${param.isGradedNullable == 'false'}">No</option>
+        </select>
+    </div>
+
     <div class="filter-buttons-container">
         <button type="submit">Filter</button>
         <a th:href="@{/cards}" class="button">Clear Filters</a>
@@ -237,7 +247,8 @@
                                 autograph=${param.autograph ?: ''},
                                 variantId=${param.variantId ?: ''},
                                 rookieCard=${param.rookieCard ?: ''},
-                                printRunRangeKey=${param.printRunRangeKey ?: ''}
+                                printRunRangeKey=${param.printRunRangeKey ?: ''},
+                                isGradedNullable=${param.isGradedNullable ?: ''}
                                 )}">First</a>
             </li>
 
@@ -251,12 +262,13 @@
                                 sportId=${param.sportId ?: ''},
                                 playerId=${param.playerId ?: ''},
                                 teamId=${param.teamId ?: ''},
-                                season=${param.season ?: ''},
+                                seasonId=${param.seasonId ?: ''}, /* Corrected from season */
                                 gameUsed=${param.gameUsed ?: ''},
                                 autograph=${param.autograph ?: ''},
                                 variantId=${param.variantId ?: ''},
                                 rookieCard=${param.rookieCard ?: ''},
-                                printRunRangeKey=${param.printRunRangeKey ?: ''}
+                                printRunRangeKey=${param.printRunRangeKey ?: ''},
+                                isGradedNullable=${param.isGradedNullable ?: ''}
                                 )}"
                    th:unless="${currentPage == 0}">Previous</a>
                 <span th:if="${currentPage == 0}">Previous</span>
@@ -280,14 +292,15 @@
                                         autograph=${param.autograph ?: ''},
                                         variantId=${param.variantId ?: ''},
                                         rookieCard=${param.rookieCard ?: ''},
-                                        printRunRangeKey=${param.printRunRangeKey ?: ''}
+                                        printRunRangeKey=${param.printRunRangeKey ?: ''},
+                                        isGradedNullable=${param.isGradedNullable ?: ''}
                                         )}" th:text="${i + 1}">_</a>
                     </li>
                 </th:block>
                 <th:block th:unless="${totalPages <= (2 * window + 5)}"> <!-- More complex pagination for many pages -->
                     <!-- First page -->
                     <li th:classappend="${0 == currentPage} ? 'active' : ''">
-                         <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''})}" th:text="1">_</a> <!-- Changed to seasonId -->
+                         <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}" th:text="1">_</a>
                     </li>
 
                     <!-- Ellipsis after first if needed -->
@@ -308,7 +321,8 @@
                                         autograph=${param.autograph ?: ''},
                                         variantId=${param.variantId ?: ''},
                                         rookieCard=${param.rookieCard ?: ''},
-                                        printRunRangeKey=${param.printRunRangeKey ?: ''}
+                                        printRunRangeKey=${param.printRunRangeKey ?: ''},
+                                        isGradedNullable=${param.isGradedNullable ?: ''}
                                         )}" th:text="${i + 1}">_</a>
                     </li>
 
@@ -317,7 +331,7 @@
 
                     <!-- Last page -->
                     <li th:classappend="${totalPages - 1 == currentPage} ? 'active' : ''">
-                         <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''})}" th:text="${totalPages}">_</a> <!-- Changed to seasonId -->
+                         <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}" th:text="${totalPages}">_</a>
                     </li>
                 </th:block>
             </th:block>
@@ -337,7 +351,8 @@
                                 autograph=${param.autograph ?: ''},
                                 variantId=${param.variantId ?: ''},
                                 rookieCard=${param.rookieCard ?: ''},
-                                printRunRangeKey=${param.printRunRangeKey ?: ''}
+                                printRunRangeKey=${param.printRunRangeKey ?: ''},
+                                isGradedNullable=${param.isGradedNullable ?: ''}
                                 )}"
                    th:unless="${currentPage >= totalPages - 1}">Next</a>
                 <span th:if="${currentPage >= totalPages - 1}">Next</span>
@@ -353,12 +368,13 @@
                                 sportId=${param.sportId ?: ''},
                                 playerId=${param.playerId ?: ''},
                                 teamId=${param.teamId ?: ''},
-                                season=${param.season ?: ''},
+                                seasonId=${param.seasonId ?: ''}, /* Corrected from season */
                                 gameUsed=${param.gameUsed ?: ''},
                                 autograph=${param.autograph ?: ''},
                                 variantId=${param.variantId ?: ''},
                                 rookieCard=${param.rookieCard ?: ''},
-                                printRunRangeKey=${param.printRunRangeKey ?: ''}
+                                printRunRangeKey=${param.printRunRangeKey ?: ''},
+                                isGradedNullable=${param.isGradedNullable ?: ''}
                                 )}">Last</a>
             </li>
         </ul>
