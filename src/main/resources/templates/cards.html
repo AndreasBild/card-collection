@@ -174,22 +174,26 @@
 <table>
     <thead>
     <tr>
-        <th>Player</th>
-        <th>Team</th>
-        <th>Sport</th>
-        <th>Season</th>
-        <th>Company</th>
-        <th>Brand</th>
-        <th>Theme</th>
-        <th>Variant</th>
-        <th>Number</th>
-        <th>Serial</th>
-        <th>Print Run</th>
-        <th>Rookie</th>
-        <th>Game Used</th>
-        <th>Autograph</th>
-        <th>Grading Co.</th>
-        <th>Grade</th>
+        <th:block th:each="column : ${sortableColumns}">
+            <th>
+                <a th:with="nextSortDir=${currentSortProperty == column.propertyPath && currentSortDirection == 'ASC' ? 'DESC' : 'ASC'}"
+                   th:href="@{/cards(
+                        page=${currentPage}, size=${pageSize},
+                        sort=${column.propertyPath + ',' + nextSortDir},
+                        manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''},
+                        sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''},
+                        seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''},
+                        variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''},
+                        isGradedNullable=${param.isGradedNullable ?: ''}
+                   )}">
+                    <span th:text="${column.displayName}"></span>
+                    <span th:if="${currentSortProperty == column.propertyPath}">
+                        <span th:if="${currentSortDirection == 'ASC'}">▲</span>
+                        <span th:if="${currentSortDirection == 'DESC'}">▼</span>
+                    </span>
+                </a>
+            </th>
+        </th:block>
     </tr>
     </thead>
     <tbody>

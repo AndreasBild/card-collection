@@ -24,10 +24,33 @@ import org.springframework.web.bind.annotation.RequestParam
 class CardController(
     private val cardService: CardService,
     private val cardManufacturerService: CardManufacturerService,
-    private val playerService: PlayerService // Added PlayerService
+    private val playerService: PlayerService
 ) {
 
-    @GetMapping // This will be the main endpoint, effectively "/cards"
+    companion object {
+        data class SortableColumnInfo(val displayName: String, val propertyPath: String)
+
+        private val SORTABLE_COLUMNS = listOf(
+            SortableColumnInfo("Player", "player.name"),
+            SortableColumnInfo("Team", "player.team.name"),
+            SortableColumnInfo("Sport", "player.sport.name"),
+            SortableColumnInfo("Season", "season.name"),
+            SortableColumnInfo("Company", "theme.brand.manufacturer.name"),
+            SortableColumnInfo("Brand", "theme.brand.name"),
+            SortableColumnInfo("Theme", "theme.name"),
+            SortableColumnInfo("Variant", "variant.name"),
+            SortableColumnInfo("Number", "number"),
+            SortableColumnInfo("Serial", "serialNumber"),
+            SortableColumnInfo("Print Run", "printRun"),
+            SortableColumnInfo("Rookie", "rookieCard"),
+            SortableColumnInfo("Game Used", "gameUsedMaterial"),
+            SortableColumnInfo("Autograph", "autograph"),
+            SortableColumnInfo("Grading Co.", "grading.gradingCompany"),
+            SortableColumnInfo("Grade", "grading.grade")
+        )
+    }
+
+    @GetMapping
     fun getCards(
         model: Model,
         @RequestParam(required = false) manufacturerId: Long?,
@@ -93,6 +116,22 @@ class CardController(
         model.addAttribute("totalItems", cardsPage.totalElements)
         model.addAttribute("pageSize", cardsPage.size)
 
+        // Add current sort property and direction to the model for the view
+        var currentSortProperty = "id" // Default sort property
+        var currentSortDirection = "ASC"
+
+        sort?.let {
+            val parts = it.split(",").map { part -> part.trim() }
+            if (parts.isNotEmpty()) {
+                currentSortProperty = parts[0].takeIf { p -> p.isNotBlank() } ?: "id"
+                if (parts.size > 1) {
+                    currentSortDirection = if (parts[1].equals("DESC", ignoreCase = true)) "DESC" else "ASC"
+                }
+            }
+        }
+        model.addAttribute("currentSortProperty", currentSortProperty)
+        model.addAttribute("currentSortDirection", currentSortDirection)
+        model.addAttribute("sortableColumns", SORTABLE_COLUMNS)
 
         // Fetch data for filters/dropdowns (this part remains the same)
         model.addAttribute("manufacturers", cardManufacturerService.getAllCardManufacturers())
