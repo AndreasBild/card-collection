@@ -82,6 +82,7 @@ class CardController(
             rookieCard = rookieCard,
             printRunRangeKey = printRunRangeKey, // Pass new parameter
             teamId = teamId, // Pass new parameter
+            isGradedNullable = isGradedNullable, // Pass the grading status parameter
             pageable = pageable // Pass the pageable object
         )
 
