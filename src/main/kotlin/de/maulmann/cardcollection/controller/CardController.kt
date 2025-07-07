@@ -1,5 +1,6 @@
 package de.maulmann.cardcollection.controller
 
+import de.maulmann.cardcollection.model.GradingCompany
 import de.maulmann.cardcollection.service.CardManufacturerService
 import de.maulmann.cardcollection.service.CardService
 import de.maulmann.cardcollection.service.PlayerService // Added
@@ -96,6 +97,7 @@ class CardController(
         model.addAttribute("variants", cardService.getAllVariants())
         model.addAttribute("printRunRanges", PrintRunRange.entries.toTypedArray())
         model.addAttribute("teams", cardService.getAllTeams()) // Add Teams to the model
+        model.addAttribute("gradingCompanies", GradingCompany.entries) // Add grading companies
 
         return "cards" // Returns the "cards.html" view
     }

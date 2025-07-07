@@ -178,6 +178,8 @@
         <th>Rookie</th>
         <th>Game Used</th>
         <th>Autograph</th>
+        <th>Grading Co.</th>
+        <th>Grade</th>
     </tr>
     </thead>
     <tbody>
@@ -196,6 +198,8 @@
         <td th:text="${card.rookieCard ? 'Yes' : 'No'}"></td>
         <td th:text="${card.gameUsedMaterial ? 'Yes' : 'No'}"></td>
         <td th:text="${card.autograph ? 'Yes' : 'No'}"></td>
+        <td th:text="${card.grading?.gradingCompany?.name()}"></td> <!-- Display Grading Company -->
+        <td th:text="${card.grading?.grade}"></td> <!-- Display Grade -->
 
 
     </tr>
