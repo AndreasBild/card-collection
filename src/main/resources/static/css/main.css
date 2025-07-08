@@ -178,3 +178,35 @@ ul.pagination li.disabled span {
     border-color: #C0C0C0; /* Lighter border */
     cursor: not-allowed;
 }
+/* General styling for all sortable header links */
+table thead th a {
+    text-decoration: none; /* Removes underline by default if you prefer */
+    color: #ffffff; /* Example link color - choose one that fits your theme */
+    display: inline-block; /* Allows padding and better click area if needed */
+}
+
+table thead th a:hover,
+table thead th a:focus {
+    text-decoration: underline; /* Underline on hover/focus for clarity */
+    color: #032040; /* Darker color on hover/focus */
+}
+
+/* Style for the link within the currently sorted column header */
+table thead th[aria-sort="ascending"] a,
+table thead th[aria-sort="descending"] a {
+    color: #ffffff; /* Lighter/greyer color for the active sort link */
+    /* font-weight: bold; */ /* Optionally make it bold */
+    cursor: default; /* Optional: change cursor as it's 'active' not 'new action' */
+}
+
+/* Styling for the sort indicators (arrows) */
+table thead th a span span { /* Targets the inner spans for arrows */
+    margin-left: 5px;
+    /* color: #333; */ /* Color for the arrow itself, if needed */
+}
+
+/* Optional: Clearer focus outline for keyboard navigation */
+table thead th a:focus {
+    outline: 2px solid #ef2fc3; /* Or your preferred focus color */
+    outline-offset: 2px;
+}
