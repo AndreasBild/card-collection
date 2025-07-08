@@ -175,8 +175,14 @@
     <thead>
     <tr>
         <th:block th:each="column : ${sortableColumns}">
-            <th>
+            <th th:aria-sort="${currentSortProperty == column.propertyPath ? (currentSortDirection == 'ASC' ? 'ascending' : 'descending') : 'none'}">
                 <a th:with="nextSortDir=${currentSortProperty == column.propertyPath && currentSortDirection == 'ASC' ? 'DESC' : 'ASC'}"
+                   th:aria-label="'Sort by ' + column.displayName +
+                                  (${currentSortProperty == column.propertyPath && currentSortDirection == 'ASC'} ?
+                                   ', currently sorted ascending, activate to sort descending' :
+                                   (${currentSortProperty == column.propertyPath && currentSortDirection == 'DESC'} ?
+                                    ', currently sorted descending, activate to sort ascending' :
+                                    ', activate to sort ascending'))"
                    th:href="@{/cards(
                         page=${currentPage}, size=${pageSize},
                         sort=${column.propertyPath + ',' + nextSortDir},
