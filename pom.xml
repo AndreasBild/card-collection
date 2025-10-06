@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.3</version>
+		<version>3.5.6</version>
 		<relativePath/>
 	</parent>
 	<groupId>de.maulmann</groupId>
@@ -28,7 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>24</java.version>
-		<kotlin.version>2.2.0</kotlin.version>
+		<kotlin.version>2.2.20</kotlin.version>
 	</properties>
 
 
@@ -60,12 +60,12 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-			<version>11.10.1</version>
+			<version>11.13.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-mysql</artifactId>
-			<version>11.10.1</version>
+			<version>11.13.2</version>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.validation</groupId>
