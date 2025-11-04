@@ -316,7 +316,7 @@
                     <li th:if="${currentPage > window + 1}" class="disabled"><span>...</span></li>
 
                     <!-- Window around current page -->
-                    <li th:each="i : ${#numbers.sequence( T(java.lang.Math).max(1, currentPage - window), T(java.lang.Math).min(totalPages - 2, currentPage + window) )}" th:classappend="${i == currentPage} ? 'active' : ''">
+                    <li th:each="i : ${#numbers.sequence( T(java.lang.Math).max(1, currentPage - window), T(java.lang.Math).min(totalPages.intValue() - 2, currentPage + window) )}" th:classappend="${i == currentPage} ? 'active' : ''">
                         <a th:href="@{/cards(page=${i}, size=${pageSize},
                                         sort=${param.sort ?: ''},
                                         manufacturerId=${param.manufacturerId ?: ''},
