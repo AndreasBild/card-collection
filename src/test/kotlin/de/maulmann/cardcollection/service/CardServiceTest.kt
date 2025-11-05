@@ -186,7 +186,8 @@ class CardServiceTest {
             variantId = null,
             rookieCard = null,
             printRunRangeKey = null,
-            pageable = pageable
+            pageable = pageable,
+            isGradedNullable = null
         )
 
         // THEN
@@ -217,7 +218,8 @@ class CardServiceTest {
             variantId = null,
             rookieCard = null,
             printRunRangeKey = null,
-            pageable = pageable
+            pageable = pageable,
+            isGradedNullable = null
         )
 
         // THEN
@@ -249,7 +251,8 @@ class CardServiceTest {
             variantId = null,
             rookieCard = null,
             printRunRangeKey = null,
-            pageable = pageable
+            pageable = pageable,
+            isGradedNullable = null
         )
 
         // THEN
@@ -279,7 +282,8 @@ class CardServiceTest {
             variantId = null,
             rookieCard = rookieCard,
             printRunRangeKey = null,
-            pageable = pageable
+            pageable = pageable,
+            isGradedNullable = null
         )
 
         // THEN
@@ -309,7 +313,8 @@ class CardServiceTest {
             variantId = null,
             rookieCard = null,
             printRunRangeKey = printRunRangeKey,
-            pageable = pageable
+            pageable = pageable,
+            isGradedNullable = null
         )
 
         // THEN

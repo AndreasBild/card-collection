@@ -41,7 +41,7 @@ class CardGradingIntegrationTest {
         brand = entityManager.persistFlushFind(CardBrand(name = "Test Brand", manufacturer = manufacturer))
         theme = entityManager.persistFlushFind(CardTheme(name = "Test Theme", brand = brand))
         sport = entityManager.persistFlushFind(Sport(name = "Test Sport"))
-        team = entityManager.persistFlushFind(Team(name = "Test Team", sport = sport))
+        team = entityManager.persistFlushFind(Team(name = "Test Team"))
         season = entityManager.persistFlushFind(Season(name = "2023-24"))
         variant = entityManager.persistFlushFind(Variant(name = "Base"))
         player = entityManager.persistFlushFind(Player(name = "Test", surname = "Player", team = team, sport = sport))
