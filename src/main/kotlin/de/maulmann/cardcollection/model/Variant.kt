@@ -8,7 +8,4 @@ data class Variant(
     val id: Long = 0,
     val name: String,
 
-    @ManyToOne
-    @JoinColumn(name = "theme_id")
-    val theme: CardTheme? = null
 )
