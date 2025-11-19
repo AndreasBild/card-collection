@@ -20,11 +20,9 @@ SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
 SET @@SESSION.SQL_LOG_BIN= 0;
 
 --
--- GTID state at the beginning of the backup 
+-- GTID state at the beginning of the backup
 --
 
-SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '7a26c000-b33a-11f0-86ee-e9d15a4f7c80:1-433,
-c438073e-4563-11f0-afc9-c39087f22c03:1-642';
 
 --
 -- Table structure for table `card`
@@ -34,29 +32,29 @@ DROP TABLE IF EXISTS `card`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `card` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `print_run` int NOT NULL,
-  `serial_number` int NOT NULL,
-  `number` varchar(255) DEFAULT NULL,
-  `player_id` bigint DEFAULT NULL,
-  `theme_id` bigint DEFAULT NULL,
-  `season_id` bigint DEFAULT NULL,
-  `variant_id` bigint DEFAULT NULL,
-  `rookie_card` bit(1) DEFAULT NULL,
-  `game_used_material` bit(1) DEFAULT NULL,
-  `autograph` bit(1) DEFAULT NULL,
-  `grading_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `FKbyb0u8pl0bms3a11dql17ut0b` (`player_id`),
-  KEY `FKrhm60fo96t7r89farfjnmg0n9` (`theme_id`),
-  KEY `FK6xhb82f364llei3se8shqvxoa` (`variant_id`),
-  KEY `FK_card_season` (`season_id`),
-  KEY `fk_card_grading` (`grading_id`),
-  CONSTRAINT `FK6xhb82f364llei3se8shqvxoa` FOREIGN KEY (`variant_id`) REFERENCES `variant` (`id`),
-  CONSTRAINT `fk_card_grading` FOREIGN KEY (`grading_id`) REFERENCES `grading` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_card_season` FOREIGN KEY (`season_id`) REFERENCES `season` (`id`),
-  CONSTRAINT `FKbyb0u8pl0bms3a11dql17ut0b` FOREIGN KEY (`player_id`) REFERENCES `player` (`id`),
-  CONSTRAINT `FKrhm60fo96t7r89farfjnmg0n9` FOREIGN KEY (`theme_id`) REFERENCES `card_theme` (`id`)
+                        `id` bigint NOT NULL AUTO_INCREMENT,
+                        `print_run` int NOT NULL,
+                        `serial_number` int NOT NULL,
+                        `number` varchar(255) DEFAULT NULL,
+                        `player_id` bigint DEFAULT NULL,
+                        `theme_id` bigint DEFAULT NULL,
+                        `season_id` bigint DEFAULT NULL,
+                        `variant_id` bigint DEFAULT NULL,
+                        `rookie_card` bit(1) DEFAULT NULL,
+                        `game_used_material` bit(1) DEFAULT NULL,
+                        `autograph` bit(1) DEFAULT NULL,
+                        `grading_id` bigint DEFAULT NULL,
+                        PRIMARY KEY (`id`),
+                        KEY `FKbyb0u8pl0bms3a11dql17ut0b` (`player_id`),
+                        KEY `FKrhm60fo96t7r89farfjnmg0n9` (`theme_id`),
+                        KEY `FK6xhb82f364llei3se8shqvxoa` (`variant_id`),
+                        KEY `FK_card_season` (`season_id`),
+                        KEY `fk_card_grading` (`grading_id`),
+                        CONSTRAINT `FK6xhb82f364llei3se8shqvxoa` FOREIGN KEY (`variant_id`) REFERENCES `variant` (`id`),
+                        CONSTRAINT `fk_card_grading` FOREIGN KEY (`grading_id`) REFERENCES `grading` (`id`) ON DELETE SET NULL,
+                        CONSTRAINT `FK_card_season` FOREIGN KEY (`season_id`) REFERENCES `season` (`id`),
+                        CONSTRAINT `FKbyb0u8pl0bms3a11dql17ut0b` FOREIGN KEY (`player_id`) REFERENCES `player` (`id`),
+                        CONSTRAINT `FKrhm60fo96t7r89farfjnmg0n9` FOREIGN KEY (`theme_id`) REFERENCES `card_theme` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1125 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -78,12 +76,12 @@ DROP TABLE IF EXISTS `card_brand`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `card_brand` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `manufacturer_id` bigint NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_card_brand_manufacturer_id` (`manufacturer_id`),
-  CONSTRAINT `fk_card_brand_manufacturer` FOREIGN KEY (`manufacturer_id`) REFERENCES `card_manufacturer` (`id`) ON DELETE RESTRICT
+                              `id` bigint NOT NULL AUTO_INCREMENT,
+                              `name` varchar(255) NOT NULL,
+                              `manufacturer_id` bigint NOT NULL,
+                              PRIMARY KEY (`id`),
+                              KEY `idx_card_brand_manufacturer_id` (`manufacturer_id`),
+                              CONSTRAINT `fk_card_brand_manufacturer` FOREIGN KEY (`manufacturer_id`) REFERENCES `card_manufacturer` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=192 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -156,18 +154,18 @@ DROP TABLE IF EXISTS `flyway_schema_history`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `flyway_schema_history` (
-  `installed_rank` int NOT NULL,
-  `version` varchar(50) DEFAULT NULL,
-  `description` varchar(200) NOT NULL,
-  `type` varchar(20) NOT NULL,
-  `script` varchar(1000) NOT NULL,
-  `checksum` int DEFAULT NULL,
-  `installed_by` varchar(100) NOT NULL,
-  `installed_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `execution_time` int NOT NULL,
-  `success` tinyint(1) NOT NULL,
-  PRIMARY KEY (`installed_rank`),
-  KEY `flyway_schema_history_s_idx` (`success`)
+                                         `installed_rank` int NOT NULL,
+                                         `version` varchar(50) DEFAULT NULL,
+                                         `description` varchar(200) NOT NULL,
+                                         `type` varchar(20) NOT NULL,
+                                         `script` varchar(1000) NOT NULL,
+                                         `checksum` int DEFAULT NULL,
+                                         `installed_by` varchar(100) NOT NULL,
+                                         `installed_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                         `execution_time` int NOT NULL,
+                                         `success` tinyint(1) NOT NULL,
+                                         PRIMARY KEY (`installed_rank`),
+                                         KEY `flyway_schema_history_s_idx` (`success`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -189,11 +187,11 @@ DROP TABLE IF EXISTS `grading`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `grading` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `grade` float NOT NULL,
-  `grading_company` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `check_grade_range` CHECK (((`grade` >= 6.0) and (`grade` <= 10.0)))
+                           `id` bigint NOT NULL AUTO_INCREMENT,
+                           `grade` float NOT NULL,
+                           `grading_company` varchar(255) NOT NULL,
+                           PRIMARY KEY (`id`),
+                           CONSTRAINT `check_grade_range` CHECK (((`grade` >= 6.0) and (`grade` <= 10.0)))
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -215,16 +213,16 @@ DROP TABLE IF EXISTS `player`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `player` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `surname` varchar(255) NOT NULL,
-  `team_id` bigint NOT NULL,
-  `sport_id` bigint NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_player_sport_id` (`sport_id`),
-  KEY `idx_player_team_id` (`team_id`),
-  CONSTRAINT `fk_player_sport` FOREIGN KEY (`sport_id`) REFERENCES `Sport` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_player_team` FOREIGN KEY (`team_id`) REFERENCES `Team` (`id`) ON DELETE RESTRICT
+                          `id` bigint NOT NULL AUTO_INCREMENT,
+                          `name` varchar(255) NOT NULL,
+                          `surname` varchar(255) NOT NULL,
+                          `team_id` bigint NOT NULL,
+                          `sport_id` bigint NOT NULL,
+                          PRIMARY KEY (`id`),
+                          KEY `idx_player_sport_id` (`sport_id`),
+                          KEY `idx_player_team_id` (`team_id`),
+                          CONSTRAINT `fk_player_sport` FOREIGN KEY (`sport_id`) REFERENCES `Sport` (`id`) ON DELETE RESTRICT,
+                          CONSTRAINT `fk_player_team` FOREIGN KEY (`team_id`) REFERENCES `Team` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -246,10 +244,10 @@ DROP TABLE IF EXISTS `season`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `season` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_season_name` (`name`)
+                          `id` bigint NOT NULL AUTO_INCREMENT,
+                          `name` varchar(255) NOT NULL,
+                          PRIMARY KEY (`id`),
+                          UNIQUE KEY `UK_season_name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -271,9 +269,9 @@ DROP TABLE IF EXISTS `sport`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `sport` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`)
+                         `id` bigint NOT NULL AUTO_INCREMENT,
+                         `name` varchar(100) NOT NULL,
+                         PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -295,9 +293,9 @@ DROP TABLE IF EXISTS `team`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `team` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`)
+                        `id` bigint NOT NULL AUTO_INCREMENT,
+                        `name` varchar(100) NOT NULL,
+                        PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -319,9 +317,9 @@ DROP TABLE IF EXISTS `variant`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `variant` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
+                           `id` bigint NOT NULL AUTO_INCREMENT,
+                           `name` varchar(255) NOT NULL,
+                           PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=733 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
