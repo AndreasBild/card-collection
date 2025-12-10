@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.0</version>
+		<version>3.3.0</version>
 		<relativePath/>
 	</parent>
 	<groupId>de.maulmann</groupId>
@@ -13,22 +13,9 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Trading Card Collection</name>
 	<description>Trading Card Collection application based on Spring Boot</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
 	<properties>
-		<java.version>24</java.version>
-		<kotlin.version>2.2.21</kotlin.version>
+		<java.version>17</java.version>
+		<kotlin.version>1.9.23</kotlin.version>
 	</properties>
 
 
@@ -60,22 +47,18 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-			<version>11.13.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-mysql</artifactId>
-			<version>11.13.2</version>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.validation</groupId>
 			<artifactId>jakarta.validation-api</artifactId>
-			<version>3.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.validator</groupId>
 			<artifactId>hibernate-validator</artifactId>
-			<version>9.0.1.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>com.mysql</groupId>
@@ -95,7 +78,7 @@
 		<dependency>
 			<groupId>org.mockito.kotlin</groupId>
 			<artifactId>mockito-kotlin</artifactId>
-			<version>5.4.0</version> <!-- Or the latest compatible version with Mockito 5.x -->
+			<version>5.2.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

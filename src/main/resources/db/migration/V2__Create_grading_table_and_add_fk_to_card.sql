@@ -11,7 +11,6 @@ CREATE TABLE grading (
 -- Add the grading_id foreign key to the card table
 -- This assumes the 'card' table already exists.
 ALTER TABLE card
-ADD COLUMN grading_id BIGINT NULL,
 ADD CONSTRAINT fk_card_grading
     FOREIGN KEY (grading_id)
     REFERENCES grading(id)

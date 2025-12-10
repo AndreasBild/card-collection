@@ -2,7 +2,7 @@ package de.maulmann.cardcollection.controller
 
 // Model imports
 import de.maulmann.cardcollection.model.GradingCompany
-
+import de.maulmann.cardcollection.model.Card
 // Service imports
 import de.maulmann.cardcollection.service.CardManufacturerService
 import de.maulmann.cardcollection.service.CardService
@@ -92,7 +92,7 @@ class CardController(
         val pageable = PageRequest.of(page, size, sortObj)
 
         // Call the new service method that handles combined filtering
-        val cardsPage: Page<de.maulmann.cardcollection.model.Card> = cardService.getCardsFiltered(
+        val cardsPage: Page<Card> = cardService.getCardsFiltered(
             manufacturerId = manufacturerId,
             brandId = brandId,
             themeId = themeId,

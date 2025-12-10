@@ -1,6 +1,6 @@
 package de.maulmann.cardcollection.repository
 
-import de.maulmann.cardcollection.model.Variant
+import de.maulmann.cardcollection.model.Team
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
@@ -9,25 +9,25 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 
 @DataJpaTest
-class VariantRepositoryTest {
+class TeamRepositoryTest {
 
     @Autowired
     private lateinit var entityManager: TestEntityManager
 
     @Autowired
-    private lateinit var repository: VariantRepository
+    private lateinit var repository: TeamRepository
 
     @Test
-    fun `should save and find a variant`() {
-        val variant = Variant(name = "Gold Refractor")
-        val savedVariant = repository.save(variant)
+    fun `should save and find a team`() {
+        val team = Team(name = "New York Knicks")
+        val savedTeam = repository.save(team)
 
         entityManager.flush()
         entityManager.clear()
 
-        val foundVariant = repository.findById(savedVariant.id).orElse(null)
+        val foundTeam = repository.findById(savedTeam.id).orElse(null)
 
-        assertNotNull(foundVariant)
-        assertEquals("Gold Refractor", foundVariant!!.name)
+        assertNotNull(foundTeam)
+        assertEquals("New York Knicks", foundTeam!!.name)
     }
 }
