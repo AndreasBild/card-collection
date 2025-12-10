@@ -23,8 +23,7 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 -- GTID state at the beginning of the backup 
 --
 
-SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '7a26c000-b33a-11f0-86ee-e9d15a4f7c80:1-1186,
-c438073e-4563-11f0-afc9-c39087f22c03:1-642';
+
 
 --
 -- Table structure for table `card`
