@@ -155,7 +155,7 @@ class CardService(
 
         // Combine all specifications
         val finalSpecification = specifications.reduceOrNull { acc, spec -> acc.and(spec) }
-            ?: Specification.where(null) // If no filters, return all
+            ?: Specification { _, _, _ -> null } // If no filters, return all
 
         return cardRepository.findAll(finalSpecification, pageable)
     }
