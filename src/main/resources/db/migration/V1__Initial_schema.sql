@@ -49,7 +49,6 @@ CREATE TABLE card_theme (
 
 CREATE TABLE card (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    grading_id BIGINT,
     print_run INT NOT NULL,
     serial_number INT NOT NULL,
     season_id BIGINT,
