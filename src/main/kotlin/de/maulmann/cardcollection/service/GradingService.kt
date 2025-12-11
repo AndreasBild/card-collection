@@ -48,7 +48,11 @@ class GradingService(private val gradingRepository: GradingRepository) {
         gradingRepository.deleteById(id)
     }
 
-    private fun validateGradeSteps(grade: Float) {
+    private fun validateGradeSteps(grade: Float?) {
+        if (grade == null) {
+            // This should ideally be caught by @NotNull validation, but as a safeguard:
+            throw IllegalArgumentException("Grade cannot be null for validation.")
+        }
         if (grade < 6.0f || grade > 10.0f) {
             throw IllegalArgumentException("Grade must be between 6.0 and 10.0.")
         }
@@ -59,7 +63,8 @@ class GradingService(private val gradingRepository: GradingRepository) {
         }
     }
 
-    fun isValidGrade(grade: Float): Boolean {
+    fun isValidGrade(grade: Float?): Boolean {
+        if (grade == null) return false
         if (grade < 6.0f || grade > 10.0f) return false
         return (grade * 10).rem(5).toInt() == 0
     }
