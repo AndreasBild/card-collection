@@ -53,7 +53,7 @@ class GradingService(private val gradingRepository: GradingRepository) {
             // This should ideally be caught by @NotNull validation, but as a safeguard:
             throw IllegalArgumentException("Grade cannot be null for validation.")
         }
-        if (grade < 6.0f || grade > 10.0f) {
+        if (grade !in 6.0f..10.0f) {
             throw IllegalArgumentException("Grade must be between 6.0 and 10.0.")
         }
         // Check if the grade is a multiple of 0.5
@@ -65,7 +65,7 @@ class GradingService(private val gradingRepository: GradingRepository) {
 
     fun isValidGrade(grade: Float?): Boolean {
         if (grade == null) return false
-        if (grade < 6.0f || grade > 10.0f) return false
+        if (grade !in 6.0f..10.0f) return false
         return (grade * 10).rem(5).toInt() == 0
     }
 

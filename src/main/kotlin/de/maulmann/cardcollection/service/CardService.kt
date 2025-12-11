@@ -129,26 +129,26 @@ class CardService(
                 when (range) {
                     PrintRunRange.ONE -> cb.equal(root.get<Int>("printRun"), 1)
                     PrintRunRange.LE_10 -> cb.and(
-                        cb.greaterThan(root.get<Int>("printRun"), 0),
-                        cb.lessThanOrEqualTo(root.get<Int>("printRun"), 10)
+                        cb.greaterThan(root.get("printRun"), 0),
+                        cb.lessThanOrEqualTo(root.get("printRun"), 10)
                     )
                     PrintRunRange.LE_50 -> cb.and(
-                        cb.greaterThan(root.get<Int>("printRun"), 0),
-                        cb.lessThanOrEqualTo(root.get<Int>("printRun"), 50)
+                        cb.greaterThan(root.get("printRun"), 0),
+                        cb.lessThanOrEqualTo(root.get("printRun"), 50)
                     )
                     PrintRunRange.LE_100 -> cb.and(
-                        cb.greaterThan(root.get<Int>("printRun"), 0),
-                        cb.lessThanOrEqualTo(root.get<Int>("printRun"), 100)
+                        cb.greaterThan(root.get("printRun"), 0),
+                        cb.lessThanOrEqualTo(root.get("printRun"), 100)
                     )
                     PrintRunRange.LE_500 -> cb.and(
-                        cb.greaterThan(root.get<Int>("printRun"), 0),
-                        cb.lessThanOrEqualTo(root.get<Int>("printRun"), 500)
+                        cb.greaterThan(root.get("printRun"), 0),
+                        cb.lessThanOrEqualTo(root.get("printRun"), 500)
                     )
                     PrintRunRange.LE_1000 -> cb.and(
-                        cb.greaterThan(root.get<Int>("printRun"), 0),
-                        cb.lessThanOrEqualTo(root.get<Int>("printRun"), 1000)
+                        cb.greaterThan(root.get("printRun"), 0),
+                        cb.lessThanOrEqualTo(root.get("printRun"), 1000)
                     )
-                    PrintRunRange.ALL_WITH_PRINT_RUN -> cb.greaterThan(root.get<Int>("printRun"), 0)
+                    PrintRunRange.ALL_WITH_PRINT_RUN -> cb.greaterThan(root.get("printRun"), 0)
                 }
             })
         }

@@ -1,7 +1,6 @@
 package de.maulmann.cardcollection.model
 
 import jakarta.persistence.*
-import jakarta.persistence.Table
 
 @Entity
 
