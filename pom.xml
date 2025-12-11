@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.0</version>
+		<version>3.3.0</version>
 		<relativePath/>
 	</parent>
 	<groupId>de.maulmann</groupId>
@@ -14,8 +14,8 @@
 	<name>Trading Card Collection</name>
 	<description>Trading Card Collection application based on Spring Boot</description>
 	<properties>
-		<java.version>24</java.version>
-		<kotlin.version>2.2.21</kotlin.version>
+		<java.version>17</java.version>
+		<kotlin.version>1.9.23</kotlin.version>
 	</properties>
 
 
@@ -68,7 +68,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<version>4.0.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -98,6 +97,14 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.jetbrains.kotlin</groupId>

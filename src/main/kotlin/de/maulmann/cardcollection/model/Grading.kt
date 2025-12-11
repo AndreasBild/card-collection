@@ -14,11 +14,11 @@ data class Grading(
     @field:DecimalMin(value = "6.0", message = "Grade must be at least 6.0")
     @field:DecimalMax(value = "10.0", message = "Grade must be at most 10.0")
     // Further validation for 0.5 steps will be in the service layer or a custom validator
-    val grade: Float,
+    val grade: Float?,
 
     @field:NotNull(message = "Grading company cannot be null")
     @Enumerated(EnumType.STRING)
-    val gradingCompany: GradingCompany
+    val gradingCompany: GradingCompany?
 ) {
     // Custom validation for 0.5 steps can be added here if using Bean Validation,
     // or handled in the service layer.
