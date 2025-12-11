@@ -1,0 +1,30 @@
+package de.maulmann.cardcollection.model
+
+import de.maulmann.cardcollection.repository.CardBrandRepository
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
+
+@DataJpaTest
+class CardBrandTest {
+
+    @Autowired
+    private lateinit var entityManager: TestEntityManager
+
+    @Autowired
+    private lateinit var cardBrandRepository: CardBrandRepository
+
+    @Test
+    fun `should save and retrieve card brand`() {
+        val manufacturer = CardManufacturer(name = "Test Manufacturer")
+        entityManager.persist(manufacturer)
+
+        val cardBrand = CardBrand(name = "Test Brand", manufacturer = manufacturer)
+        cardBrandRepository.save(cardBrand)
+
+        val foundCardBrand = cardBrandRepository.findById(cardBrand.id).orElse(null)
+        assertThat(foundCardBrand).isEqualTo(cardBrand)
+    }
+}
