@@ -2,13 +2,13 @@ package de.maulmann.cardcollection.service
 
 import de.maulmann.cardcollection.model.Card
 import de.maulmann.cardcollection.model.CardManufacturer
-import de.maulmann.cardcollection.repository.ActualCardManufacturerRepository
+import de.maulmann.cardcollection.repository.CardManufacturerRepository
 import de.maulmann.cardcollection.repository.CustomCardQueriesRepository
 import org.springframework.stereotype.Service
 
 @Service
 class CardManufacturerService(
-    private val actualCardManufacturerRepository: ActualCardManufacturerRepository,
+    private val actualCardManufacturerRepository: CardManufacturerRepository,
     private val customCardQueriesRepository: CustomCardQueriesRepository
 ) {
 
