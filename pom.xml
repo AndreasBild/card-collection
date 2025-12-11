@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.0</version>
+		<version>4.0.0</version>
 		<relativePath/>
 	</parent>
 	<groupId>de.maulmann</groupId>
@@ -14,8 +14,8 @@
 	<name>Trading Card Collection</name>
 	<description>Trading Card Collection application based on Spring Boot</description>
 	<properties>
-		<java.version>17</java.version>
-		<kotlin.version>1.9.23</kotlin.version>
+		<java.version>24</java.version>
+		<kotlin.version>2.2.21</kotlin.version>
 	</properties>
 
 
