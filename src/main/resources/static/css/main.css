@@ -61,14 +61,14 @@ p, th {
     border-radius: 4px;
     box-sizing: border-box;
     background-color: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
 .styled-select:focus {
     border-color: #FFA500;
     outline: 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 0 0 0.2rem rgba(255,165,0,.25);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 0.2rem rgba(255, 165, 0, .25);
 }
 
 /* Original button styles - will be largely overridden or complemented by new styles below */
@@ -114,10 +114,10 @@ p, th {
 .pagination-controls {
     display: flex;
     flex-direction: column; /* Stack children vertically */
-    align-items: center;   /* Center children horizontally */
-    gap: 10px;             /* Space between children */
-    margin-top: 20px;      /* Space above the whole section */
-    margin-bottom: 20px;   /* Space below the whole section */
+    align-items: center; /* Center children horizontally */
+    gap: 10px; /* Space between children */
+    margin-top: 20px; /* Space above the whole section */
+    margin-bottom: 20px; /* Space below the whole section */
 }
 
 .pagination-info-block {
@@ -178,6 +178,7 @@ ul.pagination li.disabled span {
     border-color: #C0C0C0; /* Lighter border */
     cursor: not-allowed;
 }
+
 /* General styling for all sortable header links */
 table thead th a {
     text-decoration: none; /* Removes underline by default if you prefer */

@@ -15,18 +15,16 @@
     <meta name="apple-mobile-web-app-title" content="Maulmann.de">
     <meta name="application-name" content="Maulmann.de">
     <meta name="msapplication-TileColor" content="#317EFB">
-    <link href="/favicon/favicon.ico" rel="icon"  sizes="32x32">
+    <link href="/favicon/favicon.ico" rel="icon" sizes="32x32">
     <link href="/favicon/apple-touch-icon.png" rel="apple-touch-icon">
-    <meta name="description" content="Private Collection of Juwan Howard Basketball Trading Cards. Containing many 1/1 and rare Trading Cards from companies like: Panini, Fleer, Topps and Upper Deck. Including Super rare cards like Precious Metal Gems from the 90s">
+    <meta name="description"
+          content="Private Collection of Juwan Howard Basketball Trading Cards. Containing many 1/1 and rare Trading Cards from companies like: Panini, Fleer, Topps and Upper Deck. Including Super rare cards like Precious Metal Gems from the 90s">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="../css/main.css" rel="stylesheet" type="text/css">
     <meta name="robots" content="index,follow">
-
 </head>
 <body>
 <h1>Sports Card Collection</h1>
-
-
 <form th:action="@{/cards}" method="GET" class="filter-form">
     <div>
         <label for="manufacturerSelectForm">Vendor/Manufacturer:</label>
@@ -38,7 +36,6 @@
                     th:selected="${param.manufacturerId != null && param.manufacturerId == man.id}"></option>
         </select>
     </div>
-
     <div>
         <label for="brandSelectForm">Brand:</label>
         <select id="brandSelectForm" name="brandId" class="styled-select">
@@ -49,7 +46,6 @@
                     th:selected="${param.brandId != null && param.brandId == brand.id}"></option>
         </select>
     </div>
-
     <div>
         <label for="themeSelectForm">Theme:</label>
         <select id="themeSelectForm" name="themeId" class="styled-select">
@@ -60,7 +56,6 @@
                     th:selected="${param.themeId != null && param.themeId == theme.id}"></option>
         </select>
     </div>
-
     <div>
         <label for="sportSelectForm">Sport:</label>
         <select id="sportSelectForm" name="sportId" class="styled-select">
@@ -71,7 +66,6 @@
                     th:selected="${param.sportId != null && param.sportId == sport.id}"></option>
         </select>
     </div>
-
     <div>
         <label for="playerSelectForm">Player:</label>
         <select id="playerSelectForm" name="playerId" class="styled-select">
@@ -82,7 +76,6 @@
                     th:selected="${param.playerId != null && param.playerId == player.id}"></option>
         </select>
     </div>
-
     <div>
         <label for="teamSelectForm">Team:</label>
         <select id="teamSelectForm" name="teamId" class="styled-select">
@@ -93,7 +86,6 @@
                     th:selected="${param.teamId != null && param.teamId == team.id}"></option>
         </select>
     </div>
-
     <div>
         <label for="seasonSelectForm">Season:</label>
         <select id="seasonSelectForm" name="seasonId" class="styled-select"> <!-- Changed name to seasonId -->
@@ -101,10 +93,10 @@
             <option th:each="s : ${seasons}"
                     th:value="${s.id}"
                     th:text="${s.name}"
-                    th:selected="${param.seasonId != null && param.seasonId == s.id}"></option> <!-- Use param.seasonId and s.id -->
+                    th:selected="${param.seasonId != null && param.seasonId == s.id}"></option>
+            <!-- Use param.seasonId and s.id -->
         </select>
     </div>
-
     <div>
         <label for="gameUsedSelectForm">Game Used:</label>
         <select id="gameUsedSelectForm" name="gameUsed" class="styled-select">
@@ -113,7 +105,6 @@
             <option value="false" th:selected="${param.gameUsed == 'false'}">No</option>
         </select>
     </div>
-
     <div>
         <label for="autographSelectForm">Autograph:</label>
         <select id="autographSelectForm" name="autograph" class="styled-select">
@@ -122,7 +113,6 @@
             <option value="false" th:selected="${param.autograph == 'false'}">No</option>
         </select>
     </div>
-
     <div>
         <label for="variantSelectForm">Variant:</label>
         <select id="variantSelectForm" name="variantId" class="styled-select">
@@ -133,7 +123,6 @@
                     th:selected="${param.variantId != null && param.variantId == variant.id}"></option>
         </select>
     </div>
-
     <div>
         <label for="rookieCardSelectForm">Rookie:</label>
         <select id="rookieCardSelectForm" name="rookieCard" class="styled-select">
@@ -142,7 +131,6 @@
             <option value="false" th:selected="${param.rookieCard == 'false'}">No</option>
         </select>
     </div>
-
     <div>
         <label for="printRunRangeSelectForm">Print Run:</label>
         <select id="printRunRangeSelectForm" name="printRunRangeKey" class="styled-select">
@@ -153,7 +141,6 @@
                     th:selected="${param.printRunRangeKey != null && param.printRunRangeKey == prRange.key}"></option>
         </select>
     </div>
-
     <div>
         <label for="gradingStatusSelectForm">Graded:</label>
         <select id="gradingStatusSelectForm" name="isGradedNullable" class="styled-select">
@@ -162,14 +149,12 @@
             <option value="false" th:selected="${param.isGradedNullable == 'false'}">No</option>
         </select>
     </div>
-
     <div class="filter-buttons-container">
         <button type="submit">Filter</button>
         <a th:href="@{/cards}" class="button">Clear Filters</a>
     </div>
 </form>
 <!-- End New Filter Form -->
-
 <table>
     <thead>
     <tr>
@@ -219,26 +204,24 @@
         <td th:text="${card.autograph ? 'Yes' : 'No'}"></td>
         <td th:text="${card.grading?.gradingCompany?.name()}"></td>
         <td th:text="${card.grading?.grade}"></td>
-
-
     </tr>
     </tbody>
 </table>
-
 <!-- Pagination Controls -->
 <div th:if="${totalPages > 0}" class="pagination-controls">
     <div class="pagination-info-block">
         Rows per page:
-        <label for="pageSizeSelector"></label><select id="pageSizeSelector" onchange="changePageSize()" class="styled-select">
-        <option th:each="s : ${#numbers.sequence(10, 100)}" th:if="${s == 10 || s == 20 || s == 50 || s == 100}" th:value="${s}" th:text="${s}" th:selected="${s == pageSize}">_</option>
+        <label for="pageSizeSelector"></label><select id="pageSizeSelector" onchange="changePageSize()"
+                                                      class="styled-select">
+        <option th:each="s : ${#numbers.sequence(10, 100)}" th:if="${s == 10 || s == 20 || s == 50 || s == 100}"
+                th:value="${s}" th:text="${s}" th:selected="${s == pageSize}">_
+        </option>
     </select>
     </div>
-
     <div class="pagination-info-block">
         Page <span th:text="${currentPage + 1}">_</span> of <span th:text="${totalPages}">_</span>.
         Total items: <span th:text="${totalItems}">_</span>.
     </div>
-
     <nav>
         <ul class="pagination">
             <!-- First Page Link -->
@@ -260,7 +243,6 @@
                                 isGradedNullable=${param.isGradedNullable ?: ''}
                                 )}">First</a>
             </li>
-
             <!-- Previous Page Link -->
             <li th:classappend="${currentPage == 0} ? 'disabled' : ''">
                 <a th:href="@{/cards(page=${currentPage - 1}, size=${pageSize},
@@ -282,12 +264,12 @@
                    th:unless="${currentPage == 0}">Previous</a>
                 <span th:if="${currentPage == 0}">Previous</span>
             </li>
-
             <!-- Page Number Links -->
             <!-- Logic for page numbers: show a few pages around current, plus first/last and ellipses -->
             <th:block th:with="window=2">
                 <th:block th:if="${totalPages <= (2 * window + 5)}"> <!-- Show all if not too many pages -->
-                    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active' : ''">
+                    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${i == currentPage} ? 'active' : ''">
                         <a th:href="@{/cards(page=${i}, size=${pageSize},
                                         sort=${param.sort ?: ''},
                                         manufacturerId=${param.manufacturerId ?: ''},
@@ -309,14 +291,14 @@
                 <th:block th:unless="${totalPages <= (2 * window + 5)}">
                     <!-- First page -->
                     <li th:classappend="${0 == currentPage} ? 'active' : ''">
-                        <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}" th:text="1">_</a>
+                        <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
+                           th:text="1">_</a>
                     </li>
-
                     <!-- Ellipsis after first if needed -->
                     <li th:if="${currentPage > window + 1}" class="disabled"><span>...</span></li>
-
                     <!-- Window around current page -->
-                    <li th:each="i : ${#numbers.sequence( T(java.lang.Math).max(1, currentPage.intValue() - 1), T(java.lang.Math).min(totalPages.intValue() - 2, currentPage.intValue() + 1) )}" th:classappend="${i == currentPage} ? 'active' : ''">
+                    <li th:each="i : ${#numbers.sequence( T(java.lang.Math).max(1, currentPage.intValue() - 1), T(java.lang.Math).min(totalPages.intValue() - 2, currentPage.intValue() + 1) )}"
+                        th:classappend="${i == currentPage} ? 'active' : ''">
                         <a th:href="@{/cards(page=${i}, size=${pageSize},
                                         sort=${param.sort ?: ''},
                                         manufacturerId=${param.manufacturerId ?: ''},
@@ -334,17 +316,15 @@
                                         isGradedNullable=${param.isGradedNullable ?: ''}
                                         )}" th:text="${i + 1}">_</a>
                     </li>
-
                     <!-- Ellipsis before last if needed -->
                     <li th:if="${currentPage < totalPages - window - 2}" class="disabled"><span>...</span></li>
-
                     <!-- Last page -->
                     <li th:classappend="${totalPages - 1 == currentPage} ? 'active' : ''">
-                        <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}" th:text="${totalPages}">_</a>
+                        <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
+                           th:text="${totalPages}">_</a>
                     </li>
                 </th:block>
             </th:block>
-
             <!-- Next Page Link -->
             <li th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
                 <a th:href="@{/cards(page=${currentPage + 1}, size=${pageSize},
@@ -366,7 +346,6 @@
                    th:unless="${currentPage >= totalPages - 1}">Next</a>
                 <span th:if="${currentPage >= totalPages - 1}">Next</span>
             </li>
-
             <!-- Last Page Link -->
             <li th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
                 <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize},
@@ -390,7 +369,6 @@
     </nav>
 </div>
 <!-- End Pagination Controls -->
-
 <script th:inline="javascript">
     /*<![CDATA[*/
     function changePageSize() {
@@ -512,7 +490,7 @@
             // When brand changes, theme selection might become invalid.
             await fetchAndPopulateThemes(selectedManufacturerId, selectedBrandId, themeSelect.value); // Try to keep current theme
 
-            if(!selectedBrandId && selectedManufacturerId) {
+            if (!selectedBrandId && selectedManufacturerId) {
                 // "All Brands (for selected Manufacturer)" selected, reload themes for manufacturer
                 await fetchAndPopulateThemes(selectedManufacturerId, null, themeSelect.value);
             } else if (!selectedBrandId && !selectedManufacturerId) {
