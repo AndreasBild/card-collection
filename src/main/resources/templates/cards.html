@@ -26,7 +26,7 @@
 <body>
 <h1>Sports Card Collection</h1>
 
-<!-- New Filter Form -->
+
 <form th:action="@{/cards}" method="GET" class="filter-form">
     <div>
         <label for="manufacturerSelectForm">Vendor/Manufacturer:</label>
@@ -217,8 +217,8 @@
         <td th:text="${card.rookieCard ? 'Yes' : 'No'}"></td>
         <td th:text="${card.gameUsedMaterial ? 'Yes' : 'No'}"></td>
         <td th:text="${card.autograph ? 'Yes' : 'No'}"></td>
-        <td th:text="${card.grading?.gradingCompany?.name()}"></td> <!-- Display Grading Company -->
-        <td th:text="${card.grading?.grade}"></td> <!-- Display Grade -->
+        <td th:text="${card.grading?.gradingCompany?.name()}"></td>
+        <td th:text="${card.grading?.grade}"></td>
 
 
     </tr>
@@ -306,7 +306,7 @@
                                         )}" th:text="${i + 1}">_</a>
                     </li>
                 </th:block>
-                <th:block th:unless="${totalPages <= (2 * window + 5)}"> <!-- More complex pagination for many pages -->
+                <th:block th:unless="${totalPages <= (2 * window + 5)}">
                     <!-- First page -->
                     <li th:classappend="${0 == currentPage} ? 'active' : ''">
                         <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}" th:text="1">_</a>
