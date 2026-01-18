@@ -2,7 +2,6 @@ package de.maulmann.cardcollection.repository
 
 import de.maulmann.cardcollection.model.Team
 import org.springframework.data.jpa.repository.JpaRepository
-import de.maulmann.cardcollection.model.Variant
 
 
 interface TeamRepository : JpaRepository<Team, Long>

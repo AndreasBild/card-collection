@@ -1,10 +1,8 @@
 package de.maulmann.cardcollection.repository
 
 
-import org.springframework.data.jpa.repository.JpaRepository
-
-
 import de.maulmann.cardcollection.model.Card
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
 interface CustomCardQueriesRepository : JpaRepository<Card, Long> {

@@ -3,10 +3,10 @@ package de.maulmann.cardcollection.model
 import de.maulmann.cardcollection.repository.SeasonRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.dao.DataIntegrityViolationException
-import org.junit.jupiter.api.assertThrows
 
 @DataJpaTest
 class SeasonTest {

@@ -1,21 +1,7 @@
 package de.maulmann.cardcollection.service
 
-import de.maulmann.cardcollection.model.Card
-import de.maulmann.cardcollection.model.CardBrand
-import de.maulmann.cardcollection.model.CardTheme
-import de.maulmann.cardcollection.model.Player
-import de.maulmann.cardcollection.model.Sport
-import de.maulmann.cardcollection.model.Team // Import Team
-import de.maulmann.cardcollection.model.CardManufacturer
-import de.maulmann.cardcollection.model.Variant
-import de.maulmann.cardcollection.model.Season // Import Season model
-import de.maulmann.cardcollection.repository.CardBrandRepository
-import de.maulmann.cardcollection.repository.CardRepository
-import de.maulmann.cardcollection.repository.CardThemeRepository
-import de.maulmann.cardcollection.repository.SportRepository
-import de.maulmann.cardcollection.repository.TeamRepository // Import TeamRepository
-import de.maulmann.cardcollection.repository.VariantRepository
-import de.maulmann.cardcollection.repository.SeasonRepository // Import SeasonRepository
+import de.maulmann.cardcollection.model.*
+import de.maulmann.cardcollection.repository.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification

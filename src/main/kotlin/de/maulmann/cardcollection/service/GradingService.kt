@@ -3,9 +3,9 @@ package de.maulmann.cardcollection.service
 import de.maulmann.cardcollection.model.Grading
 import de.maulmann.cardcollection.model.GradingCompany
 import de.maulmann.cardcollection.repository.GradingRepository
+import jakarta.validation.Valid
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import jakarta.validation.Valid
 
 @Service
 class GradingService(private val gradingRepository: GradingRepository) {

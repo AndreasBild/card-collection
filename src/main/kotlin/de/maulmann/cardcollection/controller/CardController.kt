@@ -1,15 +1,11 @@
 package de.maulmann.cardcollection.controller
 
-// Model imports
-import de.maulmann.cardcollection.model.GradingCompany
 import de.maulmann.cardcollection.model.Card
-// Service imports
+import de.maulmann.cardcollection.model.GradingCompany
 import de.maulmann.cardcollection.service.CardManufacturerService
 import de.maulmann.cardcollection.service.CardService
 import de.maulmann.cardcollection.service.PlayerService
 import de.maulmann.cardcollection.service.PrintRunRange
-
-// Spring imports
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
