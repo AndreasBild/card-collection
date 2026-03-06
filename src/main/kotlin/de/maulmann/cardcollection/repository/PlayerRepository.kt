@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
 interface PlayerRepository : JpaRepository<Player, Long> {
-    @Query("SELECT p FROM Player p JOIN FETCH p.team JOIN FETCH p.sport ORDER BY p.surname, p.name")
+    @Query("SELECT DISTINCT p FROM Player p LEFT JOIN FETCH p.teams JOIN FETCH p.sport ORDER BY p.surname, p.name")
     fun findAllWithTeamAndSportSorted(): List<Player>
 }

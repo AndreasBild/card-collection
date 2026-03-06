@@ -23,21 +23,21 @@ interface CardRepository : JpaRepository<Card, Long>, QueryByExampleExecutor<Car
     fun findAllByPlayerSportId(sportId: Long): List<Card>
 
     // Queries with JOIN FETCH for details
-    @Query("SELECT c FROM Card c JOIN FETCH c.season JOIN FETCH c.player p JOIN FETCH p.team JOIN FETCH p.sport JOIN FETCH c.variant JOIN FETCH c.theme t JOIN FETCH t.brand b JOIN FETCH b.manufacturer")
+    @Query("SELECT c FROM Card c JOIN FETCH c.season JOIN FETCH c.player p JOIN FETCH c.team JOIN FETCH p.sport JOIN FETCH c.variant JOIN FETCH c.theme t JOIN FETCH t.brand b JOIN FETCH b.manufacturer")
     fun findAllWithDetails(): List<Card>
 
-    @Query("SELECT c FROM Card c JOIN FETCH c.season JOIN FETCH c.player p JOIN FETCH p.team JOIN FETCH p.sport JOIN FETCH c.variant JOIN FETCH c.theme t JOIN FETCH t.brand b JOIN FETCH b.manufacturer WHERE c.rookieCard = :rookieCard")
+    @Query("SELECT c FROM Card c JOIN FETCH c.season JOIN FETCH c.player p JOIN FETCH c.team JOIN FETCH p.sport JOIN FETCH c.variant JOIN FETCH c.theme t JOIN FETCH t.brand b JOIN FETCH b.manufacturer WHERE c.rookieCard = :rookieCard")
     fun findAllByRookieCardWithDetails(rookieCard: Boolean): List<Card>
 
-    @Query("SELECT c FROM Card c JOIN FETCH c.season JOIN FETCH c.player p JOIN FETCH p.team JOIN FETCH p.sport JOIN FETCH c.variant JOIN FETCH c.theme t JOIN FETCH t.brand b JOIN FETCH b.manufacturer WHERE p.id = :playerId")
+    @Query("SELECT c FROM Card c JOIN FETCH c.season JOIN FETCH c.player p JOIN FETCH c.team JOIN FETCH p.sport JOIN FETCH c.variant JOIN FETCH c.theme t JOIN FETCH t.brand b JOIN FETCH b.manufacturer WHERE p.id = :playerId")
     fun findAllByPlayerIdWithDetails(playerId: Long): List<Card>
 
-    @Query("SELECT c FROM Card c JOIN FETCH c.season JOIN FETCH c.player p JOIN FETCH p.team JOIN FETCH p.sport JOIN FETCH c.variant JOIN FETCH c.theme t JOIN FETCH t.brand b JOIN FETCH b.manufacturer WHERE c.autograph = :autograph")
+    @Query("SELECT c FROM Card c JOIN FETCH c.season JOIN FETCH c.player p JOIN FETCH c.team JOIN FETCH p.sport JOIN FETCH c.variant JOIN FETCH c.theme t JOIN FETCH t.brand b JOIN FETCH b.manufacturer WHERE c.autograph = :autograph")
     fun findAllByAutographWithDetails(autograph: Boolean): List<Card>
 
-    @Query("SELECT c FROM Card c JOIN FETCH c.season JOIN FETCH c.player p JOIN FETCH p.team JOIN FETCH p.sport JOIN FETCH c.variant JOIN FETCH c.theme t JOIN FETCH t.brand b JOIN FETCH b.manufacturer WHERE c.gameUsedMaterial = :gameUsedMaterial")
+    @Query("SELECT c FROM Card c JOIN FETCH c.season JOIN FETCH c.player p JOIN FETCH c.team JOIN FETCH p.sport JOIN FETCH c.variant JOIN FETCH c.theme t JOIN FETCH t.brand b JOIN FETCH b.manufacturer WHERE c.gameUsedMaterial = :gameUsedMaterial")
     fun findAllByGameUsedMaterialWithDetails(gameUsedMaterial: Boolean): List<Card>
 
-    @Query("SELECT c FROM Card c JOIN FETCH c.season JOIN FETCH c.player p JOIN FETCH p.sport JOIN FETCH p.team ps JOIN FETCH c.variant JOIN FETCH c.theme t JOIN FETCH t.brand b JOIN FETCH b.manufacturer WHERE p.sport.id = :sportId")
+    @Query("SELECT c FROM Card c JOIN FETCH c.season JOIN FETCH c.player p JOIN FETCH p.sport JOIN FETCH c.team ps JOIN FETCH c.variant JOIN FETCH c.theme t JOIN FETCH t.brand b JOIN FETCH b.manufacturer WHERE p.sport.id = :sportId")
     fun findAllByPlayerSportIdWithDetails(sportId: Long): List<Card>
 }

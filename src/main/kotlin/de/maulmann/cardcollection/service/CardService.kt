@@ -93,7 +93,7 @@ class CardService(
         }
         teamId?.let {
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<Player>("player").get<Team>("team").get<Long>("id"), it)
+                cb.equal(root.get<Team>("team").get<Long>("id"), it)
             })
         }
 
@@ -179,4 +179,3 @@ class CardService(
         return teamRepository.findAll()
     }
 }
-

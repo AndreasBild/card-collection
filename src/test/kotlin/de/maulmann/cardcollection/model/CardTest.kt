@@ -34,7 +34,7 @@ class CardTest {
         val team = Team(name = "Test Team")
         entityManager.persist(team)
 
-        val player = Player(name = "Test", surname = "Player", team = team, sport = sport)
+        val player = Player(name = "Test", surname = "Player", teams = setOf(team), sport = sport)
         entityManager.persist(player)
 
         val season = Season(name = "2023-24")
@@ -56,6 +56,7 @@ class CardTest {
             gameUsedMaterial = false,
             autograph = true,
             player = player,
+            team = team,
             variant = variant,
             theme = theme
         )
