@@ -189,7 +189,7 @@
     <tbody>
     <tr th:each="card : ${cards}">
         <td th:text="${card.player.name + ' ' + card.player.surname}"></td>
-        <td th:text="${card.player.team.name}"></td>
+        <td th:text="${card?.team?.name}"></td>
         <td th:text="${card.player.sport.name}"></td>
         <td th:text="${card?.season?.name}"></td>
         <td th:text="${card?.theme?.brand?.manufacturer?.name}"></td>

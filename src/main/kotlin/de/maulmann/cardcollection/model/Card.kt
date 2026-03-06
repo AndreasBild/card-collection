@@ -27,6 +27,10 @@ data class Card(
     val player: Player,
 
     @ManyToOne
+    @JoinColumn(name = "team_id")
+    val team: Team?,
+
+    @ManyToOne
     @JoinColumn(name = "variant_id")
     val variant: Variant,
 

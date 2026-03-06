@@ -9,13 +9,16 @@ data class Player(
     val name: String,
     val surname : String,
 
-    @ManyToOne
-    @JoinColumn(name = "team_id")
-    val team: Team?,
+    @ManyToMany
+    @JoinTable(
+        name = "player_team",
+        joinColumns = [JoinColumn(name = "player_id")],
+        inverseJoinColumns = [JoinColumn(name = "team_id")]
+    )
+    val teams: Set<Team> = emptySet(),
 
     @ManyToOne
     @JoinColumn(name = "sport_id")
     val sport: Sport?,
 
 )
-
