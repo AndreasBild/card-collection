@@ -2,7 +2,6 @@ package de.maulmann.cardcollection.controller
 
 import de.maulmann.cardcollection.model.Card
 import de.maulmann.cardcollection.model.GradingCompany
-import de.maulmann.cardcollection.service.CardManufacturerService
 import de.maulmann.cardcollection.service.CardService
 import de.maulmann.cardcollection.service.PlayerService
 import de.maulmann.cardcollection.service.PrintRunRange
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam
 @RequestMapping("/cards")
 class CardController(
     private val cardService: CardService,
-    private val cardManufacturerService: CardManufacturerService,
     private val playerService: PlayerService
 ) {
 
@@ -130,7 +128,7 @@ class CardController(
         model.addAttribute("sortableColumns", SORTABLE_COLUMNS)
 
         // Fetch data for filters/dropdowns (this part remains the same)
-        model.addAttribute("manufacturers", cardManufacturerService.getAllCardManufacturers())
+        model.addAttribute("manufacturers", cardService.getAllCardManufacturers())
         model.addAttribute("players", playerService.getPlayers()) // Assuming getPlayers() fetches List<Player>
         model.addAttribute("brands", cardService.getAllBrands())
         model.addAttribute("themes", cardService.getAllThemes())

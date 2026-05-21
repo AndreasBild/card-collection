@@ -3,6 +3,7 @@ package de.maulmann.cardcollection.service
 import de.maulmann.cardcollection.model.*
 import de.maulmann.cardcollection.repository.*
 import jakarta.persistence.criteria.JoinType
+import jakarta.persistence.criteria.Root
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
@@ -17,7 +18,8 @@ class CardService(
     private val sportRepository: SportRepository,
     private val variantRepository: VariantRepository,
     private val teamRepository: TeamRepository, // New injection
-    private val seasonRepository: SeasonRepository // Add SeasonRepository
+    private val seasonRepository: SeasonRepository, // Add SeasonRepository
+    private val cardManufacturerRepository: CardManufacturerRepository
 ) {
 
 
@@ -195,5 +197,9 @@ class CardService(
 
     fun getAllTeams(): List<Team> { //This might need to be adjusted if we want it to be dynamic based on current filters
         return teamRepository.findAll()
+    }
+
+    fun getAllCardManufacturers(): List<CardManufacturer> {
+        return cardManufacturerRepository.findAll()
     }
 }
