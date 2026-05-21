@@ -28,7 +28,7 @@ class CardController(
 
         private val SORTABLE_COLUMNS = listOf(
             SortableColumnInfo("Player", "player.name"),
-            SortableColumnInfo("Team", "player.team.name"),
+            SortableColumnInfo("Team", "team.name"),
             SortableColumnInfo("Sport", "player.sport.name"),
             SortableColumnInfo("Season", "season.name"),
             SortableColumnInfo("Company", "theme.brand.manufacturer.name"),

@@ -2,6 +2,7 @@ package de.maulmann.cardcollection.service
 
 import de.maulmann.cardcollection.model.*
 import de.maulmann.cardcollection.repository.*
+import jakarta.persistence.criteria.JoinType
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
@@ -19,7 +20,6 @@ class CardService(
     private val seasonRepository: SeasonRepository // Add SeasonRepository
 ) {
 
-    fun getAllCards(): List<Card> = cardRepository.findAllWithDetails()
     fun getCardById(id: Long): Card? = cardRepository.findById(id).orElse(null) // For the single card, findById is fine. Details can be fetched if needed by EntityGraph on Card or specific DTO projection.
 
 
@@ -140,8 +140,26 @@ class CardService(
         }
 
         // Combine all specifications
-        val finalSpecification = specifications.reduceOrNull { acc, spec -> acc.and(spec) }
+        var finalSpecification = specifications.reduceOrNull { acc, spec -> acc.and(spec) }
             ?: Specification { _, _, _ -> null } // If no filters, return all
+
+        // Optimization to avoid N+1 queries by join fetching related entities
+        val fetchSpecification = Specification<Card> { root, query, cb ->
+            if (query.resultType != Long::class.java) { // Only fetch if not a count query
+                root.fetch<Card, Season>("season", JoinType.LEFT)
+                val playerFetch = root.fetch<Card, Player>("player", JoinType.LEFT)
+                playerFetch.fetch<Player, Sport>("sport", JoinType.LEFT)
+                root.fetch<Card, Team>("team", JoinType.LEFT)
+                root.fetch<Card, Variant>("variant", JoinType.LEFT)
+                val themeFetch = root.fetch<Card, CardTheme>("theme", JoinType.LEFT)
+                val brandFetch = themeFetch.fetch<CardTheme, CardBrand>("brand", JoinType.LEFT)
+                brandFetch.fetch<CardBrand, CardManufacturer>("manufacturer", JoinType.LEFT)
+                root.fetch<Card, Grading>("grading", JoinType.LEFT)
+            }
+            null
+        }
+
+        finalSpecification = finalSpecification.and(fetchSpecification)
 
         return cardRepository.findAll(finalSpecification, pageable)
     }
