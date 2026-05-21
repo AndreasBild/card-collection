@@ -6,7 +6,7 @@ import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotNull
 
 @Entity
-data class Grading(
+ class Grading(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 

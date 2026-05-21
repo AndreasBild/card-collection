@@ -3,7 +3,7 @@ package de.maulmann.cardcollection.model
 import jakarta.persistence.*
 
 @Entity
-data class CardTheme(
+class CardTheme(
 
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

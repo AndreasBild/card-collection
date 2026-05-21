@@ -7,7 +7,7 @@ import jakarta.persistence.Id
 
 @Entity
 
-data class Team(
+ class Team(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
     val name: String
