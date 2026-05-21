@@ -145,7 +145,8 @@ class CardService(
 
         // Optimization to avoid N+1 queries by join fetching related entities
         val fetchSpecification = Specification<Card> { root, query, cb ->
-            if (query.resultType != Long::class.java) { // Only fetch if not a count query
+            val resultType = query.resultType
+            if (resultType != Long::class.java && resultType != java.lang.Long::class.java && resultType.simpleName != "Long") { // Only fetch if not a count query
                 root.fetch<Card, Season>("season", JoinType.LEFT)
                 val playerFetch = root.fetch<Card, Player>("player", JoinType.LEFT)
                 playerFetch.fetch<Player, Sport>("sport", JoinType.LEFT)
