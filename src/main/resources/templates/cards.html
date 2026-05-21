@@ -168,7 +168,7 @@
                                     ', currently sorted descending, activate to sort ascending' :
                                     ', activate to sort ascending'))"
                    th:href="@{/cards(
-                        page=${currentPage}, size=${pageSize},
+                        page=0, size=${pageSize},
                         sort=${column.propertyPath + ',' + nextSortDir},
                         manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''},
                         sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''},
