@@ -4,9 +4,9 @@ import jakarta.persistence.*
 @Entity
 class Player(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
-    val name: String,
-    val surname : String,
+    var id: Long = 0,
+    var name: String,
+    var surname : String,
     @ManyToMany
     @JoinTable(
         name = "player_team",
@@ -14,9 +14,9 @@ class Player(
         inverseJoinColumns = [JoinColumn(name = "team_id")]
     )
     @JsonIgnore
-    val teams: Set<Team> = emptySet(),
+    var teams: MutableSet<Team> = mutableSetOf(),
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sport_id")
     @JsonIgnore
-    val sport: Sport?,
+    var sport: Sport?,
 )

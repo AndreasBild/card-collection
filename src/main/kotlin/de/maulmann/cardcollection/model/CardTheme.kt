@@ -5,7 +5,7 @@ import jakarta.persistence.*
 
 @Entity
 class CardTheme(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long = 0,
-    val name: String,
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "brand_id") @JsonIgnore val brand: CardBrand?
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long = 0,
+    var name: String,
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "brand_id") @JsonIgnore var brand: CardBrand?
 )

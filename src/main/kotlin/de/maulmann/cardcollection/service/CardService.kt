@@ -2,7 +2,6 @@ package de.maulmann.cardcollection.service
 import de.maulmann.cardcollection.model.*
 import de.maulmann.cardcollection.repository.*
 import jakarta.persistence.criteria.JoinType
-import jakarta.persistence.criteria.Root
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

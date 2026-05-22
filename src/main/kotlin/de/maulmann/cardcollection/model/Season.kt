@@ -6,8 +6,8 @@ import jakarta.persistence.*
 class Season(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
+    var id: Long = 0,
 
     @Column(nullable = false, unique = true) // Seasons should be unique and not null
-    val name: String
+    var name: String
 )

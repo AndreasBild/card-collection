@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull
 @Entity
  class Grading(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
+    var id: Long = 0,
 
     @field:NotNull(message = "Grade cannot be null")
     @field:DecimalMin(value = "6.0", message = "Grade must be at least 6.0")
