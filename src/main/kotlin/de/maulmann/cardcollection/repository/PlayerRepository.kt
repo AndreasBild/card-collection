@@ -1,11 +1,8 @@
 package de.maulmann.cardcollection.repository
-
-
 import de.maulmann.cardcollection.model.Player
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-
 interface PlayerRepository : JpaRepository<Player, Long> {
-    @Query("SELECT DISTINCT p FROM Player p LEFT JOIN FETCH p.teams JOIN FETCH p.sport ORDER BY p.surname, p.name")
+    @Query("SELECT p FROM Player p ORDER BY p.surname, p.name")
     fun findAllWithTeamAndSportSorted(): List<Player>
 }

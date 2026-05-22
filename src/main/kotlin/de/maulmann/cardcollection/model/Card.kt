@@ -14,7 +14,7 @@ class Card(
     val printRun: Int,
     val serialNumber: Int,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "season_id")
     val season: Season,
     val number: String,
@@ -22,19 +22,19 @@ class Card(
     val gameUsedMaterial: Boolean,
     val autograph: Boolean,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player_id")
     val player: Player,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     val team: Team?,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "variant_id")
     val variant: Variant,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "theme_id")
     val theme: CardTheme
 )
