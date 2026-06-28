@@ -17,7 +17,7 @@ class VariantRepositoryTest @Autowired constructor(
     fun `when findById then return Variant`() {
         val variant = Variant(name = "Gold")
         entityManager.persistAndFlush(variant)
-        val found = variantRepository.findById(variant.id!!)
+        val found = variantRepository.findById(variant.id)
         assertThat(found.get()).isEqualTo(variant)
     }
 }

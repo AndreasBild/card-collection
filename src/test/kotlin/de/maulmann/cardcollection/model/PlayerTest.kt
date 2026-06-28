@@ -24,7 +24,7 @@ class PlayerTest {
         val team = Team(name = "Test Team")
         entityManager.persist(team)
 
-        val player = Player(name = "Test", surname = "Player", teams = setOf(team), sport = sport)
+        val player = Player(name = "Test", surname = "Player", teams = mutableSetOf(team), sport = sport)
         playerRepository.save(player)
 
         val foundPlayer = playerRepository.findById(player.id).orElse(null)
@@ -33,7 +33,7 @@ class PlayerTest {
 
     @Test
     fun `should save player with null team and sport`() {
-        val player = Player(name = "Test", surname = "Player", teams = emptySet(), sport = null)
+        val player = Player(name = "Test", surname = "Player", teams = mutableSetOf(), sport = null)
         playerRepository.save(player)
 
         val foundPlayer = playerRepository.findById(player.id).orElse(null)

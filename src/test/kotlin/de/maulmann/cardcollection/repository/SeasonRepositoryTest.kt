@@ -17,7 +17,7 @@ class SeasonRepositoryTest @Autowired constructor(
     fun `when findById then return Season`() {
         val season = Season(name = "2022-23")
         entityManager.persistAndFlush(season)
-        val found = seasonRepository.findById(season.id!!)
+        val found = seasonRepository.findById(season.id)
         assertThat(found.get()).isEqualTo(season)
     }
 }

@@ -17,7 +17,7 @@ class CardThemeRepositoryTest @Autowired constructor(
     fun `when findById then return CardTheme`() {
         val cardTheme = CardTheme(name = "Test Theme", brand = null)
         entityManager.persistAndFlush(cardTheme)
-        val found = cardThemeRepository.findById(cardTheme.id!!)
+        val found = cardThemeRepository.findById(cardTheme.id)
         assertThat(found.get()).isEqualTo(cardTheme)
     }
 }

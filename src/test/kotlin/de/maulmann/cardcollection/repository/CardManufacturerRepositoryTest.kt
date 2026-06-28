@@ -17,7 +17,7 @@ class CardManufacturerRepositoryTest @Autowired constructor(
     fun `when findById then return CardManufacturer`() {
         val cardManufacturer = CardManufacturer(name = "Panini")
         entityManager.persistAndFlush(cardManufacturer)
-        val found = cardManufacturerRepository.findById(cardManufacturer.id!!)
+        val found = cardManufacturerRepository.findById(cardManufacturer.id)
         assertThat(found.get()).isEqualTo(cardManufacturer)
     }
 }
