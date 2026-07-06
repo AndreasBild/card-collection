@@ -38,10 +38,18 @@ class ExportControllerTest {
         val team = Team(id = 1L, name = "Washington Bullets")
         val variant = Variant(id = 1L, name = "Base")
 
+        val grading = Grading(
+            id = 1L,
+            grade = 9.0f,
+            gradingCompany = GradingCompany.PSA
+        )
+
+        val playerWithAmpersand = Player(id = 2L, name = "Shaq", surname = "& Kobe", sport = sport)
+
         val card = Card(
             id = 1L,
             season = season,
-            player = player,
+            player = playerWithAmpersand,
             team = team,
             theme = theme,
             variant = variant,
@@ -51,7 +59,7 @@ class ExportControllerTest {
             rookieCard = false,
             gameUsedMaterial = false,
             autograph = false,
-            grading = null
+            grading = grading
         )
 
         `when`(seasonRepository.findAllByOrderByNameAsc()).thenReturn(listOf(season))
@@ -75,7 +83,7 @@ class ExportControllerTest {
 
         val htmlContent = zis.bufferedReader().readText()
         assertTrue(htmlContent.contains("<h2>Juwan Howard Collection [Total: 1]</h2>"))
-        assertTrue(htmlContent.contains("<td>Juwan Howard</td>"))
+        assertTrue(htmlContent.contains("<td>Shaq &amp; Kobe</td>"))
         assertTrue(htmlContent.contains("<td>Washington Bullets</td>"))
         assertTrue(htmlContent.contains("<td>Basketball</td>"))
         assertTrue(htmlContent.contains("<td>1994-95</td>"))
@@ -84,5 +92,6 @@ class ExportControllerTest {
         assertTrue(htmlContent.contains("<td>Base Set</td>"))
         assertTrue(htmlContent.contains("<td>Base</td>"))
         assertTrue(htmlContent.contains("<td>278</td>"))
+        assertTrue(htmlContent.contains("<td>PSA 9</td>")) // 9.0 becomes 9
     }
 }

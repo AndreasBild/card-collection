@@ -3,9 +3,11 @@ package de.maulmann.cardcollection.controller
 import de.maulmann.cardcollection.repository.CardRepository
 import de.maulmann.cardcollection.repository.SeasonRepository
 import jakarta.servlet.http.HttpServletResponse
+import de.maulmann.cardcollection.model.GradingCompany
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.util.HtmlUtils
 import java.io.OutputStreamWriter
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -61,21 +63,30 @@ class ExportController(
                 writer.write("    </tr>\n")
 
                 for (card in cards) {
-                    val playerName = "${card.player.name} ${card.player.surname}".trim()
-                    val teamName = card.team?.name ?: ""
-                    val sportName = card.player.sport?.name ?: ""
-                    val seasonName = card.season.name
-                    val companyName = card.theme.brand?.manufacturer?.name ?: ""
-                    val brandName = card.theme.brand?.name ?: ""
-                    val themeName = card.theme.name ?: ""
-                    val variantName = card.variant.name ?: ""
-                    val number = card.number
+                    val playerName = HtmlUtils.htmlEscape("${card.player.name} ${card.player.surname}".trim())
+                    val teamName = HtmlUtils.htmlEscape(card.team?.name ?: "")
+                    val sportName = HtmlUtils.htmlEscape(card.player.sport?.name ?: "")
+                    val seasonName = HtmlUtils.htmlEscape(card.season.name)
+                    val companyName = HtmlUtils.htmlEscape(card.theme.brand?.manufacturer?.name ?: "")
+                    val brandName = HtmlUtils.htmlEscape(card.theme.brand?.name ?: "")
+                    val themeName = HtmlUtils.htmlEscape(card.theme.name ?: "")
+                    val variantName = HtmlUtils.htmlEscape(card.variant.name ?: "")
+                    val number = HtmlUtils.htmlEscape(card.number)
                     val serial = card.serialNumber
                     val printRun = card.printRun
                     val rookie = if (card.rookieCard) "Yes" else "No"
                     val gameUsed = if (card.gameUsedMaterial) "Yes" else "No"
                     val autograph = if (card.autograph) "Yes" else "No"
-                    val gradeStr = card.grading?.let { "${it.gradingCompany?.name ?: ""} ${it.grade ?: ""}".trim() } ?: ""
+                    val gradeStr = card.grading?.let { grading ->
+                        val companyStr = grading.gradingCompany?.name ?: ""
+                        var gradeValStr = grading.grade?.toString() ?: ""
+
+                        if (grading.gradingCompany == GradingCompany.PSA && grading.grade != null && grading.grade!! % 1.0f == 0.0f) {
+                            gradeValStr = grading.grade!!.toInt().toString()
+                        }
+
+                        HtmlUtils.htmlEscape("$companyStr $gradeValStr".trim())
+                    } ?: ""
 
                     writer.write("    <tr>\n")
                     writer.write("        <td>$playerName</td>\n")
