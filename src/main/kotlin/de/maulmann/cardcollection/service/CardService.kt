@@ -18,6 +18,7 @@ class CardService(
     private val seasonRepository: SeasonRepository, // Add SeasonRepository
     private val cardManufacturerRepository: CardManufacturerRepository
 ) {
+    @Cacheable("filteredCards")
     fun getCardsFiltered(
         manufacturerId: Long?,
         brandId: Long?,

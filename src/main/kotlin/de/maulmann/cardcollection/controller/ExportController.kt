@@ -69,7 +69,7 @@ class ExportController(
                     val seasonName = HtmlUtils.htmlEscape(card.season.name)
                     val companyName = HtmlUtils.htmlEscape(card.theme.brand?.manufacturer?.name ?: "")
                     val brandName = HtmlUtils.htmlEscape(card.theme.brand?.name ?: "")
-                    val themeName = HtmlUtils.htmlEscape(card.theme.name ?: "")
+                    val themeName = HtmlUtils.htmlEscape(card.theme.name)
                     val variantName = HtmlUtils.htmlEscape(card.variant.name ?: "")
                     val number = HtmlUtils.htmlEscape(card.number)
                     val serial = card.serialNumber

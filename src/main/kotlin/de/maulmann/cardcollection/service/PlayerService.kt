@@ -5,10 +5,10 @@ import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 @Service
 class PlayerService(
-    private val playerRepository: PlayerRepository,
+    private val playerRepository: PlayerRepository
 ) {
     @Cacheable("players")
     fun getPlayers(): List<Player> {
-        return playerRepository.findAllWithTeamAndSportSorted()
+        return playerRepository.findAllByOrderBySurnameAscNameAsc()
     }
 }
