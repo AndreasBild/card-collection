@@ -53,12 +53,12 @@ class CardService(
         }
         sportId?.let {
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<Player>("player").get<Sport>("sport").get<Long>("id"), it)
+                cb.equal(root.join<Card, Player>("players").get<Sport>("sport").get<Long>("id"), it)
             })
         }
         playerId?.let {
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<Player>("player").get<Long>("id"), it)
+                cb.equal(root.join<Card, Player>("players").get<Long>("id"), it)
             })
         }
         seasonId?.let { // Changed from season to seasonId
@@ -134,13 +134,17 @@ class CardService(
         // Combine all specifications
         var finalSpecification = specifications.reduceOrNull { acc, spec -> acc.and(spec) }
             ?: Specification { _, _, _ -> null } // If no filters, return all
+        // Enforce distinct results when joining collections
+        val distinctSpecification = Specification<Card> { _, query, cb ->
+            query.distinct(true)
+            null
+        }
+        finalSpecification = finalSpecification.and(distinctSpecification)
         // Optimization to avoid N+1 queries by join fetching related entities
         val fetchSpecification = Specification<Card> { root, query, cb ->
             val resultType = query.resultType
             if (resultType != Long::class.javaObjectType && resultType != Long::class.javaPrimitiveType && resultType.simpleName != "Long") { // Only fetch if not a count query
                 root.fetch<Card, Season>("season", JoinType.LEFT)
-                val playerFetch = root.fetch<Card, Player>("player", JoinType.LEFT)
-                playerFetch.fetch<Player, Sport>("sport", JoinType.LEFT)
                 root.fetch<Card, Team>("team", JoinType.LEFT)
                 root.fetch<Card, Variant>("variant", JoinType.LEFT)
                 val themeFetch = root.fetch<Card, CardTheme>("theme", JoinType.LEFT)

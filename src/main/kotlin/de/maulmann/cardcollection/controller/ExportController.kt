@@ -63,9 +63,9 @@ class ExportController(
                 writer.write("    </tr>\n")
 
                 for (card in cards) {
-                    val playerName = HtmlUtils.htmlEscape("${card.player.name} ${card.player.surname}".trim())
+                    val playerName = HtmlUtils.htmlEscape(card.playerNames)
                     val teamName = HtmlUtils.htmlEscape(card.team?.name ?: "")
-                    val sportName = HtmlUtils.htmlEscape(card.player.sport?.name ?: "")
+                    val sportName = HtmlUtils.htmlEscape(card.sportNames ?: "")
                     val seasonName = HtmlUtils.htmlEscape(card.season.name)
                     val companyName = HtmlUtils.htmlEscape(card.theme.brand?.manufacturer?.name ?: "")
                     val brandName = HtmlUtils.htmlEscape(card.theme.brand?.name ?: "")

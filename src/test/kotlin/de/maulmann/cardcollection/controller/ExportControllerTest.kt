@@ -34,7 +34,6 @@ class ExportControllerTest {
         val brand = CardBrand(id = 1L, name = "Collectors Choice", manufacturer = manufacturer)
         val theme = CardTheme(id = 1L, name = "Base Set", brand = brand)
         val sport = Sport(id = 1L, name = "Basketball")
-        val player = Player(id = 1L, name = "Juwan", surname = "Howard", sport = sport)
         val team = Team(id = 1L, name = "Washington Bullets")
         val variant = Variant(id = 1L, name = "Base")
 
@@ -49,7 +48,7 @@ class ExportControllerTest {
         val card = Card(
             id = 1L,
             season = season,
-            player = playerWithAmpersand,
+            players = setOf(playerWithAmpersand),
             team = team,
             theme = theme,
             variant = variant,

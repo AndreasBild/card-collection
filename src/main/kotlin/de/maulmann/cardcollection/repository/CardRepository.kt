@@ -7,9 +7,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 interface CardRepository : JpaRepository<Card, Long>,  JpaSpecificationExecutor<Card> {
 
     @org.springframework.data.jpa.repository.Query("""
-        SELECT c FROM Card c
+        SELECT DISTINCT c FROM Card c
         LEFT JOIN FETCH c.season
-        LEFT JOIN FETCH c.player p
+        LEFT JOIN FETCH c.players p
         LEFT JOIN FETCH p.sport
         LEFT JOIN FETCH c.team
         LEFT JOIN FETCH c.variant

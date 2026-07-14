@@ -55,7 +55,7 @@ class CardTest {
             rookieCard = true,
             gameUsedMaterial = false,
             autograph = true,
-            player = player,
+            players = setOf(player),
             team = team,
             variant = variant,
             theme = theme

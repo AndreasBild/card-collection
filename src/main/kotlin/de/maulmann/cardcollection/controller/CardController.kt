@@ -25,9 +25,7 @@ class CardController(
         data class SortableColumnInfo(val displayName: String, val propertyPath: String)
 
         private val SORTABLE_COLUMNS = listOf(
-            SortableColumnInfo("Player", "player.name"),
             SortableColumnInfo("Team", "team.name"),
-            SortableColumnInfo("Sport", "player.sport.name"),
             SortableColumnInfo("Season", "season.name"),
             SortableColumnInfo("Company", "theme.brand.manufacturer.name"),
             SortableColumnInfo("Brand", "theme.brand.name"),
