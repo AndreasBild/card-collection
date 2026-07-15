@@ -19,4 +19,14 @@ import jakarta.validation.constraints.NotNull
     @field:NotNull(message = "Grading company cannot be null")
     @Enumerated(EnumType.STRING)
     var gradingCompany: GradingCompany?
-)
+) {
+    val displayGrade: String
+        get() {
+            if (grade == null || gradingCompany == null) return ""
+            var gradeValStr = grade.toString()
+            if (gradingCompany == GradingCompany.PSA && grade!! % 1.0f == 0.0f) {
+                gradeValStr = grade!!.toInt().toString()
+            }
+            return "$gradingCompany $gradeValStr"
+        }
+}

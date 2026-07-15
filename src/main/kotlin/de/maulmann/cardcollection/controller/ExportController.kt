@@ -77,16 +77,7 @@ class ExportController(
                     val rookie = if (card.rookieCard) "Yes" else "No"
                     val gameUsed = if (card.gameUsedMaterial) "Yes" else "No"
                     val autograph = if (card.autograph) "Yes" else "No"
-                    val gradeStr = card.grading?.let { grading ->
-                        val companyStr = grading.gradingCompany?.name ?: ""
-                        var gradeValStr = grading.grade?.toString() ?: ""
-
-                        if (grading.gradingCompany == GradingCompany.PSA && grading.grade != null && grading.grade!! % 1.0f == 0.0f) {
-                            gradeValStr = grading.grade!!.toInt().toString()
-                        }
-
-                        HtmlUtils.htmlEscape("$companyStr $gradeValStr".trim())
-                    } ?: ""
+                    val gradeStr = card.grading?.let { HtmlUtils.htmlEscape(it.displayGrade) } ?: ""
 
                     writer.write("    <tr>\n")
                     writer.write("        <td>$playerName</td>\n")

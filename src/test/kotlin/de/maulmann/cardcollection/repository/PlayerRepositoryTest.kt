@@ -15,7 +15,7 @@ class PlayerRepositoryTest @Autowired constructor(
 
     @Test
     fun `when findById then return Player`() {
-        val player = Player(name = "FirstName", surname = "LastName", teams = mutableSetOf(), sport = null)
+        val player = Player(name = "FirstName", surname = "LastName", sport = null)
         entityManager.persistAndFlush(player)
         val found = playerRepository.findById(player.id)
         assertThat(found.get()).isEqualTo(player)
