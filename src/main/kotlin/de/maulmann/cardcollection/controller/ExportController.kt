@@ -3,7 +3,6 @@ package de.maulmann.cardcollection.controller
 import de.maulmann.cardcollection.repository.CardRepository
 import de.maulmann.cardcollection.repository.SeasonRepository
 import jakarta.servlet.http.HttpServletResponse
-import de.maulmann.cardcollection.model.GradingCompany
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
