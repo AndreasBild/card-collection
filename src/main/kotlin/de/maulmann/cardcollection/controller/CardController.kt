@@ -22,10 +22,12 @@ class CardController(
 ) {
 
     companion object {
-        data class SortableColumnInfo(val displayName: String, val propertyPath: String)
+        data class SortableColumnInfo(val displayName: String, val propertyPath: String, val isSortable: Boolean = true)
 
         private val SORTABLE_COLUMNS = listOf(
-            SortableColumnInfo("Team", "team.name"),
+            SortableColumnInfo("Player", "playerNames", false),
+            SortableColumnInfo("Team", "teamNames", false),
+            SortableColumnInfo("Sport", "sportNames", false),
             SortableColumnInfo("Season", "season.name"),
             SortableColumnInfo("Company", "theme.brand.manufacturer.name"),
             SortableColumnInfo("Brand", "theme.brand.name"),
@@ -50,19 +52,19 @@ class CardController(
         @RequestParam(required = false) themeId: Long?,
         @RequestParam(required = false) sportId: Long?,
         @RequestParam(required = false) playerId: Long?,
-        @RequestParam(required = false) seasonId: Long?, // Changed from season: String?
-        @RequestParam(required = false) gameUsed: Boolean?, // New
-        @RequestParam(required = false) autograph: Boolean?, // New
+        @RequestParam(required = false) seasonId: Long?,
+        @RequestParam(required = false) gameUsed: Boolean?,
+        @RequestParam(required = false) autograph: Boolean?,
         @RequestParam(required = false) variantId: Long?,
         @RequestParam(required = false) rookieCard: Boolean?,
-        @RequestParam(required = false) printRunRangeKey: String?, // New parameter
-        @RequestParam(required = false) teamId: Long?, // New parameter
-        @RequestParam(required = false) isGradedNullable: Boolean?, // New parameter for grading status
+        @RequestParam(required = false) printRunRangeKey: String?,
+        @RequestParam(required = false) teamId: Long?,
+        @RequestParam(required = false) isGradedNullable: Boolean?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(required = false) sort: String?
     ): String {
-        val sortObj = sort?.let { it ->
+        val sortObj = sort?.let {
             val parts = it.split(",").map { it.trim() }
             if (parts.isEmpty()) {
                 Sort.by("id")
@@ -76,40 +78,38 @@ class CardController(
                     Sort.by(direction, field)
                 } catch (e: Exception) {
                     e.message?.let { model.addAttribute("error", it) }
-                    Sort.by("id") // Fallback bei ungültigem Feld
+                    Sort.by("id")
                 }
             }
         } ?: Sort.by("id")
 
         val pageable = PageRequest.of(page, size, sortObj)
 
-        // Call the new service method that handles combined filtering
         val cardsPage: Page<Card> = cardService.getCardsFiltered(
             manufacturerId = manufacturerId,
             brandId = brandId,
             themeId = themeId,
             sportId = sportId,
             playerId = playerId,
-            seasonId = seasonId, // Changed from season = season
+            seasonId = seasonId,
             gameUsed = gameUsed,
             autograph = autograph,
             variantId = variantId,
             rookieCard = rookieCard,
-            printRunRangeKey = printRunRangeKey, // Pass new parameter
-            teamId = teamId, // Pass new parameter
-            isGradedNullable = isGradedNullable, // Pass the grading status parameter
-            pageable = pageable // Pass the pageable object
+            printRunRangeKey = printRunRangeKey,
+            teamId = teamId,
+            isGradedNullable = isGradedNullable,
+            pageable = pageable
         )
 
         model.addAttribute("cardPage", cardsPage)
-        model.addAttribute("cards", cardsPage.content) // For existing view compatibility
+        model.addAttribute("cards", cardsPage.content)
         model.addAttribute("currentPage", cardsPage.number)
         model.addAttribute("totalPages", cardsPage.totalPages)
         model.addAttribute("totalItems", cardsPage.totalElements)
         model.addAttribute("pageSize", cardsPage.size)
 
-        // Add current sort property and direction to the model for the view
-        var currentSortProperty = "id" // Default sort property
+        var currentSortProperty = "id"
         var currentSortDirection = "ASC"
 
         sort?.let {
@@ -125,18 +125,17 @@ class CardController(
         model.addAttribute("currentSortDirection", currentSortDirection)
         model.addAttribute("sortableColumns", SORTABLE_COLUMNS)
 
-        // Fetch data for filters/dropdowns (this part remains the same)
         model.addAttribute("manufacturers", cardService.getAllCardManufacturers())
-        model.addAttribute("players", playerService.getPlayers()) // Assuming getPlayers() fetches List<Player>
+        model.addAttribute("players", playerService.getPlayers())
         model.addAttribute("brands", cardService.getAllBrands())
         model.addAttribute("themes", cardService.getAllThemes())
         model.addAttribute("sports", cardService.getAllSports())
         model.addAttribute("seasons", cardService.getAllSeasons())
         model.addAttribute("variants", cardService.getAllVariants())
         model.addAttribute("printRunRanges", PrintRunRange.entries.toTypedArray())
-        model.addAttribute("teams", cardService.getAllTeams()) // Add Teams to the model
-        model.addAttribute("gradingCompanies", GradingCompany.entries) // Add grading companies
+        model.addAttribute("teams", cardService.getAllTeams())
+        model.addAttribute("gradingCompanies", GradingCompany.entries)
 
-        return "cards" // Returns the "cards.html" view
+        return "cards"
     }
 }

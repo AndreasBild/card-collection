@@ -1,4 +1,5 @@
 package de.maulmann.cardcollection.service
+
 import de.maulmann.cardcollection.model.*
 import de.maulmann.cardcollection.repository.*
 import jakarta.persistence.criteria.JoinType
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
+
 @Service
 class CardService(
     private val cardRepository: CardRepository,
@@ -14,10 +16,11 @@ class CardService(
     private val cardThemeRepository: CardThemeRepository,
     private val sportRepository: SportRepository,
     private val variantRepository: VariantRepository,
-    private val teamRepository: TeamRepository, // New injection
-    private val seasonRepository: SeasonRepository, // Add SeasonRepository
+    private val teamRepository: TeamRepository,
+    private val seasonRepository: SeasonRepository,
     private val cardManufacturerRepository: CardManufacturerRepository
 ) {
+
     @Cacheable("filteredCards")
     fun getCardsFiltered(
         manufacturerId: Long?,
@@ -25,17 +28,18 @@ class CardService(
         themeId: Long?,
         sportId: Long?,
         playerId: Long?,
-        seasonId: Long?, // Changed from season: String?
-        gameUsed: Boolean?, // New
-        autograph: Boolean?,  // New
+        seasonId: Long?,
+        gameUsed: Boolean?,
+        autograph: Boolean?,
         variantId: Long?,
         rookieCard: Boolean?,
         printRunRangeKey: String?,
         teamId: Long?,
-        isGradedNullable: Boolean?, // New parameter for grading status
+        isGradedNullable: Boolean?,
         pageable: Pageable
     ): Page<Card> {
         val specifications = mutableListOf<Specification<Card>>()
+
         manufacturerId?.let {
             specifications.add(Specification { root, _, cb ->
                 cb.equal(root.get<CardTheme>("theme").get<CardBrand>("brand").get<CardManufacturer>("manufacturer").get<Long>("id"), it)
@@ -53,17 +57,17 @@ class CardService(
         }
         sportId?.let {
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.join<Card, Player>("players").get<Sport>("sport").get<Long>("id"), it)
+                cb.equal(root.join<Card, CardPlayer>("cardPlayers").get<Player>("player").get<Sport>("sport").get<Long>("id"), it)
             })
         }
         playerId?.let {
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.join<Card, Player>("players").get<Long>("id"), it)
+                cb.equal(root.join<Card, CardPlayer>("cardPlayers").get<Player>("player").get<Long>("id"), it)
             })
         }
-        seasonId?.let { // Changed from season to seasonId
+        seasonId?.let {
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<Season>("season").get<Long>("id"), it) // Updated specification for Season
+                cb.equal(root.get<Season>("season").get<Long>("id"), it)
             })
         }
         gameUsed?.let {
@@ -88,20 +92,19 @@ class CardService(
         }
         teamId?.let {
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<Team>("team").get<Long>("id"), it)
+                cb.equal(root.join<Card, CardPlayer>("cardPlayers").get<Team>("team").get<Long>("id"), it)
             })
         }
-        // Handle isGradedNullable filter
         isGradedNullable?.let { isGraded ->
             specifications.add(Specification { root, _, cb ->
                 if (isGraded) {
-                    cb.isNotNull(root.get<Any>("grading")) // Check if 'grading' field is not null
+                    cb.isNotNull(root.get<Any>("grading"))
                 } else {
-                    cb.isNull(root.get<Any>("grading")) // Check if 'grading' field is null
+                    cb.isNull(root.get<Any>("grading"))
                 }
             })
         }
-        // Handle PrintRunRange
+
         val selectedPrintRunRange = PrintRunRange.fromKey(printRunRangeKey)
         selectedPrintRunRange?.let { range ->
             specifications.add(Specification { root, _, cb ->
@@ -131,21 +134,20 @@ class CardService(
                 }
             })
         }
-        // Combine all specifications
+
         var finalSpecification = specifications.reduceOrNull { acc, spec -> acc.and(spec) }
-            ?: Specification { _, _, _ -> null } // If no filters, return all
-        // Enforce distinct results when joining collections
+            ?: Specification { _, _, _ -> null }
+
         val distinctSpecification = Specification<Card> { _, query, cb ->
             query.distinct(true)
             null
         }
         finalSpecification = finalSpecification.and(distinctSpecification)
-        // Optimization to avoid N+1 queries by join fetching related entities
+
         val fetchSpecification = Specification<Card> { root, query, cb ->
             val resultType = query.resultType
-            if (resultType != Long::class.javaObjectType && resultType != Long::class.javaPrimitiveType && resultType.simpleName != "Long") { // Only fetch if not a count query
+            if (resultType != Long::class.java && resultType != java.lang.Long::class.java && resultType.simpleName != "Long") {
                 root.fetch<Card, Season>("season", JoinType.LEFT)
-                root.fetch<Card, Team>("team", JoinType.LEFT)
                 root.fetch<Card, Variant>("variant", JoinType.LEFT)
                 val themeFetch = root.fetch<Card, CardTheme>("theme", JoinType.LEFT)
                 val brandFetch = themeFetch.fetch<CardTheme, CardBrand>("brand", JoinType.LEFT)
@@ -154,10 +156,12 @@ class CardService(
             }
             null
         }
+
         finalSpecification = finalSpecification.and(fetchSpecification)
+
         return cardRepository.findAll(finalSpecification, pageable)
     }
-    // New service methods to fetch data for filter dropdowns
+
     @Cacheable("brands")
     fun getAllBrands(manufacturerId: Long? = null): List<CardBrand> {
         return if (manufacturerId != null) {
@@ -166,6 +170,7 @@ class CardService(
             cardBrandRepository.findAllByOrderByNameAsc()
         }
     }
+
     @Cacheable("themes")
     fun getAllThemes(manufacturerId: Long? = null, brandId: Long? = null): List<CardTheme> {
         return when {
@@ -174,22 +179,27 @@ class CardService(
             else -> cardThemeRepository.findAllByOrderByNameAsc()
         }
     }
+
     @Cacheable("sports")
     fun getAllSports(): List<Sport> {
         return sportRepository.findAll()
     }
+
     @Cacheable("seasons")
     fun getAllSeasons(): List<Season> {
         return seasonRepository.findAllByOrderByNameAsc()
     }
+
     @Cacheable("variants")
     fun getAllVariants(): List<Variant> {
         return variantRepository.findAll()
     }
+
     @Cacheable("teams")
-    fun getAllTeams(): List<Team> { //This might need to be adjusted if we want it to be dynamic based on current filters
+    fun getAllTeams(): List<Team> {
         return teamRepository.findAll()
     }
+
     @Cacheable("manufacturers")
     fun getAllCardManufacturers(): List<CardManufacturer> {
         return cardManufacturerRepository.findAll()

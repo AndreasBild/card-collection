@@ -4,14 +4,15 @@ import de.maulmann.cardcollection.model.Card
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
-interface CardRepository : JpaRepository<Card, Long>,  JpaSpecificationExecutor<Card> {
+interface CardRepository : JpaRepository<Card, Long>, JpaSpecificationExecutor<Card> {
 
     @org.springframework.data.jpa.repository.Query("""
         SELECT DISTINCT c FROM Card c
         LEFT JOIN FETCH c.season
-        LEFT JOIN FETCH c.players p
+        LEFT JOIN FETCH c.cardPlayers cp
+        LEFT JOIN FETCH cp.player p
         LEFT JOIN FETCH p.sport
-        LEFT JOIN FETCH c.team
+        LEFT JOIN FETCH cp.team
         LEFT JOIN FETCH c.variant
         LEFT JOIN FETCH c.theme t
         LEFT JOIN FETCH t.brand b

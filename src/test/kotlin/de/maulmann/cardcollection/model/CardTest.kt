@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager
 
-
 @DataJpaTest
 class CardTest {
 
@@ -55,14 +54,24 @@ class CardTest {
             rookieCard = true,
             gameUsedMaterial = false,
             autograph = true,
-            players = setOf(player),
-            team = team,
             variant = variant,
             theme = theme
         )
         cardRepository.save(card)
 
+        val cardPlayer = CardPlayer(
+            id = CardPlayerId(card.id, player.id),
+            card = card,
+            player = player,
+            team = team
+        )
+        entityManager.persist(cardPlayer)
+        entityManager.flush()
+        entityManager.clear()
+
         val foundCard = cardRepository.findById(card.id).orElse(null)
-        assertThat(foundCard).isEqualTo(card)
+        assertThat(foundCard.id).isEqualTo(card.id)
+        assertThat(foundCard.teamNames).isEqualTo("Test Team")
+        assertThat(foundCard.playerNames).isEqualTo("Test Player")
     }
 }

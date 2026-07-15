@@ -87,13 +87,12 @@
     </div>
     <div>
         <label for="seasonSelectForm">Season:</label>
-        <select id="seasonSelectForm" name="seasonId" class="styled-select"> <!-- Changed name to seasonId -->
+        <select id="seasonSelectForm" name="seasonId" class="styled-select">
             <option value="">All Seasons</option>
             <option th:each="s : ${seasons}"
                     th:value="${s.id}"
                     th:text="${s.name}"
                     th:selected="${param.seasonId != null && param.seasonId == s.id}"></option>
-            <!-- Use param.seasonId and s.id -->
         </select>
     </div>
     <div>
@@ -133,7 +132,7 @@
     <div>
         <label for="printRunRangeSelectForm">Print Run:</label>
         <select id="printRunRangeSelectForm" name="printRunRangeKey" class="styled-select">
-            <option value="">Any</option> <!-- Default option -->
+            <option value="">Any</option>
             <option th:each="prRange : ${printRunRanges}"
                     th:value="${prRange.key}"
                     th:text="${prRange.displayName}"
@@ -158,8 +157,9 @@
     <thead>
     <tr>
         <th:block th:each="column : ${sortableColumns}">
-            <th th:aria-sort="${currentSortProperty == column.propertyPath ? (currentSortDirection == 'ASC' ? 'ascending' : 'descending') : 'none'}">
-                <a th:with="nextSortDir=${currentSortProperty == column.propertyPath && currentSortDirection == 'ASC' ? 'DESC' : 'ASC'}"
+            <th th:aria-sort="${column.isSortable && currentSortProperty == column.propertyPath ? (currentSortDirection == 'ASC' ? 'ascending' : 'descending') : 'none'}">
+                <a th:if="${column.isSortable}"
+                   th:with="nextSortDir=${currentSortProperty == column.propertyPath && currentSortDirection == 'ASC' ? 'DESC' : 'ASC'}"
                    th:aria-label="'Sort by ' + column.displayName +
                                   (${currentSortProperty == column.propertyPath && currentSortDirection == 'ASC'} ?
                                    ', currently sorted ascending, activate to sort descending' :
@@ -181,6 +181,7 @@
                         <span th:if="${currentSortDirection == 'DESC'}">▼</span>
                     </span>
                 </a>
+                <span th:unless="${column.isSortable}" th:text="${column.displayName}"></span>
             </th>
         </th:block>
     </tr>
@@ -188,7 +189,7 @@
     <tbody>
     <tr th:each="card : ${cards}">
         <td th:text="${card.playerNames}"></td>
-        <td th:text="${card?.team?.name}"></td>
+        <td th:text="${card.teamNames}"></td>
         <td th:text="${card.sportNames}"></td>
         <td th:text="${card?.season?.name}"></td>
         <td th:text="${card?.theme?.brand?.manufacturer?.name}"></td>
@@ -223,7 +224,6 @@
     </div>
     <nav>
         <ul class="pagination">
-            <!-- First Page Link -->
             <li th:classappend="${currentPage == 0} ? 'disabled' : ''">
                 <a th:href="@{/cards(page=0, size=${pageSize},
                                 sort=${param.sort ?: ''},
@@ -242,7 +242,6 @@
                                 isGradedNullable=${param.isGradedNullable ?: ''}
                                 )}">First</a>
             </li>
-            <!-- Previous Page Link -->
             <li th:classappend="${currentPage == 0} ? 'disabled' : ''">
                 <a th:href="@{/cards(page=${currentPage - 1}, size=${pageSize},
                                 sort=${param.sort ?: ''},
@@ -263,10 +262,8 @@
                    th:unless="${currentPage == 0}">Previous</a>
                 <span th:if="${currentPage == 0}">Previous</span>
             </li>
-            <!-- Page Number Links -->
-            <!-- Logic for page numbers: show a few pages around current, plus first/last and ellipses -->
             <th:block th:with="window=2">
-                <th:block th:if="${totalPages <= (2 * window + 5)}"> <!-- Show all if not too many pages -->
+                <th:block th:if="${totalPages <= (2 * window + 5)}">
                     <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                         th:classappend="${i == currentPage} ? 'active' : ''">
                         <a th:href="@{/cards(page=${i}, size=${pageSize},
@@ -288,14 +285,11 @@
                     </li>
                 </th:block>
                 <th:block th:unless="${totalPages <= (2 * window + 5)}">
-                    <!-- First page -->
                     <li th:classappend="${0 == currentPage} ? 'active' : ''">
                         <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
                            th:text="1">_</a>
                     </li>
-                    <!-- Ellipsis after first if needed -->
                     <li th:if="${currentPage > window + 1}" class="disabled"><span>...</span></li>
-                    <!-- Window around current page -->
                     <li th:each="i : ${#numbers.sequence( T(java.lang.Math).max(1, currentPage.intValue() - 1), T(java.lang.Math).min(totalPages.intValue() - 2, currentPage.intValue() + 1) )}"
                         th:classappend="${i == currentPage} ? 'active' : ''">
                         <a th:href="@{/cards(page=${i}, size=${pageSize},
@@ -315,16 +309,13 @@
                                         isGradedNullable=${param.isGradedNullable ?: ''}
                                         )}" th:text="${i + 1}">_</a>
                     </li>
-                    <!-- Ellipsis before last if needed -->
                     <li th:if="${currentPage < totalPages - window - 2}" class="disabled"><span>...</span></li>
-                    <!-- Last page -->
                     <li th:classappend="${totalPages - 1 == currentPage} ? 'active' : ''">
                         <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
                            th:text="${totalPages}">_</a>
                     </li>
                 </th:block>
             </th:block>
-            <!-- Next Page Link -->
             <li th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
                 <a th:href="@{/cards(page=${currentPage + 1}, size=${pageSize},
                                 sort=${param.sort ?: ''},
@@ -345,7 +336,6 @@
                    th:unless="${currentPage >= totalPages - 1}">Next</a>
                 <span th:if="${currentPage >= totalPages - 1}">Next</span>
             </li>
-            <!-- Last Page Link -->
             <li th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
                 <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize},
                                 sort=${param.sort ?: ''},
@@ -429,10 +419,8 @@
             if (brandId) {
                 params.append('brandId', brandId);
             } else if (manufacturerId) {
-                // If no specific brand is chosen, but a manufacturer is, themes for that manufacturer are shown.
                 params.append('manufacturerId', manufacturerId);
             }
-            // If neither brandId nor manufacturerId, it fetches all themes.
 
             if (params.toString()) {
                 url += '?' + params.toString();
@@ -461,77 +449,46 @@
 
         manufacturerSelect.addEventListener('change', async function () {
             const selectedManufacturerId = this.value;
-            // When manufacturer changes, brand and theme selections might become invalid if not part of the new lists.
-            // We fetch new lists, and the updateDropdown will try to reselect if possible.
-            await fetchAndPopulateBrands(selectedManufacturerId, brandSelect.value); // Try to keep current brand if valid
-            await fetchAndPopulateThemes(selectedManufacturerId, null, themeSelect.value); // Themes for manufacturer, try to keep current theme
+            await fetchAndPopulateBrands(selectedManufacturerId, brandSelect.value);
+            await fetchAndPopulateThemes(selectedManufacturerId, null, themeSelect.value);
 
-            // If "All Manufacturers" is selected, we need to ensure brand and theme dropdowns are reset correctly
             if (!selectedManufacturerId) {
-                brandSelect.value = ''; // Reset brand selection
-                themeSelect.value = ''; // Reset theme selection
-                // Re-populate brand and theme with all options
+                brandSelect.value = '';
+                themeSelect.value = '';
                 await fetchAndPopulateBrands(null, null);
                 await fetchAndPopulateThemes(null, null, null);
-            } else {
-                // If a specific manufacturer is selected, we want to reset brand and theme to their "All..." state for that manufacturer
-                // unless a specific brand/theme was already selected and is still valid.
-                // The fetchAndPopulate functions handle re-selection if possible. If not, they default to "All..."
-                // We might need to explicitly set brandSelect.value to '' if we want to force "All Brands (for selected Manufacturer)"
-                // after a manufacturer change, rather than potentially keeping an old specific brand.
-                // For now, let's allow re-selection if the old value is still valid in the new list.
             }
         });
 
         brandSelect.addEventListener('change', async function () {
             const selectedBrandId = this.value;
-            const selectedManufacturerId = manufacturerSelect.value; // Keep manufacturer context
-            // When brand changes, theme selection might become invalid.
-            await fetchAndPopulateThemes(selectedManufacturerId, selectedBrandId, themeSelect.value); // Try to keep current theme
+            const selectedManufacturerId = manufacturerSelect.value;
+            await fetchAndPopulateThemes(selectedManufacturerId, selectedBrandId, themeSelect.value);
 
             if (!selectedBrandId && selectedManufacturerId) {
-                // "All Brands (for selected Manufacturer)" selected, reload themes for manufacturer
                 await fetchAndPopulateThemes(selectedManufacturerId, null, themeSelect.value);
             } else if (!selectedBrandId && !selectedManufacturerId) {
-                // "All Brands" (overall) selected
                 await fetchAndPopulateThemes(null, null, themeSelect.value);
             }
         });
 
-        // Initial population and state setting on page load
         async function initializeFilters() {
-            let currentManufacturerId = manufacturerSelect.value; // Value from Thymeleaf (param or empty)
+            let currentManufacturerId = manufacturerSelect.value;
             let currentBrandId = brandSelect.value;
 
-            // If there's an initial manufacturer ID from URL params, it means Thymeleaf has already set it.
-            // We need to ensure the Brand and Theme dropdowns are correctly populated based on this initial manufacturer.
             if (currentManufacturerId) {
-                // Populate brands for the current manufacturer, trying to select initialBrandId
                 await fetchAndPopulateBrands(currentManufacturerId, initialBrandId);
-                // Update currentBrandId because fetchAndPopulateBrands might not have found initialBrandId
-                // and brandSelect.value would be '' (for "All Brands (for selected Manufacturer)")
                 currentBrandId = brandSelect.value;
-
-                // Populate themes based on current manufacturer and potentially re-evaluated currentBrandId
                 await fetchAndPopulateThemes(currentManufacturerId, currentBrandId, initialThemeId);
             } else {
-                // No initial manufacturer, ensure brands and themes are fully populated if needed
-                // (Thymeleaf should have already populated them with "All", but this is a safeguard or if initialBrandId exists without manufacturer)
-                if (initialBrandId) { // A brand is selected, but no manufacturer (e.g. "All manufacturers", specific brand)
-                    // This state is a bit ambiguous with the new logic. Typically, a brand implies a manufacturer.
-                    // For now, we assume Thymeleaf populated brands correctly. If a brand is selected, we load its themes.
+                if (initialBrandId) {
                     await fetchAndPopulateThemes(null, initialBrandId, initialThemeId);
-                } else {
-                    // No manufacturer, no brand selected. Themes should be "All Themes".
-                    // Thymeleaf should have handled this.
                 }
             }
-            // At this point, if initialThemeId was set and valid for the (possibly filtered) theme list, it should be selected.
         }
 
         initializeFilters();
     });
-
     /*]]>*/
 </script>
 </body>

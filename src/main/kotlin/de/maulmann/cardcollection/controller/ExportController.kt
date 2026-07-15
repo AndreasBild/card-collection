@@ -64,13 +64,13 @@ class ExportController(
 
                 for (card in cards) {
                     val playerName = HtmlUtils.htmlEscape(card.playerNames)
-                    val teamName = HtmlUtils.htmlEscape(card.team?.name ?: "")
-                    val sportName = HtmlUtils.htmlEscape(card.sportNames ?: "")
+                    val teamName = HtmlUtils.htmlEscape(card.teamNames)
+                    val sportName = HtmlUtils.htmlEscape(card.sportNames)
                     val seasonName = HtmlUtils.htmlEscape(card.season.name)
                     val companyName = HtmlUtils.htmlEscape(card.theme.brand?.manufacturer?.name ?: "")
                     val brandName = HtmlUtils.htmlEscape(card.theme.brand?.name ?: "")
                     val themeName = HtmlUtils.htmlEscape(card.theme.name)
-                    val variantName = HtmlUtils.htmlEscape(card.variant.name ?: "")
+                    val variantName = HtmlUtils.htmlEscape(card.variant.name)
                     val number = HtmlUtils.htmlEscape(card.number)
                     val serial = card.serialNumber
                     val printRun = card.printRun

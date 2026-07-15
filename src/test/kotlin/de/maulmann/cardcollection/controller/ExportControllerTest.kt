@@ -35,8 +35,6 @@ class ExportControllerTest {
         val theme = CardTheme(id = 1L, name = "Base Set", brand = brand)
         val sport = Sport(id = 1L, name = "Basketball")
         val team = Team(id = 1L, name = "Washington Bullets")
-        val variant = Variant(id = 1L, name = "Base")
-
         val grading = Grading(
             id = 1L,
             grade = 9.0f,
@@ -44,14 +42,13 @@ class ExportControllerTest {
         )
 
         val playerWithAmpersand = Player(id = 2L, name = "Shaq", surname = "& Kobe", sport = sport)
+        val variant = Variant(id = 1L, name = "Base")
 
-        val card = Card(
+        val cardRef = Card(
             id = 1L,
             season = season,
-            players = setOf(playerWithAmpersand),
-            team = team,
-            theme = theme,
             variant = variant,
+            theme = theme,
             number = "278",
             serialNumber = 0,
             printRun = 0,
@@ -59,6 +56,28 @@ class ExportControllerTest {
             gameUsedMaterial = false,
             autograph = false,
             grading = grading
+        )
+
+        val cardPlayer = CardPlayer(
+            id = CardPlayerId(1L, playerWithAmpersand.id),
+            card = cardRef,
+            player = playerWithAmpersand,
+            team = team
+        )
+
+        val card = Card(
+            id = 1L,
+            season = season,
+            variant = variant,
+            theme = theme,
+            number = "278",
+            serialNumber = 0,
+            printRun = 0,
+            rookieCard = false,
+            gameUsedMaterial = false,
+            autograph = false,
+            grading = grading,
+            cardPlayers = setOf(cardPlayer)
         )
 
         `when`(seasonRepository.findAllByOrderByNameAsc()).thenReturn(listOf(season))
@@ -91,6 +110,6 @@ class ExportControllerTest {
         assertTrue(htmlContent.contains("<td>Base Set</td>"))
         assertTrue(htmlContent.contains("<td>Base</td>"))
         assertTrue(htmlContent.contains("<td>278</td>"))
-        assertTrue(htmlContent.contains("<td>PSA 9</td>")) // 9.0 becomes 9
+        assertTrue(htmlContent.contains("<td>PSA 9</td>"))
     }
 }
