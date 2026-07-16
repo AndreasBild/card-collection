@@ -28,6 +28,14 @@ class Card(
     val cardPlayers: Set<CardPlayer> = emptySet(),
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manufacturer_id")
+    val manufacturer: CardManufacturer,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id")
+    val brand: CardBrand,
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "variant_id")
     val variant: Variant,
 

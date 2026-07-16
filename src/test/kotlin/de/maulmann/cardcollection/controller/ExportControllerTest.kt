@@ -31,8 +31,8 @@ class ExportControllerTest {
         val season = Season(id = 1L, name = "1994-95")
 
         val manufacturer = CardManufacturer(id = 1L, name = "Upper Deck")
-        val brand = CardBrand(id = 1L, name = "Collectors Choice", manufacturer = manufacturer)
-        val theme = CardTheme(id = 1L, name = "Base Set", brand = brand)
+        val brand = CardBrand(id = 1L, name = "Collectors Choice")
+        val theme = CardTheme(id = 1L, name = "Base Set")
         val sport = Sport(id = 1L, name = "Basketball")
         val team = Team(id = 1L, name = "Washington Bullets")
         val grading = Grading(
@@ -47,6 +47,8 @@ class ExportControllerTest {
         val cardRef = Card(
             id = 1L,
             season = season,
+            manufacturer = manufacturer,
+            brand = brand,
             variant = variant,
             theme = theme,
             number = "278",
@@ -68,6 +70,8 @@ class ExportControllerTest {
         val card = Card(
             id = 1L,
             season = season,
+            manufacturer = manufacturer,
+            brand = brand,
             variant = variant,
             theme = theme,
             number = "278",

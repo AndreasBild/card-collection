@@ -3,7 +3,6 @@ package de.maulmann.cardcollection.controller
 import de.maulmann.cardcollection.repository.CardRepository
 import de.maulmann.cardcollection.repository.SeasonRepository
 import jakarta.servlet.http.HttpServletResponse
-import de.maulmann.cardcollection.model.GradingCompany
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -67,8 +66,8 @@ class ExportController(
                     val teamName = HtmlUtils.htmlEscape(card.teamNames)
                     val sportName = HtmlUtils.htmlEscape(card.sportNames)
                     val seasonName = HtmlUtils.htmlEscape(card.season.name)
-                    val companyName = HtmlUtils.htmlEscape(card.theme.brand?.manufacturer?.name ?: "")
-                    val brandName = HtmlUtils.htmlEscape(card.theme.brand?.name ?: "")
+                    val companyName = HtmlUtils.htmlEscape(card.manufacturer.name)
+                    val brandName = HtmlUtils.htmlEscape(card.brand.name)
                     val themeName = HtmlUtils.htmlEscape(card.theme.name)
                     val variantName = HtmlUtils.htmlEscape(card.variant.name)
                     val number = HtmlUtils.htmlEscape(card.number)
@@ -77,16 +76,7 @@ class ExportController(
                     val rookie = if (card.rookieCard) "Yes" else "No"
                     val gameUsed = if (card.gameUsedMaterial) "Yes" else "No"
                     val autograph = if (card.autograph) "Yes" else "No"
-                    val gradeStr = card.grading?.let { grading ->
-                        val companyStr = grading.gradingCompany?.name ?: ""
-                        var gradeValStr = grading.grade?.toString() ?: ""
-
-                        if (grading.gradingCompany == GradingCompany.PSA && grading.grade != null && grading.grade!! % 1.0f == 0.0f) {
-                            gradeValStr = grading.grade!!.toInt().toString()
-                        }
-
-                        HtmlUtils.htmlEscape("$companyStr $gradeValStr".trim())
-                    } ?: ""
+                    val gradeStr = card.grading?.let { HtmlUtils.htmlEscape(it.displayGrade) } ?: ""
 
                     writer.write("    <tr>\n")
                     writer.write("        <td>$playerName</td>\n")

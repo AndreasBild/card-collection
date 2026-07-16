@@ -18,13 +18,7 @@ class CardThemeTest {
 
     @Test
     fun `should save and retrieve card theme`() {
-        val manufacturer = CardManufacturer(name = "Test Manufacturer")
-        entityManager.persist(manufacturer)
-
-        val brand = CardBrand(name = "Test Brand", manufacturer = manufacturer)
-        entityManager.persist(brand)
-
-        val cardTheme = CardTheme(name = "Test Theme", brand = brand)
+        val cardTheme = CardTheme(name = "Test Theme")
         cardThemeRepository.save(cardTheme)
 
         val foundCardTheme = cardThemeRepository.findById(cardTheme.id).orElse(null)
