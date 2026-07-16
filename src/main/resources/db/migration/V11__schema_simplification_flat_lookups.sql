@@ -43,8 +43,10 @@ SET c.theme_id = (SELECT tm.new_id FROM temp_theme_mapping tm WHERE tm.old_id = 
 WHERE c.id > 0;
 SET SQL_SAFE_UPDATES = 1;
 
+SET SQL_SAFE_UPDATES = 0;
 DELETE FROM card_theme WHERE id NOT IN (SELECT DISTINCT new_id FROM temp_theme_mapping);
 DROP TABLE temp_theme_mapping;
+SET SQL_SAFE_UPDATES = 1;
 
 -- Remove brand_id constraint and column from card_theme
 SET @constraint_name = (
@@ -84,8 +86,10 @@ SET c.brand_id = (SELECT bm.new_id FROM temp_brand_mapping bm WHERE bm.old_id = 
 WHERE c.id > 0;
 SET SQL_SAFE_UPDATES = 1;
 
+SET SQL_SAFE_UPDATES = 0;
 DELETE FROM card_brand WHERE id NOT IN (SELECT DISTINCT new_id FROM temp_brand_mapping);
 DROP TABLE temp_brand_mapping;
+SET SQL_SAFE_UPDATES = 1;
 
 -- Remove manufacturer_id constraint and column from card_brand
 SET @constraint_name = (

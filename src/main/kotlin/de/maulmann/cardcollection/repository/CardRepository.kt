@@ -3,6 +3,7 @@ package de.maulmann.cardcollection.repository
 import de.maulmann.cardcollection.model.Card
 import de.maulmann.cardcollection.model.CardBrand
 import de.maulmann.cardcollection.model.CardTheme
+import de.maulmann.cardcollection.model.Variant
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.repository.query.Param
@@ -42,4 +43,17 @@ interface CardRepository : JpaRepository<Card, Long>, JpaSpecificationExecutor<C
         @Param("manufacturerId") manufacturerId: Long?,
         @Param("brandId") brandId: Long?
     ): List<CardTheme>
+
+    @org.springframework.data.jpa.repository.Query("""
+        SELECT DISTINCT c.variant FROM Card c 
+        WHERE (:manufacturerId IS NULL OR c.manufacturer.id = :manufacturerId)
+          AND (:brandId IS NULL OR c.brand.id = :brandId)
+          AND (:themeId IS NULL OR c.theme.id = :themeId)
+        ORDER BY c.variant.name ASC
+    """)
+    fun findDistinctVariantsByFilter(
+        @Param("manufacturerId") manufacturerId: Long?,
+        @Param("brandId") brandId: Long?,
+        @Param("themeId") themeId: Long?
+    ): List<Variant>
 }
