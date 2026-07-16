@@ -191,8 +191,16 @@ class CardService(
     }
 
     @Cacheable("variants")
-    fun getAllVariants(): List<Variant> {
-        return variantRepository.findAll()
+    fun getAllVariants(
+        manufacturerId: Long? = null,
+        brandId: Long? = null,
+        themeId: Long? = null
+    ): List<Variant> {
+        return if (manufacturerId != null || brandId != null || themeId != null) {
+            cardRepository.findDistinctVariantsByFilter(manufacturerId, brandId, themeId)
+        } else {
+            variantRepository.findAll()
+        }
     }
 
     @Cacheable("teams")

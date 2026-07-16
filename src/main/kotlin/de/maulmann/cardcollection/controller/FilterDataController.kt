@@ -2,6 +2,7 @@ package de.maulmann.cardcollection.controller
 
 import de.maulmann.cardcollection.model.CardBrand
 import de.maulmann.cardcollection.model.CardTheme
+import de.maulmann.cardcollection.model.Variant
 import de.maulmann.cardcollection.service.CardService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -23,5 +24,14 @@ class FilterDataController(private val cardService: CardService) {
         @RequestParam(required = false) brandId: Long?
     ): List<CardTheme> {
         return cardService.getAllThemes(manufacturerId = manufacturerId, brandId = brandId)
+    }
+
+    @GetMapping("/variants")
+    fun getVariantsForFilter(
+        @RequestParam(required = false) manufacturerId: Long?,
+        @RequestParam(required = false) brandId: Long?,
+        @RequestParam(required = false) themeId: Long?
+    ): List<Variant> {
+        return cardService.getAllVariants(manufacturerId, brandId, themeId)
     }
 }

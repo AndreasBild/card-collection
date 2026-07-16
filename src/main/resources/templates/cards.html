@@ -372,9 +372,11 @@
         const manufacturerSelect = document.getElementById('manufacturerSelectForm');
         const brandSelect = document.getElementById('brandSelectForm');
         const themeSelect = document.getElementById('themeSelectForm');
+        const variantSelect = document.getElementById('variantSelectForm');
 
         const initialBrandId = /*[[${param.brandId}]]*/ null;
         const initialThemeId = /*[[${param.themeId}]]*/ null;
+        const initialVariantId = /*[[${param.variantId}]]*/ null;
 
         function updateDropdown(selectElement, options, selectedValue, defaultOptionText) {
             selectElement.innerHTML = ''; // Clear existing options
@@ -447,16 +449,53 @@
             }
         }
 
+        async function fetchAndPopulateVariants(manufacturerId, brandId, themeId, selectedVariantId) {
+            let url = '/api/filters/variants';
+            const params = new URLSearchParams();
+            if (manufacturerId) params.append('manufacturerId', manufacturerId);
+            if (brandId) params.append('brandId', brandId);
+            if (themeId) params.append('themeId', themeId);
+
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    console.error('Failed to fetch variants:', response.status, await response.text());
+                    updateDropdown(variantSelect, [], selectedVariantId, 'All Variants');
+                    return;
+                }
+                const variants = await response.json();
+                let defaultText = 'All Variants';
+                if (themeId) {
+                    defaultText = 'All Variants (for selected Theme)';
+                } else if (brandId) {
+                    defaultText = 'All Variants (for selected Brand)';
+                } else if (manufacturerId) {
+                    defaultText = 'All Variants (for selected Manufacturer)';
+                }
+                updateDropdown(variantSelect, variants, selectedVariantId, defaultText);
+            } catch (error) {
+                console.error('Error fetching variants:', error);
+                updateDropdown(variantSelect, [], selectedVariantId, 'All Variants');
+            }
+        }
+
         manufacturerSelect.addEventListener('change', async function () {
             const selectedManufacturerId = this.value;
             await fetchAndPopulateBrands(selectedManufacturerId, brandSelect.value);
             await fetchAndPopulateThemes(selectedManufacturerId, null, themeSelect.value);
+            await fetchAndPopulateVariants(selectedManufacturerId, null, null, variantSelect.value);
 
             if (!selectedManufacturerId) {
                 brandSelect.value = '';
                 themeSelect.value = '';
+                variantSelect.value = '';
                 await fetchAndPopulateBrands(null, null);
                 await fetchAndPopulateThemes(null, null, null);
+                await fetchAndPopulateVariants(null, null, null, null);
             }
         });
 
@@ -464,25 +503,52 @@
             const selectedBrandId = this.value;
             const selectedManufacturerId = manufacturerSelect.value;
             await fetchAndPopulateThemes(selectedManufacturerId, selectedBrandId, themeSelect.value);
+            await fetchAndPopulateVariants(selectedManufacturerId, selectedBrandId, null, variantSelect.value);
 
-            if (!selectedBrandId && selectedManufacturerId) {
-                await fetchAndPopulateThemes(selectedManufacturerId, null, themeSelect.value);
-            } else if (!selectedBrandId && !selectedManufacturerId) {
-                await fetchAndPopulateThemes(null, null, themeSelect.value);
+            if (!selectedBrandId) {
+                if (selectedManufacturerId) {
+                    await fetchAndPopulateThemes(selectedManufacturerId, null, themeSelect.value);
+                    await fetchAndPopulateVariants(selectedManufacturerId, null, null, variantSelect.value);
+                } else {
+                    await fetchAndPopulateThemes(null, null, themeSelect.value);
+                    await fetchAndPopulateVariants(null, null, null, variantSelect.value);
+                }
+            }
+        });
+
+        themeSelect.addEventListener('change', async function () {
+            const selectedThemeId = this.value;
+            const selectedBrandId = brandSelect.value;
+            const selectedManufacturerId = manufacturerSelect.value;
+            await fetchAndPopulateVariants(selectedManufacturerId, selectedBrandId, selectedThemeId, variantSelect.value);
+
+            if (!selectedThemeId) {
+                await fetchAndPopulateVariants(selectedManufacturerId, selectedBrandId, null, variantSelect.value);
             }
         });
 
         async function initializeFilters() {
             let currentManufacturerId = manufacturerSelect.value;
             let currentBrandId = brandSelect.value;
+            let currentThemeId = themeSelect.value;
 
             if (currentManufacturerId) {
                 await fetchAndPopulateBrands(currentManufacturerId, initialBrandId);
                 currentBrandId = brandSelect.value;
                 await fetchAndPopulateThemes(currentManufacturerId, currentBrandId, initialThemeId);
+                currentThemeId = themeSelect.value;
+                await fetchAndPopulateVariants(currentManufacturerId, currentBrandId, currentThemeId, initialVariantId);
             } else {
                 if (initialBrandId) {
                     await fetchAndPopulateThemes(null, initialBrandId, initialThemeId);
+                    currentThemeId = themeSelect.value;
+                    await fetchAndPopulateVariants(null, initialBrandId, currentThemeId, initialVariantId);
+                } else if (initialThemeId) {
+                    await fetchAndPopulateVariants(null, null, initialThemeId, initialVariantId);
+                } else {
+                    if (initialVariantId) {
+                        await fetchAndPopulateVariants(null, null, null, initialVariantId);
+                    }
                 }
             }
         }
