@@ -18,10 +18,7 @@ class CardBrandTest {
 
     @Test
     fun `should save and retrieve card brand`() {
-        val manufacturer = CardManufacturer(name = "Test Manufacturer")
-        entityManager.persist(manufacturer)
-
-        val cardBrand = CardBrand(name = "Test Brand", manufacturer = manufacturer)
+        val cardBrand = CardBrand(name = "Test Brand")
         cardBrandRepository.save(cardBrand)
 
         val foundCardBrand = cardBrandRepository.findById(cardBrand.id).orElse(null)

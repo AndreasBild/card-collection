@@ -21,10 +21,10 @@ class CardTest {
         val manufacturer = CardManufacturer(name = "Test Manufacturer")
         entityManager.persist(manufacturer)
 
-        val brand = CardBrand(name = "Test Brand", manufacturer = manufacturer)
+        val brand = CardBrand(name = "Test Brand")
         entityManager.persist(brand)
 
-        val theme = CardTheme(name = "Test Theme", brand = brand)
+        val theme = CardTheme(name = "Test Theme")
         entityManager.persist(theme)
 
         val sport = Sport(name = "Test Sport")
@@ -54,6 +54,8 @@ class CardTest {
             rookieCard = true,
             gameUsedMaterial = false,
             autograph = true,
+            manufacturer = manufacturer,
+            brand = brand,
             variant = variant,
             theme = theme
         )

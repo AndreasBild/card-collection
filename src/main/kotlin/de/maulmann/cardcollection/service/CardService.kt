@@ -42,12 +42,12 @@ class CardService(
 
         manufacturerId?.let {
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<CardTheme>("theme").get<CardBrand>("brand").get<CardManufacturer>("manufacturer").get<Long>("id"), it)
+                cb.equal(root.get<CardManufacturer>("manufacturer").get<Long>("id"), it)
             })
         }
         brandId?.let {
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<CardTheme>("theme").get<CardBrand>("brand").get<Long>("id"), it)
+                cb.equal(root.get<CardBrand>("brand").get<Long>("id"), it)
             })
         }
         themeId?.let {
@@ -149,9 +149,9 @@ class CardService(
             if (resultType != Long::class.java && resultType != java.lang.Long::class.java && resultType.simpleName != "Long") {
                 root.fetch<Card, Season>("season", JoinType.LEFT)
                 root.fetch<Card, Variant>("variant", JoinType.LEFT)
-                val themeFetch = root.fetch<Card, CardTheme>("theme", JoinType.LEFT)
-                val brandFetch = themeFetch.fetch<CardTheme, CardBrand>("brand", JoinType.LEFT)
-                brandFetch.fetch<CardBrand, CardManufacturer>("manufacturer", JoinType.LEFT)
+                root.fetch<Card, CardTheme>("theme", JoinType.LEFT)
+                root.fetch<Card, CardBrand>("brand", JoinType.LEFT)
+                root.fetch<Card, CardManufacturer>("manufacturer", JoinType.LEFT)
                 root.fetch<Card, Grading>("grading", JoinType.LEFT)
             }
             null
@@ -165,7 +165,7 @@ class CardService(
     @Cacheable("brands")
     fun getAllBrands(manufacturerId: Long? = null): List<CardBrand> {
         return if (manufacturerId != null) {
-            cardBrandRepository.findAllByManufacturerIdOrderByNameAsc(manufacturerId)
+            cardRepository.findDistinctBrandsByManufacturerId(manufacturerId)
         } else {
             cardBrandRepository.findAllByOrderByNameAsc()
         }
@@ -173,10 +173,10 @@ class CardService(
 
     @Cacheable("themes")
     fun getAllThemes(manufacturerId: Long? = null, brandId: Long? = null): List<CardTheme> {
-        return when {
-            brandId != null -> cardThemeRepository.findAllByBrandIdOrderByNameAsc(brandId)
-            manufacturerId != null -> cardThemeRepository.findAllByBrandManufacturerIdOrderByNameAsc(manufacturerId)
-            else -> cardThemeRepository.findAllByOrderByNameAsc()
+        return if (manufacturerId != null || brandId != null) {
+            cardRepository.findDistinctThemesByManufacturerIdAndBrandId(manufacturerId, brandId)
+        } else {
+            cardThemeRepository.findAllByOrderByNameAsc()
         }
     }
 
