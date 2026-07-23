@@ -1,8 +1,14 @@
+-- Disable foreign key checks & safe updates for smooth execution
+SET FOREIGN_KEY_CHECKS = 0;
+SET SQL_SAFE_UPDATES = 0;
+
 -- 1. Create temporary mapping table for remapping variant IDs
-CREATE TABLE temp_variant_mapping (
+CREATE TABLE IF NOT EXISTS temp_variant_mapping (
     old_id BIGINT PRIMARY KEY,
     new_id BIGINT NOT NULL
 );
+
+TRUNCATE TABLE temp_variant_mapping;
 
 -- Insert remapping records based on the approved proposal
 INSERT INTO temp_variant_mapping (old_id, new_id) VALUES
@@ -196,7 +202,7 @@ INSERT INTO temp_variant_mapping (old_id, new_id) VALUES
 (86, 320),  -- Five Stars
 (93, 321),  -- Plus
 (94, 322),  -- Prime
-(880, 323), -- Prime (Duplicate)
+(880, 322), -- Prime (Duplicate) -> Merged to 322
 (95, 324),  -- Century Proof Platinum
 (700, 325), -- All-Star
 (701, 326), -- Superstar
@@ -222,7 +228,15 @@ INSERT INTO temp_variant_mapping (old_id, new_id) VALUES
 (82, 346),  -- Hoopla Plus
 (83, 347);  -- Draft Position
 
--- 2. Drop foreign key constraint on the card table
+-- Dynamically map any other variant IDs present in the DB that were not in the explicit list
+SET @extra_id = 500;
+INSERT IGNORE INTO temp_variant_mapping (old_id, new_id)
+SELECT id, (@extra_id := @extra_id + 1)
+FROM variant
+WHERE id NOT IN (SELECT old_id FROM temp_variant_mapping)
+ORDER BY id;
+
+-- 2. Drop the foreign key constraint on the card table if it exists
 SET @constraint_name = (
     SELECT CONSTRAINT_NAME
     FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
@@ -241,38 +255,39 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
--- 3. Remap variant_id in the card table
-SET SQL_SAFE_UPDATES = 0;
+-- 3. Remap variant_id in the card table using the mapping table
 UPDATE card c
 JOIN temp_variant_mapping m ON c.variant_id = m.old_id
 SET c.variant_id = m.new_id
 WHERE c.id > 0;
 
--- Merge any duplicate name "Prime" cards (old 880/new 323 mapped to old 94/new 322)
-UPDATE card c
-SET c.variant_id = 322
-WHERE c.variant_id = 323 AND c.id > 0;
-SET SQL_SAFE_UPDATES = 1;
-
--- 4. Create new clean variant table
+-- 4. Create new clean variant table and populate it from mapping
+DROP TABLE IF EXISTS variant_new;
 CREATE TABLE variant_new (
     id BIGINT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
--- Insert remapped variants (filter out duplicate new_ids such as 172 and 323)
 INSERT INTO variant_new (id, name)
-SELECT DISTINCT m.new_id, v.name
+SELECT m.new_id, MIN(v.name)
 FROM variant v
 JOIN temp_variant_mapping m ON v.id = m.old_id
-WHERE m.new_id != 323;
+GROUP BY m.new_id;
 
--- 5. Swap variant tables
+-- 5. Fallback safety check: Any card whose variant_id is not in variant_new defaults to 1 (Base)
+UPDATE card
+SET variant_id = 1
+WHERE variant_id IS NOT NULL AND variant_id NOT IN (SELECT id FROM variant_new);
+
+-- 6. Swap variant tables
 DROP TABLE variant;
 RENAME TABLE variant_new TO variant;
 
--- Clean up mapping table
-DROP TABLE temp_variant_mapping;
+-- Clean up temporary mapping table
+DROP TABLE IF EXISTS temp_variant_mapping;
 
--- 6. Re-add foreign key constraint
+-- 7. Re-add foreign key constraint and restore settings
 ALTER TABLE card ADD CONSTRAINT fk_card_variant FOREIGN KEY (variant_id) REFERENCES variant(id);
+
+SET FOREIGN_KEY_CHECKS = 1;
+SET SQL_SAFE_UPDATES = 1;
