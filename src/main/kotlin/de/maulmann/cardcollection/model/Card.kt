@@ -25,7 +25,7 @@ class Card(
 
     @OneToMany(mappedBy = "card", cascade = [CascadeType.ALL], orphanRemoval = true)
     @BatchSize(size = 20)
-    val cardPlayers: Set<CardPlayer> = emptySet(),
+    val cardPlayers: MutableSet<CardPlayer> = mutableSetOf(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manufacturer_id")
