@@ -81,7 +81,7 @@ class ExportControllerTest {
             gameUsedMaterial = false,
             autograph = false,
             grading = grading,
-            cardPlayers = setOf(cardPlayer)
+            cardPlayers = mutableSetOf(cardPlayer)
         )
 
         `when`(seasonRepository.findAllByOrderByNameAsc()).thenReturn(listOf(season))
