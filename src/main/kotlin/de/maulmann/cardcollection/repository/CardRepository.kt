@@ -27,6 +27,23 @@ interface CardRepository : JpaRepository<Card, Long>, JpaSpecificationExecutor<C
     fun findAllBySeasonIdWithDetails(@Param("seasonId") seasonId: Long): List<Card>
 
     @org.springframework.data.jpa.repository.Query("""
+        SELECT DISTINCT c FROM Card c
+        LEFT JOIN FETCH c.season
+        LEFT JOIN FETCH c.cardPlayers cp
+        LEFT JOIN FETCH cp.player p
+        LEFT JOIN FETCH p.sport
+        LEFT JOIN FETCH cp.team
+        LEFT JOIN FETCH c.variant
+        LEFT JOIN FETCH c.theme
+        LEFT JOIN FETCH c.brand
+        LEFT JOIN FETCH c.manufacturer
+        LEFT JOIN FETCH c.grading
+        ORDER BY c.id ASC
+    """)
+    fun findAllWithDetails(): List<Card>
+
+
+    @org.springframework.data.jpa.repository.Query("""
         SELECT DISTINCT c.brand FROM Card c 
         WHERE :manufacturerId IS NULL OR c.manufacturer.id = :manufacturerId
         ORDER BY c.brand.name ASC

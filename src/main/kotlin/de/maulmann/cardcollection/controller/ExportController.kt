@@ -2,6 +2,7 @@ package de.maulmann.cardcollection.controller
 
 import de.maulmann.cardcollection.repository.CardRepository
 import de.maulmann.cardcollection.repository.SeasonRepository
+import de.maulmann.cardcollection.service.CardExportService
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -15,8 +16,17 @@ import java.util.zip.ZipOutputStream
 @RequestMapping("/export")
 class ExportController(
     private val seasonRepository: SeasonRepository,
-    private val cardRepository: CardRepository
+    private val cardRepository: CardRepository,
+    private val cardExportService: CardExportService
 ) {
+
+    @GetMapping("/json")
+    fun exportJson(response: HttpServletResponse) {
+        response.contentType = "application/json;charset=UTF-8"
+        response.setHeader("Content-Disposition", "attachment; filename=\"cards.json\"")
+        cardExportService.writeCardsJson(response.outputStream)
+    }
+
 
     @GetMapping("/html")
     fun exportHtml(response: HttpServletResponse) {
