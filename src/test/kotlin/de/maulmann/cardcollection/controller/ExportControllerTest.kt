@@ -3,11 +3,13 @@ package de.maulmann.cardcollection.controller
 import de.maulmann.cardcollection.model.*
 import de.maulmann.cardcollection.repository.CardRepository
 import de.maulmann.cardcollection.repository.SeasonRepository
+import de.maulmann.cardcollection.service.CardExportService
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.mock.web.MockHttpServletResponse
 import java.util.zip.ZipInputStream
@@ -23,8 +25,22 @@ class ExportControllerTest {
     @Mock
     private lateinit var cardRepository: CardRepository
 
+    @Mock
+    private lateinit var cardExportService: CardExportService
+
     @InjectMocks
     private lateinit var exportController: ExportController
+
+    @Test
+    fun `test exportJson sets headers and invokes CardExportService`() {
+        val response = MockHttpServletResponse()
+
+        exportController.exportJson(response)
+
+        assertEquals("application/json;charset=UTF-8", response.contentType)
+        assertEquals("attachment; filename=\"cards.json\"", response.getHeader("Content-Disposition"))
+        verify(cardExportService).writeCardsJson(response.outputStream)
+    }
 
     @Test
     fun `test exportHtml generates valid zip file`() {
