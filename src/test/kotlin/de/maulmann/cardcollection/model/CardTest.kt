@@ -73,7 +73,43 @@ class CardTest {
 
         val foundCard = cardRepository.findById(card.id).orElse(null)
         assertThat(foundCard.id).isEqualTo(card.id)
+        assertThat(foundCard.printRun).isEqualTo(100)
         assertThat(foundCard.teamNames).isEqualTo("Test Team")
         assertThat(foundCard.playerNames).isEqualTo("Test Player")
+    }
+
+    @Test
+    fun `should save and retrieve card with null print run`() {
+        val manufacturer = CardManufacturer(name = "Test Manufacturer 2")
+        entityManager.persist(manufacturer)
+        val brand = CardBrand(name = "Test Brand 2")
+        entityManager.persist(brand)
+        val theme = CardTheme(name = "Test Theme 2")
+        entityManager.persist(theme)
+        val season = Season(name = "2023-24")
+        entityManager.persist(season)
+        val variant = Variant(name = "Test Variant 2")
+        entityManager.persist(variant)
+
+        val card = Card(
+            printRun = null,
+            serialNumber = 0,
+            season = season,
+            number = "456",
+            rookieCard = false,
+            gameUsedMaterial = false,
+            autograph = false,
+            manufacturer = manufacturer,
+            brand = brand,
+            variant = variant,
+            theme = theme
+        )
+        cardRepository.save(card)
+        entityManager.flush()
+        entityManager.clear()
+
+        val foundCard = cardRepository.findById(card.id).orElse(null)
+        assertThat(foundCard).isNotNull
+        assertThat(foundCard.printRun).isNull()
     }
 }

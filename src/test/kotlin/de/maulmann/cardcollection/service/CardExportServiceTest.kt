@@ -107,7 +107,7 @@ class CardExportServiceTest {
     }
 
     @Test
-    fun `test mapToCardJsonDto handles zero printRun and serialNumber as null`() {
+    fun `test mapToCardJsonDto handles null printRun and serialNumber zero as null`() {
         val season = Season(id = 1L, name = "1994-95")
         val manufacturer = CardManufacturer(id = 1L, name = "Upper Deck")
         val brand = CardBrand(id = 1L, name = "Collectors Choice")
@@ -125,7 +125,7 @@ class CardExportServiceTest {
             theme = theme,
             number = "278",
             serialNumber = 0,
-            printRun = 0,
+            printRun = null,
             rookieCard = false,
             gameUsedMaterial = false,
             autograph = false,
@@ -148,7 +148,7 @@ class CardExportServiceTest {
             theme = theme,
             number = "278",
             serialNumber = 0,
-            printRun = 0,
+            printRun = null,
             rookieCard = false,
             gameUsedMaterial = false,
             autograph = false,
@@ -188,7 +188,7 @@ class CardExportServiceTest {
             theme = theme,
             number = "278",
             serialNumber = -4,
-            printRun = 0,
+            printRun = null,
             rookieCard = false,
             gameUsedMaterial = false,
             autograph = false,
@@ -211,7 +211,7 @@ class CardExportServiceTest {
             theme = theme,
             number = "278",
             serialNumber = -4,
-            printRun = 0,
+            printRun = null,
             rookieCard = false,
             gameUsedMaterial = false,
             autograph = false,
@@ -282,7 +282,7 @@ class CardExportServiceTest {
             theme = theme,
             number = "278",
             serialNumber = 0,
-            printRun = 0,
+            printRun = null,
             rookieCard = false,
             gameUsedMaterial = false,
             autograph = false,
