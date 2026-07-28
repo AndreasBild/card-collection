@@ -36,7 +36,7 @@ class CardExportService(
         val variantStr = card.variant.name.ifBlank { null }
         val cardNumberStr = card.number.ifBlank { null }
 
-        val serialNumStr = if (card.serialNumber > 0) card.serialNumber.toString() else null
+        val serialNumStr = if (card.serialNumber != 0) card.serialNumber.toString() else null
         val printRunVal = if (card.printRun > 0) card.printRun else null
 
         val gradingCompStr = card.grading?.gradingCompany?.name
@@ -101,7 +101,7 @@ class CardExportService(
 
         card.number.takeIf { it.isNotBlank() }?.let { rawParts.add(it) }
 
-        if (card.serialNumber > 0) {
+        if (card.serialNumber != 0) {
             rawParts.add("sn${card.serialNumber}")
         }
 
