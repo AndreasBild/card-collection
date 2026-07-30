@@ -96,7 +96,7 @@ class CardTest {
             serialNumber = 0,
             season = season,
             number = "456",
-            rookieCard = false,
+            cardType = CardType.BASE,
             gameUsedMaterial = false,
             autograph = false,
             manufacturer = manufacturer,
