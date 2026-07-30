@@ -19,8 +19,7 @@ class Card(
     @JoinColumn(name = "season_id")
     val season: Season,
     val number: String,
-    @Enumerated(EnumType.STRING)
-    val cardType: CardType = CardType.BASE,
+    val rookieCard: Boolean,
     val gameUsedMaterial: Boolean,
     val autograph: Boolean,
 
@@ -44,21 +43,12 @@ class Card(
     @JoinColumn(name = "theme_id")
     val theme: CardTheme
 ) {
-    private val sortedCardPlayers: List<CardPlayer>
-        get() {
-            val (juwan, others) = cardPlayers.partition {
-                val fullName = "${it.player.name} ${it.player.surname}".trim()
-                fullName.equals("Juwan Howard", ignoreCase = true)
-            }
-            return juwan + others
-        }
-
     val playerNames: String
-        get() = sortedCardPlayers.joinToString(", ") { "${it.player.name} ${it.player.surname}".trim() }
+        get() = cardPlayers.joinToString(", ") { "${it.player.name} ${it.player.surname}" }
 
     val sportNames: String
-        get() = sortedCardPlayers.mapNotNull { it.player.sport?.name }.distinct().joinToString(", ")
+        get() = cardPlayers.mapNotNull { it.player.sport?.name }.distinct().joinToString(", ")
 
     val teamNames: String
-        get() = sortedCardPlayers.mapNotNull { it.team?.name }.distinct().joinToString(", ")
+        get() = cardPlayers.mapNotNull { it.team?.name }.distinct().joinToString(", ")
 }

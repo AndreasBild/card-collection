@@ -69,7 +69,7 @@ class CardExportService(
             grade = gradeStr,
             isAutograph = card.autograph,
             isPatch = card.gameUsedMaterial,
-            cardType = card.cardType.displayName,
+            isRookie = card.rookieCard,
             collection = collectionStr,
             notes = null
         )

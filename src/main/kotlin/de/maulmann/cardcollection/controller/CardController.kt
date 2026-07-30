@@ -1,7 +1,6 @@
 package de.maulmann.cardcollection.controller
 
 import de.maulmann.cardcollection.model.Card
-import de.maulmann.cardcollection.model.CardType
 import de.maulmann.cardcollection.model.GradingCompany
 import de.maulmann.cardcollection.service.CardService
 import de.maulmann.cardcollection.service.PlayerService
@@ -37,7 +36,7 @@ class CardController(
             SortableColumnInfo("Number", "number"),
             SortableColumnInfo("Serial", "serialNumber"),
             SortableColumnInfo("Print Run", "printRun"),
-            SortableColumnInfo("Type", "cardType"),
+            SortableColumnInfo("Rookie", "rookieCard"),
             SortableColumnInfo("Game Used", "gameUsedMaterial"),
             SortableColumnInfo("Autograph", "autograph"),
             SortableColumnInfo("Grading Co.", "grading.gradingCompany"),
@@ -57,7 +56,7 @@ class CardController(
         @RequestParam(required = false) gameUsed: Boolean?,
         @RequestParam(required = false) autograph: Boolean?,
         @RequestParam(required = false) variantId: Long?,
-        @RequestParam(required = false) cardType: CardType?,
+        @RequestParam(required = false) rookieCard: Boolean?,
         @RequestParam(required = false) printRunRangeKey: String?,
         @RequestParam(required = false) teamId: Long?,
         @RequestParam(required = false) isGradedNullable: Boolean?,
@@ -96,7 +95,7 @@ class CardController(
             gameUsed = gameUsed,
             autograph = autograph,
             variantId = variantId,
-            cardType = cardType,
+            rookieCard = rookieCard,
             printRunRangeKey = printRunRangeKey,
             teamId = teamId,
             isGradedNullable = isGradedNullable,
@@ -133,7 +132,6 @@ class CardController(
         model.addAttribute("sports", cardService.getAllSports())
         model.addAttribute("seasons", cardService.getAllSeasons())
         model.addAttribute("variants", cardService.getAllVariants())
-        model.addAttribute("cardTypes", CardType.entries)
         model.addAttribute("printRunRanges", PrintRunRange.entries.toTypedArray())
         model.addAttribute("teams", cardService.getAllTeams())
         model.addAttribute("gradingCompanies", GradingCompany.entries)
