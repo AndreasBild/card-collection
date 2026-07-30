@@ -25,4 +25,8 @@ data class CardJsonDto(
     val cardType: String?,
     val collection: String?,
     val notes: String? = null
-)
+) {
+    @get:JsonProperty("isRookie")
+    val isRookie: Boolean
+        get() = cardType.equals("Rookie", ignoreCase = true) || cardType.equals("ROOKIE", ignoreCase = true)
+}

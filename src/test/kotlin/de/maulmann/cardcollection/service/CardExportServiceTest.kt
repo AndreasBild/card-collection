@@ -101,7 +101,8 @@ class CardExportServiceTest {
         assertEquals("9", dto.grade)
         assertTrue(dto.isAutograph)
         assertTrue(dto.isPatch)
-        assertEquals("ROOKIE", dto.cardType)
+        assertEquals("Rookie", dto.cardType)
+        assertTrue(dto.isRookie)
         assertEquals("Juwan Howard", dto.collection)
         assertNull(dto.notes)
     }
@@ -166,7 +167,8 @@ class CardExportServiceTest {
         assertNull(dto.team)
         assertFalse(dto.isAutograph)
         assertFalse(dto.isPatch)
-        assertEquals("BASE", dto.cardType)
+        assertEquals("Base", dto.cardType)
+        assertFalse(dto.isRookie)
     }
 
     @Test
@@ -260,7 +262,8 @@ class CardExportServiceTest {
         assertTrue(jsonString.contains("\"printRun\" : 100"))
         assertTrue(jsonString.contains("\"isAutograph\" : true"))
         assertTrue(jsonString.contains("\"isPatch\" : true"))
-        assertTrue(jsonString.contains("\"cardType\" : \"BASE\""))
+        assertTrue(jsonString.contains("\"cardType\" : \"Base\""))
+        assertTrue(jsonString.contains("\"isRookie\" : false"))
         assertTrue(jsonString.contains("\"serialNumber\" : \"47\""))
     }
 
