@@ -5,44 +5,45 @@ import org.hibernate.annotations.BatchSize
 
 @Entity
 class Card(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long = 0,
 
-    @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "grading_id", nullable = true)
-    var grading: Grading? = null,
+    @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY, optional = true) @JoinColumn(
+        name = "grading_id",
+        nullable = true
+    ) var grading: Grading? = null,
 
     val printRun: Int? = null,
     val serialNumber: Int,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "season_id")
-    val season: Season,
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "season_id") val season: Season,
     val number: String,
     val rookieCard: Boolean,
     val gameUsedMaterial: Boolean,
     val autograph: Boolean,
 
-    @OneToMany(mappedBy = "card", cascade = [CascadeType.ALL], orphanRemoval = true)
-    @BatchSize(size = 20)
-    val cardPlayers: MutableSet<CardPlayer> = mutableSetOf(),
+    @OneToMany(
+        mappedBy = "card",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true
+    ) @BatchSize(size = 20) val cardPlayers: MutableSet<CardPlayer> = mutableSetOf(),
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "manufacturer_id")
-    val manufacturer: CardManufacturer,
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "manufacturer_id") val manufacturer: CardManufacturer,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brand_id")
-    val brand: CardBrand,
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "brand_id") val brand: CardBrand,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "variant_id")
-    val variant: Variant,
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "variant_id") val variant: Variant,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "theme_id")
-    val theme: CardTheme
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "theme_id") val theme: CardTheme
 ) {
+    private val sortedCardPlayers: List<CardPlayer>
+        get() {
+            val (juwan, others) = cardPlayers.partition {
+                val fullName = "${it.player.name} ${it.player.surname}".trim()
+                fullName.equals("Juwan Howard", ignoreCase = true)
+            }
+            return juwan + others
+        }
+
     val playerNames: String
         get() = cardPlayers.joinToString(", ") { "${it.player.name} ${it.player.surname}" }
 
