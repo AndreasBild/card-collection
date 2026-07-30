@@ -12,7 +12,7 @@ class Card(
     @JoinColumn(name = "grading_id", nullable = true)
     var grading: Grading? = null,
 
-    val printRun: Int,
+    val printRun: Int? = null,
     val serialNumber: Int,
 
     @ManyToOne(fetch = FetchType.LAZY)
