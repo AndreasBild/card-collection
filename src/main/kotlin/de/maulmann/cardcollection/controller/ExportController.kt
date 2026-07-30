@@ -82,8 +82,8 @@ class ExportController(
                     val variantName = HtmlUtils.htmlEscape(card.variant.name)
                     val number = HtmlUtils.htmlEscape(card.number)
                     val serial = card.serialNumber
-                    val printRun = card.printRun?.toString() ?: ""
-                    val rookie = if (card.rookieCard) "Yes" else "No"
+                    val printRun = card.printRun
+                    val cardType = HtmlUtils.htmlEscape(card.cardType.displayName)
                     val gameUsed = if (card.gameUsedMaterial) "Yes" else "No"
                     val autograph = if (card.autograph) "Yes" else "No"
                     val gradeStr = card.grading?.let { HtmlUtils.htmlEscape(it.displayGrade) } ?: ""
