@@ -122,11 +122,13 @@
         </select>
     </div>
     <div>
-        <label for="rookieCardSelectForm">Rookie:</label>
-        <select id="rookieCardSelectForm" name="rookieCard" class="styled-select">
+        <label for="cardTypeSelectForm">Card Type:</label>
+        <select id="cardTypeSelectForm" name="cardType" class="styled-select">
             <option value="">Any</option>
-            <option value="true" th:selected="${param.rookieCard == 'true'}">Yes</option>
-            <option value="false" th:selected="${param.rookieCard == 'false'}">No</option>
+            <option th:each="cType : ${cardTypes}"
+                    th:value="${cType.name()}"
+                    th:text="${cType.displayName}"
+                    th:selected="${param.cardType != null && param.cardType[0] == cType.name()}"></option>
         </select>
     </div>
     <div>
@@ -172,7 +174,7 @@
                         manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''},
                         sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''},
                         seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''},
-                        variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''},
+                        variantId=${param.variantId ?: ''}, cardType=${param.cardType ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''},
                         isGradedNullable=${param.isGradedNullable ?: ''}
                    )}">
                     <span th:text="${column.displayName}"></span>
@@ -199,7 +201,7 @@
         <td th:text="${card.number}"></td>
         <td th:text="${card.serialNumber}"></td>
         <td th:text="${card.printRun}"></td>
-        <td th:text="${card.rookieCard ? 'Yes' : 'No'}"></td>
+        <td th:text="${card.cardType.displayName}"></td>
         <td th:text="${card.gameUsedMaterial ? 'Yes' : 'No'}"></td>
         <td th:text="${card.autograph ? 'Yes' : 'No'}"></td>
         <td th:text="${card.grading?.gradingCompany?.name()}"></td>
@@ -237,7 +239,7 @@
                                 gameUsed=${param.gameUsed ?: ''},
                                 autograph=${param.autograph ?: ''},
                                 variantId=${param.variantId ?: ''},
-                                rookieCard=${param.rookieCard ?: ''},
+                                cardType=${param.cardType ?: ''},
                                 printRunRangeKey=${param.printRunRangeKey ?: ''},
                                 isGradedNullable=${param.isGradedNullable ?: ''}
                                 )}">First</a>
@@ -255,7 +257,7 @@
                                 gameUsed=${param.gameUsed ?: ''},
                                 autograph=${param.autograph ?: ''},
                                 variantId=${param.variantId ?: ''},
-                                rookieCard=${param.rookieCard ?: ''},
+                                cardType=${param.cardType ?: ''},
                                 printRunRangeKey=${param.printRunRangeKey ?: ''},
                                 isGradedNullable=${param.isGradedNullable ?: ''}
                                 )}"
@@ -278,7 +280,7 @@
                                         gameUsed=${param.gameUsed ?: ''},
                                         autograph=${param.autograph ?: ''},
                                         variantId=${param.variantId ?: ''},
-                                        rookieCard=${param.rookieCard ?: ''},
+                                        cardType=${param.cardType ?: ''},
                                         printRunRangeKey=${param.printRunRangeKey ?: ''},
                                         isGradedNullable=${param.isGradedNullable ?: ''}
                                         )}" th:text="${i + 1}">_</a>
@@ -286,7 +288,7 @@
                 </th:block>
                 <th:block th:unless="${totalPages <= (2 * window + 5)}">
                     <li th:classappend="${0 == currentPage} ? 'active' : ''">
-                        <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
+                        <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, cardType=${param.cardType ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
                            th:text="1">_</a>
                     </li>
                     <li th:if="${currentPage > window + 1}" class="disabled"><span>...</span></li>
@@ -304,14 +306,14 @@
                                         gameUsed=${param.gameUsed ?: ''},
                                         autograph=${param.autograph ?: ''},
                                         variantId=${param.variantId ?: ''},
-                                        rookieCard=${param.rookieCard ?: ''},
+                                        cardType=${param.cardType ?: ''},
                                         printRunRangeKey=${param.printRunRangeKey ?: ''},
                                         isGradedNullable=${param.isGradedNullable ?: ''}
                                         )}" th:text="${i + 1}">_</a>
                     </li>
                     <li th:if="${currentPage < totalPages - window - 2}" class="disabled"><span>...</span></li>
                     <li th:classappend="${totalPages - 1 == currentPage} ? 'active' : ''">
-                        <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
+                        <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, cardType=${param.cardType ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
                            th:text="${totalPages}">_</a>
                     </li>
                 </th:block>
@@ -329,7 +331,7 @@
                                 gameUsed=${param.gameUsed ?: ''},
                                 autograph=${param.autograph ?: ''},
                                 variantId=${param.variantId ?: ''},
-                                rookieCard=${param.rookieCard ?: ''},
+                                cardType=${param.cardType ?: ''},
                                 printRunRangeKey=${param.printRunRangeKey ?: ''},
                                 isGradedNullable=${param.isGradedNullable ?: ''}
                                 )}"
@@ -349,7 +351,7 @@
                                 gameUsed=${param.gameUsed ?: ''},
                                 autograph=${param.autograph ?: ''},
                                 variantId=${param.variantId ?: ''},
-                                rookieCard=${param.rookieCard ?: ''},
+                                cardType=${param.cardType ?: ''},
                                 printRunRangeKey=${param.printRunRangeKey ?: ''},
                                 isGradedNullable=${param.isGradedNullable ?: ''}
                                 )}">Last</a>

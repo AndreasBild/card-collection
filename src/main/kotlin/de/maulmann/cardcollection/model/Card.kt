@@ -19,7 +19,8 @@ class Card(
     @JoinColumn(name = "season_id")
     val season: Season,
     val number: String,
-    val rookieCard: Boolean,
+    @Enumerated(EnumType.STRING)
+    val cardType: CardType = CardType.BASE,
     val gameUsedMaterial: Boolean,
     val autograph: Boolean,
 
