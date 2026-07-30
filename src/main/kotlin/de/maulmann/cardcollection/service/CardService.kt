@@ -32,7 +32,7 @@ class CardService(
         gameUsed: Boolean?,
         autograph: Boolean?,
         variantId: Long?,
-        rookieCard: Boolean?,
+        cardType: CardType?,
         printRunRangeKey: String?,
         teamId: Long?,
         isGradedNullable: Boolean?,
@@ -85,9 +85,9 @@ class CardService(
                 cb.equal(root.get<Variant>("variant").get<Long>("id"), it)
             })
         }
-        rookieCard?.let {
+        cardType?.let {
             specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<Boolean>("rookieCard"), it)
+                cb.equal(root.get<CardType>("cardType"), it)
             })
         }
         teamId?.let {

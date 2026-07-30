@@ -51,7 +51,7 @@ class CardTest {
             serialNumber = 1,
             season = season,
             number = "123",
-            rookieCard = true,
+            cardType = CardType.ROOKIE,
             gameUsedMaterial = false,
             autograph = true,
             manufacturer = manufacturer,

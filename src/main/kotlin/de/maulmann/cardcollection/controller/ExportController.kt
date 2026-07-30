@@ -65,7 +65,7 @@ class ExportController(
                 writer.write("        <th>Number</th>\n")
                 writer.write("        <th>Serial</th>\n")
                 writer.write("        <th>Print Run</th>\n")
-                writer.write("        <th>Rookie</th>\n")
+                writer.write("        <th>Type</th>\n")
                 writer.write("        <th>Game Used</th>\n")
                 writer.write("        <th>Autograph</th>\n")
                 writer.write("        <th>Grade</th>\n")
@@ -83,7 +83,7 @@ class ExportController(
                     val number = HtmlUtils.htmlEscape(card.number)
                     val serial = card.serialNumber
                     val printRun = card.printRun
-                    val rookie = if (card.rookieCard) "Yes" else "No"
+                    val cardType = HtmlUtils.htmlEscape(card.cardType.displayName)
                     val gameUsed = if (card.gameUsedMaterial) "Yes" else "No"
                     val autograph = if (card.autograph) "Yes" else "No"
                     val gradeStr = card.grading?.let { HtmlUtils.htmlEscape(it.displayGrade) } ?: ""
@@ -100,7 +100,7 @@ class ExportController(
                     writer.write("        <td>$number</td>\n")
                     writer.write("        <td>$serial</td>\n")
                     writer.write("        <td>$printRun</td>\n")
-                    writer.write("        <td>$rookie</td>\n")
+                    writer.write("        <td>$cardType</td>\n")
                     writer.write("        <td>$gameUsed</td>\n")
                     writer.write("        <td>$autograph</td>\n")
                     writer.write("        <td>$gradeStr</td>\n")

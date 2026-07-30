@@ -54,7 +54,7 @@ class CardExportServiceTest {
             number = "33",
             serialNumber = 47,
             printRun = 100,
-            rookieCard = true,
+            cardType = CardType.ROOKIE,
             gameUsedMaterial = true,
             autograph = true,
             grading = grading
@@ -77,7 +77,7 @@ class CardExportServiceTest {
             number = "33",
             serialNumber = 47,
             printRun = 100,
-            rookieCard = true,
+            cardType = CardType.ROOKIE,
             gameUsedMaterial = true,
             autograph = true,
             grading = grading,
@@ -101,7 +101,7 @@ class CardExportServiceTest {
         assertEquals("9", dto.grade)
         assertTrue(dto.isAutograph)
         assertTrue(dto.isPatch)
-        assertTrue(dto.isRookie)
+        assertEquals("ROOKIE", dto.cardType)
         assertEquals("Juwan Howard", dto.collection)
         assertNull(dto.notes)
     }
@@ -126,7 +126,7 @@ class CardExportServiceTest {
             number = "278",
             serialNumber = 0,
             printRun = 0,
-            rookieCard = false,
+            cardType = CardType.BASE,
             gameUsedMaterial = false,
             autograph = false,
             grading = null
@@ -149,7 +149,7 @@ class CardExportServiceTest {
             number = "278",
             serialNumber = 0,
             printRun = 0,
-            rookieCard = false,
+            cardType = CardType.BASE,
             gameUsedMaterial = false,
             autograph = false,
             grading = null,
@@ -166,7 +166,7 @@ class CardExportServiceTest {
         assertNull(dto.team)
         assertFalse(dto.isAutograph)
         assertFalse(dto.isPatch)
-        assertFalse(dto.isRookie)
+        assertEquals("BASE", dto.cardType)
     }
 
     @Test
@@ -187,7 +187,7 @@ class CardExportServiceTest {
             number = "33",
             serialNumber = 47,
             printRun = 100,
-            rookieCard = false,
+            cardType = CardType.BASE,
             gameUsedMaterial = true,
             autograph = true,
             grading = null
@@ -203,7 +203,7 @@ class CardExportServiceTest {
         assertTrue(jsonString.contains("\"printRun\" : 100"))
         assertTrue(jsonString.contains("\"isAutograph\" : true"))
         assertTrue(jsonString.contains("\"isPatch\" : true"))
-        assertTrue(jsonString.contains("\"isRookie\" : false"))
+        assertTrue(jsonString.contains("\"cardType\" : \"BASE\""))
         assertTrue(jsonString.contains("\"serialNumber\" : \"47\""))
     }
 
@@ -226,7 +226,7 @@ class CardExportServiceTest {
             number = "278",
             serialNumber = 0,
             printRun = 0,
-            rookieCard = false,
+            cardType = CardType.BASE,
             gameUsedMaterial = false,
             autograph = false,
             grading = null
