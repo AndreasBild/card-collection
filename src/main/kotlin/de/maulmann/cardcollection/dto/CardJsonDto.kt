@@ -22,11 +22,8 @@ data class CardJsonDto(
     val isAutograph: Boolean,
     @get:JsonProperty("isPatch")
     val isPatch: Boolean,
-    val cardType: String?,
+    @get:JsonProperty("isRookie")
+    val isRookie: Boolean,
     val collection: String?,
     val notes: String? = null
-) {
-    @get:JsonProperty("isRookie")
-    val isRookie: Boolean
-        get() = cardType.equals("Rookie", ignoreCase = true) || cardType.equals("ROOKIE", ignoreCase = true)
-}
+)

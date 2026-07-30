@@ -54,7 +54,7 @@ class CardExportServiceTest {
             number = "33",
             serialNumber = 47,
             printRun = 100,
-            cardType = CardType.ROOKIE,
+            rookieCard = true,
             gameUsedMaterial = true,
             autograph = true,
             grading = grading
@@ -77,7 +77,7 @@ class CardExportServiceTest {
             number = "33",
             serialNumber = 47,
             printRun = 100,
-            cardType = CardType.ROOKIE,
+            rookieCard = true,
             gameUsedMaterial = true,
             autograph = true,
             grading = grading,
@@ -101,7 +101,6 @@ class CardExportServiceTest {
         assertEquals("9", dto.grade)
         assertTrue(dto.isAutograph)
         assertTrue(dto.isPatch)
-        assertEquals("Rookie", dto.cardType)
         assertTrue(dto.isRookie)
         assertEquals("Juwan Howard", dto.collection)
         assertNull(dto.notes)
@@ -167,7 +166,6 @@ class CardExportServiceTest {
         assertNull(dto.team)
         assertFalse(dto.isAutograph)
         assertFalse(dto.isPatch)
-        assertEquals("Base", dto.cardType)
         assertFalse(dto.isRookie)
     }
 
@@ -246,7 +244,7 @@ class CardExportServiceTest {
             number = "33",
             serialNumber = 47,
             printRun = 100,
-            cardType = CardType.BASE,
+            rookieCard = false,
             gameUsedMaterial = true,
             autograph = true,
             grading = null
@@ -262,7 +260,6 @@ class CardExportServiceTest {
         assertTrue(jsonString.contains("\"printRun\" : 100"))
         assertTrue(jsonString.contains("\"isAutograph\" : true"))
         assertTrue(jsonString.contains("\"isPatch\" : true"))
-        assertTrue(jsonString.contains("\"cardType\" : \"Base\""))
         assertTrue(jsonString.contains("\"isRookie\" : false"))
         assertTrue(jsonString.contains("\"serialNumber\" : \"47\""))
     }
