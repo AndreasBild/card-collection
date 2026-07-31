@@ -4,8 +4,10 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import org.hibernate.annotations.BatchSize
 
 @Entity
+@BatchSize(size = 50)
 
  class Sport(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

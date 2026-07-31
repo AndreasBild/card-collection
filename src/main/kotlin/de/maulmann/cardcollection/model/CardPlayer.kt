@@ -1,6 +1,7 @@
 package de.maulmann.cardcollection.model
 
 import jakarta.persistence.*
+import org.hibernate.annotations.BatchSize
 import java.io.Serializable
 
 @Embeddable
@@ -11,6 +12,7 @@ data class CardPlayerId(
 
 @Entity
 @Table(name = "card_player")
+@BatchSize(size = 50)
 class CardPlayer(
     @EmbeddedId
     val id: CardPlayerId,
