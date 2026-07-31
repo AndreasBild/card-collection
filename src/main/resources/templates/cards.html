@@ -21,9 +21,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="../css/main.css" rel="stylesheet" type="text/css">
     <meta name="robots" content="index,follow">
+    <!-- Open Graph & Meta -->
+    <meta property="og:title" content="Juwan Howard Basketball Trading Card Collection">
+    <meta property="og:description" content="Private Collection of Juwan Howard Basketball Trading Cards. Containing rare cards from Panini, Fleer, Topps, and Upper Deck.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Juwan Howard Basketball Trading Card Collection">
+    <meta name="twitter:description" content="Private Collection of Juwan Howard Basketball Trading Cards.">
+    <!-- JSON-LD Structured Data for LLMs and Search Engines -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Juwan Howard Basketball Trading Card Collection",
+      "description": "Private Collection of Juwan Howard Basketball Trading Cards containing rare cards from Panini, Fleer, Topps, and Upper Deck.",
+      "about": {
+        "@type": "Person",
+        "name": "Juwan Howard",
+        "jobTitle": "Basketball Player"
+      }
+    }
+    </script>
 </head>
 <body>
-<h1>Sports Card Collection</h1>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<header>
+    <h1>Sports Card Collection</h1>
+</header>
+<aside class="filter-section" aria-label="Card Collection Filters">
 <form th:action="@{/cards}" method="GET" class="filter-form">
     <div>
         <label for="manufacturerSelectForm">Vendor/Manufacturer:</label>
@@ -152,8 +177,11 @@
         <a th:href="@{/cards}" class="button">Clear Filters</a>
     </div>
 </form>
-<!-- End New Filter Form -->
-<table>
+</aside>
+<!-- Main Content Area -->
+<main id="main-content" aria-label="Trading Cards Collection Data" tabindex="-1">
+    <div id="filterLoadingStatus" class="sr-only" aria-live="polite"></div>
+    <table aria-label="Sports Trading Cards Collection">
     <thead>
     <tr>
         <th:block th:each="column : ${sortableColumns}">
@@ -266,7 +294,8 @@
                 <th:block th:if="${totalPages <= (2 * window + 5)}">
                     <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                         th:classappend="${i == currentPage} ? 'active' : ''">
-                        <a th:href="@{/cards(page=${i}, size=${pageSize},
+                        <a th:aria-current="${i == currentPage ? 'page' : null}"
+                           th:href="@{/cards(page=${i}, size=${pageSize},
                                         sort=${param.sort ?: ''},
                                         manufacturerId=${param.manufacturerId ?: ''},
                                         brandId=${param.brandId ?: ''},
@@ -358,6 +387,7 @@
     </nav>
 </div>
 <!-- End Pagination Controls -->
+</main>
 <script>
     /*<![CDATA[*/
     function changePageSize() {
@@ -377,6 +407,11 @@
         const initialBrandId = /*[[${param.brandId}]]*/ null;
         const initialThemeId = /*[[${param.themeId}]]*/ null;
         const initialVariantId = /*[[${param.variantId}]]*/ null;
+
+        const statusElement = document.getElementById('filterLoadingStatus');
+        function setStatus(msg) {
+            if (statusElement) statusElement.textContent = msg;
+        }
 
         function updateDropdown(selectElement, options, selectedValue, defaultOptionText) {
             selectElement.innerHTML = ''; // Clear existing options
