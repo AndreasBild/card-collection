@@ -70,7 +70,7 @@ class ExportControllerTest {
             number = "278",
             serialNumber = 0,
             printRun = null,
-            cardType = CardType.BASE,
+            rookieCard = false,
             gameUsedMaterial = false,
             autograph = false,
             grading = grading
@@ -93,7 +93,7 @@ class ExportControllerTest {
             number = "278",
             serialNumber = 0,
             printRun = null,
-            cardType = CardType.BASE,
+            rookieCard = false,
             gameUsedMaterial = false,
             autograph = false,
             grading = grading,
