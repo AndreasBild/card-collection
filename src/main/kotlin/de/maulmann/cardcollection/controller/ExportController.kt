@@ -45,31 +45,36 @@ class ExportController(
                 zos.putNextEntry(entry)
 
                 val writer = OutputStreamWriter(zos)
-                writer.write("<!DOCTYPE html>\n")
-                writer.write("<html lang=\"en\">\n")
-                writer.write("<head>\n")
-                writer.write("    <meta charset=\"UTF-8\">\n")
-                writer.write("    <link rel=\"stylesheet\" type=\"text/css\" href=\"../css/main.css\"/>\n")
-                writer.write("</head>\n")
-                writer.write("<body><h2>Juwan Howard Collection [Total: ${cards.size}]</h2>\n")
-                writer.write("<table>\n")
-                writer.write("    <tr>\n")
-                writer.write("        <th>Player</th>\n")
-                writer.write("        <th>Team</th>\n")
-                writer.write("        <th>Sport</th>\n")
-                writer.write("        <th>Season</th>\n")
-                writer.write("        <th>Company</th>\n")
-                writer.write("        <th>Brand</th>\n")
-                writer.write("        <th>Theme</th>\n")
-                writer.write("        <th>Variant</th>\n")
-                writer.write("        <th>Number</th>\n")
-                writer.write("        <th>Serial</th>\n")
-                writer.write("        <th>Print Run</th>\n")
-                writer.write("        <th>Rookie</th>\n")
-                writer.write("        <th>Game Used</th>\n")
-                writer.write("        <th>Autograph</th>\n")
-                writer.write("        <th>Grade</th>\n")
-                writer.write("    </tr>\n")
+                writer.write(
+                    """
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <link rel="stylesheet" type="text/css" href="../css/main.css"/>
+                    </head>
+                    <body>
+                    <h2>Juwan Howard Collection [Total: ${cards.size}]</h2>
+                    <table>
+                        <tr>
+                            <th>Player</th>
+                            <th>Team</th>
+                            <th>Sport</th>
+                            <th>Season</th>
+                            <th>Company</th>
+                            <th>Brand</th>
+                            <th>Theme</th>
+                            <th>Variant</th>
+                            <th>Number</th>
+                            <th>Serial</th>
+                            <th>Print Run</th>
+                            <th>Rookie</th>
+                            <th>Game Used</th>
+                            <th>Autograph</th>
+                            <th>Grade</th>
+                        </tr>
+                    """.trimIndent() + "\n"
+                )
 
                 for (card in cards) {
                     val playerName = HtmlUtils.htmlEscape(card.playerNames)
@@ -88,29 +93,30 @@ class ExportController(
                     val autograph = if (card.autograph) "Yes" else "No"
                     val gradeStr = card.grading?.let { HtmlUtils.htmlEscape(it.displayGrade) } ?: ""
 
-                    writer.write("    <tr>\n")
-                    writer.write("        <td>$playerName</td>\n")
-                    writer.write("        <td>$teamName</td>\n")
-                    writer.write("        <td>$sportName</td>\n")
-                    writer.write("        <td>$seasonName</td>\n")
-                    writer.write("        <td>$companyName</td>\n")
-                    writer.write("        <td>$brandName</td>\n")
-                    writer.write("        <td>$themeName</td>\n")
-                    writer.write("        <td>$variantName</td>\n")
-                    writer.write("        <td>$number</td>\n")
-                    writer.write("        <td>$serial</td>\n")
-                    writer.write("        <td>$printRun</td>\n")
-                    writer.write("        <td>$rookie</td>\n")
-                    writer.write("        <td>$gameUsed</td>\n")
-                    writer.write("        <td>$autograph</td>\n")
-                    writer.write("        <td>$gradeStr</td>\n")
-                    writer.write("    </tr>\n")
+                    writer.write(
+                        """
+                        <tr>
+                            <td>$playerName</td>
+                            <td>$teamName</td>
+                            <td>$sportName</td>
+                            <td>$seasonName</td>
+                            <td>$companyName</td>
+                            <td>$brandName</td>
+                            <td>$themeName</td>
+                            <td>$variantName</td>
+                            <td>$number</td>
+                            <td>$serial</td>
+                            <td>$printRun</td>
+                            <td>$rookie</td>
+                            <td>$gameUsed</td>
+                            <td>$autograph</td>
+                            <td>$gradeStr</td>
+                        </tr>
+                        """.trimIndent() + "\n"
+                    )
                 }
 
-                writer.write("</table>\n")
-                writer.write("</body>\n")
-                writer.write("</html>")
-
+                writer.write("</table>\n</body>\n</html>")
                 writer.flush()
                 zos.closeEntry()
             }
