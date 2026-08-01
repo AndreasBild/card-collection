@@ -1,5 +1,6 @@
 package de.maulmann.cardcollection.service
 
+import de.maulmann.cardcollection.dto.CardFilter
 import de.maulmann.cardcollection.model.*
 import de.maulmann.cardcollection.repository.*
 import jakarta.persistence.criteria.JoinType
@@ -23,79 +24,67 @@ class CardService(
 
     @Cacheable("filteredCards")
     fun getCardsFiltered(
-        manufacturerId: Long?,
-        brandId: Long?,
-        themeId: Long?,
-        sportId: Long?,
-        playerId: Long?,
-        seasonId: Long?,
-        gameUsed: Boolean?,
-        autograph: Boolean?,
-        variantId: Long?,
-        rookieCard: Boolean?,
-        printRunRangeKey: String?,
-        teamId: Long?,
-        isGradedNullable: Boolean?,
+        filter: CardFilter,
         pageable: Pageable
     ): Page<Card> {
         val specifications = mutableListOf<Specification<Card>>()
 
-        manufacturerId?.let {
+        filter.manufacturerId?.let {
             specifications.add(Specification { root, _, cb ->
                 cb.equal(root.get<CardManufacturer>("manufacturer").get<Long>("id"), it)
             })
         }
-        brandId?.let {
+        filter.brandId?.let {
             specifications.add(Specification { root, _, cb ->
                 cb.equal(root.get<CardBrand>("brand").get<Long>("id"), it)
             })
         }
-        themeId?.let {
+        filter.themeId?.let {
             specifications.add(Specification { root, _, cb ->
                 cb.equal(root.get<CardTheme>("theme").get<Long>("id"), it)
             })
         }
-        sportId?.let {
+        filter.sportId?.let {
             specifications.add(Specification { root, _, cb ->
                 cb.equal(root.join<Card, CardPlayer>("cardPlayers").get<Player>("player").get<Sport>("sport").get<Long>("id"), it)
             })
         }
-        playerId?.let {
+        filter.playerId?.let {
             specifications.add(Specification { root, _, cb ->
                 cb.equal(root.join<Card, CardPlayer>("cardPlayers").get<Player>("player").get<Long>("id"), it)
             })
         }
-        seasonId?.let {
+        filter.seasonId?.let {
             specifications.add(Specification { root, _, cb ->
                 cb.equal(root.get<Season>("season").get<Long>("id"), it)
             })
         }
-        gameUsed?.let {
+        filter.gameUsed?.let {
             specifications.add(Specification { root, _, cb ->
                 cb.equal(root.get<Boolean>("gameUsedMaterial"), it)
             })
         }
-        autograph?.let {
+        filter.autograph?.let {
             specifications.add(Specification { root, _, cb ->
                 cb.equal(root.get<Boolean>("autograph"), it)
             })
         }
-        variantId?.let {
+        filter.variantId?.let {
             specifications.add(Specification { root, _, cb ->
                 cb.equal(root.get<Variant>("variant").get<Long>("id"), it)
             })
         }
-        rookieCard?.let {
+        filter.rookieCard?.let {
             specifications.add(Specification { root, _, cb ->
                 cb.equal(root.get<Boolean>("rookieCard"), it)
             })
         }
-        teamId?.let {
+        filter.teamId?.let {
             specifications.add(Specification { root, _, cb ->
                 cb.equal(root.join<Card, CardPlayer>("cardPlayers").get<Team>("team").get<Long>("id"), it)
             })
         }
-        isGradedNullable?.let { isGraded ->
+        filter.isGradedNullable?.let { isGraded ->
             specifications.add(Specification { root, _, cb ->
                 if (isGraded) {
                     cb.isNotNull(root.get<Any>("grading"))
@@ -105,7 +94,7 @@ class CardService(
             })
         }
 
-        val selectedPrintRunRange = PrintRunRange.fromKey(printRunRangeKey)
+        val selectedPrintRunRange = PrintRunRange.fromKey(filter.printRunRangeKey)
         selectedPrintRunRange?.let { range ->
             specifications.add(Specification { root, _, cb ->
                 when (range) {
@@ -165,6 +154,40 @@ class CardService(
         finalSpecification = finalSpecification.and(fetchSpecification)
 
         return cardRepository.findAll(finalSpecification, pageable)
+    }
+
+    fun getCardsFiltered(
+        manufacturerId: Long? = null,
+        brandId: Long? = null,
+        themeId: Long? = null,
+        sportId: Long? = null,
+        playerId: Long? = null,
+        seasonId: Long? = null,
+        gameUsed: Boolean? = null,
+        autograph: Boolean? = null,
+        variantId: Long? = null,
+        rookieCard: Boolean? = null,
+        printRunRangeKey: String? = null,
+        teamId: Long? = null,
+        isGradedNullable: Boolean? = null,
+        pageable: Pageable
+    ): Page<Card> {
+        val filter = CardFilter(
+            manufacturerId = manufacturerId,
+            brandId = brandId,
+            themeId = themeId,
+            sportId = sportId,
+            playerId = playerId,
+            seasonId = seasonId,
+            gameUsed = gameUsed,
+            autograph = autograph,
+            variantId = variantId,
+            rookieCard = rookieCard,
+            printRunRangeKey = printRunRangeKey,
+            teamId = teamId,
+            isGradedNullable = isGradedNullable
+        )
+        return getCardsFiltered(filter, pageable)
     }
 
     @Cacheable("brands")

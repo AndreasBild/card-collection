@@ -1,5 +1,6 @@
 package de.maulmann.cardcollection.controller
 
+import de.maulmann.cardcollection.dto.CardFilter
 import de.maulmann.cardcollection.model.Card
 import de.maulmann.cardcollection.model.GradingCompany
 import de.maulmann.cardcollection.service.CardService
@@ -85,7 +86,7 @@ class CardController(
 
         val pageable = PageRequest.of(page, size, sortObj)
 
-        val cardsPage: Page<Card> = cardService.getCardsFiltered(
+        val filter = CardFilter(
             manufacturerId = manufacturerId,
             brandId = brandId,
             themeId = themeId,
@@ -98,9 +99,10 @@ class CardController(
             rookieCard = rookieCard,
             printRunRangeKey = printRunRangeKey,
             teamId = teamId,
-            isGradedNullable = isGradedNullable,
-            pageable = pageable
+            isGradedNullable = isGradedNullable
         )
+
+        val cardsPage: Page<Card> = cardService.getCardsFiltered(filter, pageable)
 
         model.addAttribute("cardPage", cardsPage)
         model.addAttribute("cards", cardsPage.content)
