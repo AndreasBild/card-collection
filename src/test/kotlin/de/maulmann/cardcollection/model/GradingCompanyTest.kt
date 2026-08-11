@@ -8,6 +8,6 @@ class GradingCompanyTest {
     @Test
     fun `should have correct enum values`() {
         val values = GradingCompany.entries.toTypedArray()
-        assertThat(values).containsExactly(GradingCompany.PSA, GradingCompany.BGS)
+        assertThat(values).containsExactly(GradingCompany.PSA, GradingCompany.BGS, GradingCompany.MBA)
     }
 }
