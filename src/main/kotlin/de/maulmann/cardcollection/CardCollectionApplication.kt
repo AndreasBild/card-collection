@@ -9,3 +9,4 @@ class CardCollectionApplication
 fun main(args: Array<String>) {
 	runApplication<CardCollectionApplication>(*args)
 }
+

@@ -19,12 +19,6 @@ USE `card_collection`;
 SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
 SET @@SESSION.SQL_LOG_BIN= 0;
 
---
--- GTID state at the beginning of the backup 
---
-
-SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '7a26c000-b33a-11f0-86ee-e9d15a4f7c80:1-3675,
-c438073e-4563-11f0-afc9-c39087f22c03:1-642';
 
 --
 -- Table structure for table `card`
@@ -48,21 +42,16 @@ CREATE TABLE `card` (
   `manufacturer_id` bigint NOT NULL,
   `brand_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `FKrhm60fo96t7r89farfjnmg0n9` (`theme_id`),
-  KEY `FK6xhb82f364llei3se8shqvxoa` (`variant_id`),
-  KEY `FK_card_season` (`season_id`),
-  KEY `fk_card_grading` (`grading_id`),
-  KEY `idx_card_season_id` (`season_id`),
-  KEY `idx_card_variant_id` (`variant_id`),
-  KEY `idx_card_theme_id` (`theme_id`),
-  KEY `idx_card_grading_id` (`grading_id`),
   KEY `idx_card_print_run` (`print_run`),
-  KEY `fk_card_manufacturer` (`manufacturer_id`),
-  KEY `fk_card_brand` (`brand_id`),
-  KEY `idx_card_manufacturer_id` (`manufacturer_id`),
-  KEY `idx_card_brand_id` (`brand_id`),
+  KEY `idx_card_mfg_brand_theme_variant` (`manufacturer_id`,`brand_id`,`theme_id`,`variant_id`),
   KEY `idx_card_mfg_brand_theme` (`manufacturer_id`,`brand_id`,`theme_id`),
   KEY `idx_card_attributes` (`rookie_card`,`game_used_material`,`autograph`),
+  KEY `fk_card_brand` (`brand_id`),
+  KEY `fk_card_grading` (`grading_id`),
+  KEY `fk_card_manufacturer` (`manufacturer_id`),
+  KEY `FK_card_season` (`season_id`),
+  KEY `fk_card_theme` (`theme_id`),
+  KEY `fk_card_variant` (`variant_id`),
   CONSTRAINT `fk_card_brand` FOREIGN KEY (`brand_id`) REFERENCES `card_brand` (`id`),
   CONSTRAINT `fk_card_grading` FOREIGN KEY (`grading_id`) REFERENCES `grading` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_card_manufacturer` FOREIGN KEY (`manufacturer_id`) REFERENCES `card_manufacturer` (`id`),
@@ -92,7 +81,8 @@ DROP TABLE IF EXISTS `card_brand`;
 CREATE TABLE `card_brand` (
   `id` bigint NOT NULL,
   `name` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_card_brand_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -116,7 +106,8 @@ DROP TABLE IF EXISTS `card_manufacturer`;
 CREATE TABLE `card_manufacturer` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_card_manufacturer_name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -142,10 +133,8 @@ CREATE TABLE `card_player` (
   `player_id` bigint NOT NULL,
   `team_id` bigint DEFAULT NULL,
   PRIMARY KEY (`card_id`,`player_id`),
-  KEY `idx_card_player_player_id` (`player_id`),
-  KEY `idx_card_player_team_id` (`team_id`),
-  KEY `idx_card_player_card_player` (`card_id`,`player_id`),
-  KEY `idx_card_player_card_team` (`card_id`,`team_id`),
+  KEY `idx_card_player_player_card` (`player_id`,`card_id`),
+  KEY `idx_card_player_team_card` (`team_id`,`card_id`),
   CONSTRAINT `card_player_ibfk_1` FOREIGN KEY (`card_id`) REFERENCES `card` (`id`) ON DELETE CASCADE,
   CONSTRAINT `card_player_ibfk_2` FOREIGN KEY (`player_id`) REFERENCES `player` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_card_player_team` FOREIGN KEY (`team_id`) REFERENCES `team` (`id`) ON DELETE SET NULL
@@ -172,7 +161,8 @@ DROP TABLE IF EXISTS `card_theme`;
 CREATE TABLE `card_theme` (
   `id` bigint NOT NULL,
   `name` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_card_theme_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -215,6 +205,11 @@ CREATE TABLE `flyway_schema_history` (
 
 LOCK TABLES `flyway_schema_history` WRITE;
 /*!40000 ALTER TABLE `flyway_schema_history` DISABLE KEYS */;
+INSERT INTO `flyway_schema_history` VALUES 
+(1,'1','Initial schema','SQL','V1__Initial_schema.sql',NULL,'root',CURRENT_TIMESTAMP,1,1),
+(2,'2','initial data','SQL','V2__initial_data.sql',NULL,'root',CURRENT_TIMESTAMP,1,1),
+(3,'3','make print run nullable','SQL','V3__make_print_run_nullable.sql',NULL,'root',CURRENT_TIMESTAMP,1,1),
+(4,'4','optimize indexes','SQL','V4__optimize_indexes.sql',NULL,'root',CURRENT_TIMESTAMP,1,1);
 /*!40000 ALTER TABLE `flyway_schema_history` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -308,7 +303,8 @@ DROP TABLE IF EXISTS `sport`;
 CREATE TABLE `sport` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_sport_name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -332,7 +328,8 @@ DROP TABLE IF EXISTS `team`;
 CREATE TABLE `team` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_team_name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=144 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -356,7 +353,8 @@ DROP TABLE IF EXISTS `variant`;
 CREATE TABLE `variant` (
   `id` bigint NOT NULL,
   `name` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_variant_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

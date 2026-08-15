@@ -40,6 +40,7 @@ class FilterDataControllerTest {
 
         mockMvc.perform(get("/api/filters/brands").param("manufacturerId", "1"))
             .andExpect(status().isOk)
+            .andExpect(header().exists("Cache-Control"))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$[0].id").value(1))
             .andExpect(jsonPath("$[0].name").value("Prizm"))
@@ -54,6 +55,7 @@ class FilterDataControllerTest {
 
         mockMvc.perform(get("/api/filters/themes").param("manufacturerId", "1").param("brandId", "2"))
             .andExpect(status().isOk)
+            .andExpect(header().exists("Cache-Control"))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$[0].id").value(1))
             .andExpect(jsonPath("$[0].name").value("Base Set"))
@@ -68,6 +70,7 @@ class FilterDataControllerTest {
 
         mockMvc.perform(get("/api/filters/variants").param("manufacturerId", "1").param("brandId", "2").param("themeId", "3"))
             .andExpect(status().isOk)
+            .andExpect(header().exists("Cache-Control"))
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$[0].id").value(1))
             .andExpect(jsonPath("$[0].name").value("Base"))
