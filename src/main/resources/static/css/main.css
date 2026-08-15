@@ -437,7 +437,7 @@ table {
     text-align: left;
 }
 
-thead {
+thead th {
     background-color: var(--table-header-bg);
     color: var(--table-header-text);
     position: sticky;
@@ -448,9 +448,155 @@ thead {
 th {
     padding: 10px 12px;
     font-weight: 600;
-    letter-spacing: 0.02em;
     white-space: nowrap;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
+    background-color: inherit;
+}
+
+/* ==========================================================================
+   Export Toolbar & Filter Chips
+   ========================================================================== */
+.export-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.export-toolbar-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-right: 4px;
+}
+
+.export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.export-btn:hover {
+    background: var(--bg-surface-hover);
+    color: var(--primary-color);
+    border-color: var(--border-subtle);
+}
+
+.filter-chips-ribbon {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 8px 12px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-chips-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8125rem;
+    padding: 3px 10px;
+    background: var(--bg-surface-hover);
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.filter-chip:hover {
+    background: var(--btn-reset-hover-bg);
+    border-color: var(--border-color);
+}
+
+.filter-chip-remove {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-left: 2px;
+}
+
+/* ==========================================================================
+   Print Layout Optimization
+   ========================================================================== */
+@media print {
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 8pt !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .app-header,
+    .filter-section,
+    .pagination-nav,
+    .page-size-form,
+    .export-toolbar,
+    .filter-chips-ribbon,
+    .skip-link,
+    .theme-toggle-btn,
+    .keyboard-hint {
+        display: none !important;
+    }
+    .table-container {
+        border: none !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+    }
+    thead, thead th {
+        position: static !important;
+    }
+    th, td {
+        border: 1px solid #999999 !important;
+        padding: 3px 5px !important;
+        color: #000000 !important;
+        background: transparent !important;
+    }
+    th {
+        font-weight: bold !important;
+        background: #eeeeee !important;
+    }
+    .badge {
+        border: 1px solid #444444 !important;
+        color: #000000 !important;
+        background: transparent !important;
+        padding: 1px 3px !important;
+    }
+    a {
+        text-decoration: none !important;
+        color: #000000 !important;
+    }
 }
 
 th a {

@@ -22,7 +22,7 @@ class CardService(
     private val cardManufacturerRepository: CardManufacturerRepository
 ) {
 
-    @Cacheable("filteredCards")
+    @Cacheable("filteredCards", key = "{#filter, #pageable.pageNumber, #pageable.pageSize, #pageable.sort}")
     fun getCardsFiltered(
         filter: CardFilter,
         pageable: Pageable

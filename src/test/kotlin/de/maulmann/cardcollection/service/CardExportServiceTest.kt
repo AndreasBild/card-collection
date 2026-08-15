@@ -297,4 +297,65 @@ class CardExportServiceTest {
         val content = file.readText(Charsets.UTF_8)
         assertTrue(content.contains("\"id\" : \"1994-95-collectors-choice-278\""))
     }
+
+    @Test
+    fun `test writeCardsCsv produces valid CSV content`() {
+        val season = Season(id = 1L, name = "1994-95")
+        val manufacturer = CardManufacturer(id = 1L, name = "Upper Deck")
+        val brand = CardBrand(id = 1L, name = "Collectors Choice")
+        val theme = CardTheme(id = 1L, name = "Base Set")
+        val variant = Variant(id = 1L, name = "Base")
+        val sport = Sport(id = 1L, name = "Basketball")
+        val player = Player(id = 1L, name = "Juwan", surname = "Howard", sport = sport)
+
+        val cardRef = Card(
+            id = 10L,
+            season = season,
+            manufacturer = manufacturer,
+            brand = brand,
+            variant = variant,
+            theme = theme,
+            number = "278",
+            serialNumber = 0,
+            printRun = null,
+            rookieCard = true,
+            gameUsedMaterial = false,
+            autograph = false,
+            grading = null
+        )
+
+        val cardPlayer = CardPlayer(
+            id = CardPlayerId(10L, player.id),
+            card = cardRef,
+            player = player,
+            team = null
+        )
+
+        val card = Card(
+            id = 10L,
+            season = season,
+            manufacturer = manufacturer,
+            brand = brand,
+            variant = variant,
+            theme = theme,
+            number = "278",
+            serialNumber = 0,
+            printRun = null,
+            rookieCard = true,
+            gameUsedMaterial = false,
+            autograph = false,
+            grading = null,
+            cardPlayers = mutableSetOf(cardPlayer)
+        )
+
+        `when`(cardRepository.findAllWithDetails()).thenReturn(listOf(card))
+
+        val baos = ByteArrayOutputStream()
+        cardExportService.writeCardsCsv(baos)
+
+        val csvString = baos.toString("UTF-8")
+        assertTrue(csvString.startsWith("ID,Player,Season,Team,Company,Brand,Theme,Variant,Card Number,Serial Number,Print Run,Grading Company,Grade,Autograph,Patch,Rookie,Collection"))
+        assertTrue(csvString.contains("1994-95-collectors-choice-278,Juwan Howard,1994-95,,Upper Deck,Collectors Choice,Base Set,Base,278,,,,,No,No,Yes,Juwan Howard"))
+    }
 }
+

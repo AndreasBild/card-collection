@@ -43,6 +43,17 @@ class ExportControllerTest {
     }
 
     @Test
+    fun `test exportCsv sets headers and invokes CardExportService`() {
+        val response = MockHttpServletResponse()
+
+        exportController.exportCsv(response)
+
+        assertEquals("text/csv;charset=UTF-8", response.contentType)
+        assertEquals("attachment; filename=\"card-collection.csv\"", response.getHeader("Content-Disposition"))
+        verify(cardExportService).writeCardsCsv(response.outputStream)
+    }
+
+    @Test
     fun `test exportHtml generates valid zip file`() {
         val season = Season(id = 1L, name = "1994-95")
 

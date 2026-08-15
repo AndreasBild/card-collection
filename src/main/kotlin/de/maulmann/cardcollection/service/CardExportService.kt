@@ -85,6 +85,44 @@ class CardExportService(
         objectMapper.writeValue(file, dtos)
     }
 
+    fun writeCardsCsv(outputStream: OutputStream) {
+        val dtos = exportAllCardsToJsonDtos()
+        outputStream.writer(Charsets.UTF_8).use { writer ->
+            writer.write("ID,Player,Season,Team,Company,Brand,Theme,Variant,Card Number,Serial Number,Print Run,Grading Company,Grade,Autograph,Patch,Rookie,Collection\r\n")
+            for (dto in dtos) {
+                val row = listOf(
+                    dto.id,
+                    dto.player ?: "",
+                    dto.season ?: "",
+                    dto.team ?: "",
+                    dto.company ?: "",
+                    dto.brand ?: "",
+                    dto.theme ?: "",
+                    dto.variant ?: "",
+                    dto.cardNumber ?: "",
+                    dto.serialNumber ?: "",
+                    dto.printRun?.toString() ?: "",
+                    dto.gradingCompany ?: "",
+                    dto.grade ?: "",
+                    if (dto.isAutograph) "Yes" else "No",
+                    if (dto.isPatch) "Yes" else "No",
+                    if (dto.isRookie) "Yes" else "No",
+                    dto.collection ?: ""
+                ).joinToString(",") { escapeCsv(it) }
+                writer.write(row)
+                writer.write("\r\n")
+            }
+            writer.flush()
+        }
+    }
+
+    private fun escapeCsv(value: String): String {
+        if (value.contains(",") || value.contains("\"") || value.contains("\n") || value.contains("\r")) {
+            return "\"" + value.replace("\"", "\"\"") + "\""
+        }
+        return value
+    }
+
     private fun generateUniqueSlug(card: Card, existingSlugs: MutableSet<String>): String {
         val rawParts = mutableListOf<String>()
 

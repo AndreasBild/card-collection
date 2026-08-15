@@ -30,6 +30,13 @@ class ExportController(
         cardExportService.writeCardsJson(response.outputStream)
     }
 
+    @GetMapping("/csv")
+    fun exportCsv(response: HttpServletResponse) {
+        response.contentType = "text/csv;charset=UTF-8"
+        response.setHeader("Content-Disposition", "attachment; filename=\"card-collection.csv\"")
+        cardExportService.writeCardsCsv(response.outputStream)
+    }
+
     @GetMapping("/html")
     fun exportHtml(response: HttpServletResponse) {
         response.contentType = "application/zip"

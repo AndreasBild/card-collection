@@ -18,7 +18,7 @@
     <meta name="description"
           content="Private Collection of Juwan Howard Basketball Trading Cards. Containing many 1/1 and rare Trading Cards from companies like: Panini, Fleer, Topps and Upper Deck. Including Super rare cards like Precious Metal Gems from the 90s">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="/css/main.css?v=3" rel="stylesheet" type="text/css">
+    <link href="/css/main.css?v=4" rel="stylesheet" type="text/css">
     <meta name="robots" content="index,follow">
     <!-- Open Graph & Meta -->
     <meta property="og:title" content="Juwan Howard Basketball Trading Card Collection">
@@ -197,6 +197,23 @@
 <!-- Main Content Area -->
 <main id="main-content" aria-label="Trading Cards Collection Data" tabindex="-1">
     <div id="filterLoadingStatus" class="sr-only" aria-live="polite"></div>
+
+    <div class="export-toolbar" role="region" aria-label="Export and Tools Toolbar">
+        <span class="export-toolbar-label">Export:</span>
+        <a th:href="@{/export/csv}" class="export-btn" title="Download collection as CSV file">
+            <span aria-hidden="true">📄</span> CSV
+        </a>
+        <a th:href="@{/export/json}" class="export-btn" title="Download collection as JSON file">
+            <span aria-hidden="true">📋</span> JSON
+        </a>
+        <a th:href="@{/export/html}" class="export-btn" title="Download season HTML files as ZIP">
+            <span aria-hidden="true">📦</span> HTML Zip
+        </a>
+        <button type="button" onclick="window.print()" class="export-btn" title="Print collector checklist">
+            <span aria-hidden="true">🖨️</span> Print
+        </button>
+    </div>
+
     <div class="table-container" role="region" aria-label="Cards table container">
     <table aria-label="Sports Trading Cards Collection">
     <thead>
@@ -652,6 +669,29 @@
         }
 
         initializeFilters();
+
+        // Global Keyboard Navigation Shortcuts
+        document.addEventListener('keydown', function(e) {
+            const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+            const isTyping = activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select';
+
+            if (!isTyping) {
+                if (e.key === '/') {
+                    e.preventDefault();
+                    playerSelect.focus();
+                } else if (e.key === 'ArrowLeft' || e.key === 'p' || e.key === 'P') {
+                    const prevLink = document.querySelector('a[aria-label="Previous Page"]');
+                    if (prevLink) prevLink.click();
+                } else if (e.key === 'ArrowRight' || e.key === 'n' || e.key === 'N') {
+                    const nextLink = document.querySelector('a[aria-label="Next Page"]');
+                    if (nextLink) nextLink.click();
+                }
+            } else {
+                if (e.key === 'Escape') {
+                    document.activeElement.blur();
+                }
+            }
+        });
     });
 </script>
 </body>
