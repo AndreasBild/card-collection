@@ -1,5 +1,6 @@
 package de.maulmann.cardcollection.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import de.maulmann.cardcollection.dto.CardFilter
 import de.maulmann.cardcollection.model.Card
 import de.maulmann.cardcollection.model.GradingCompany
@@ -12,15 +13,15 @@ import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
-@RequestMapping("/cards")
 class CardController(
     private val cardService: CardService,
     private val playerService: PlayerService
 ) {
+
+    private val objectMapper = ObjectMapper()
 
     companion object {
         data class SortableColumnInfo(val displayName: String, val propertyPath: String, val isSortable: Boolean = true)
@@ -45,7 +46,7 @@ class CardController(
         )
     }
 
-    @GetMapping
+    @GetMapping(value = ["", "/", "/cards"])
     fun getCards(
         model: Model,
         @RequestParam(required = false) manufacturerId: Long?,
@@ -137,7 +138,62 @@ class CardController(
         model.addAttribute("printRunRanges", PrintRunRange.entries.toTypedArray())
         model.addAttribute("teams", cardService.getAllTeams())
         model.addAttribute("gradingCompanies", GradingCompany.entries)
+        model.addAttribute("jsonLdSchema", buildJsonLd(cardsPage.content, cardsPage.totalElements))
 
         return "cards"
+    }
+
+    private fun buildJsonLd(cards: List<Card>, totalItems: Long): String {
+        val items = cards.mapIndexed { index, card ->
+            val cardTitle = listOfNotNull(
+                card.season?.name,
+                card.brand?.name,
+                card.theme?.name,
+                card.variant?.name,
+                card.playerNames,
+                card.number.takeIf { it.isNotBlank() }?.let { "#$it" }
+            ).filter { it.isNotBlank() }.joinToString(" ")
+
+            mapOf(
+                "@type" to "ListItem",
+                "position" to (index + 1),
+                "item" to mapOf(
+                    "@type" to "Product",
+                    "name" to cardTitle,
+                    "category" to "Sports Memorabilia > Trading Cards",
+                    "brand" to mapOf(
+                        "@type" to "Brand",
+                        "name" to (card.brand?.name ?: "Trading Card")
+                    ),
+                    "manufacturer" to mapOf(
+                        "@type" to "Organization",
+                        "name" to (card.manufacturer?.name ?: "Manufacturer")
+                    )
+                )
+            )
+        }
+
+        val schemaMap = mapOf(
+            "@context" to "https://schema.org",
+            "@type" to "CollectionPage",
+            "name" to "Juwan Howard Basketball Trading Card Collection",
+            "description" to "Private Collection of Juwan Howard Basketball Trading Cards containing rare cards from Panini, Fleer, Topps, and Upper Deck.",
+            "about" to mapOf(
+                "@type" to "Person",
+                "name" to "Juwan Howard",
+                "jobTitle" to "Basketball Player"
+            ),
+            "mainEntity" to mapOf(
+                "@type" to "ItemList",
+                "numberOfItems" to totalItems,
+                "itemListElement" to items
+            )
+        )
+
+        return try {
+            objectMapper.writeValueAsString(schemaMap)
+        } catch (e: Exception) {
+            "{}"
+        }
     }
 }

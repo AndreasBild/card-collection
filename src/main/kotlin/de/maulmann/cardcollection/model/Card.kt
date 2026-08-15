@@ -12,44 +12,51 @@ class Card(
     @JoinColumn(name = "grading_id", nullable = true)
     var grading: Grading? = null,
 
-    val printRun: Int? = null,
-    val serialNumber: Int,
+    var printRun: Int? = null,
+    var serialNumber: Int,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "season_id")
-    val season: Season,
-    val number: String,
-    val rookieCard: Boolean,
-    val gameUsedMaterial: Boolean,
-    val autograph: Boolean,
+    var season: Season,
+    var number: String,
+    var rookieCard: Boolean,
+    var gameUsedMaterial: Boolean,
+    var autograph: Boolean,
 
     @OneToMany(mappedBy = "card", cascade = [CascadeType.ALL], orphanRemoval = true)
     @BatchSize(size = 20)
-    val cardPlayers: MutableSet<CardPlayer> = mutableSetOf(),
+    var cardPlayers: MutableSet<CardPlayer> = mutableSetOf(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manufacturer_id")
-    val manufacturer: CardManufacturer,
+    var manufacturer: CardManufacturer,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id")
-    val brand: CardBrand,
+    var brand: CardBrand,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "variant_id")
-    val variant: Variant,
+    var variant: Variant,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "theme_id")
-    val theme: CardTheme
+    var theme: CardTheme
 ) {
     private val sortedCardPlayers: List<CardPlayer>
         get() {
-            val (juwan, others) = cardPlayers.partition {
-                val fullName = "${it.player.name} ${it.player.surname}".trim()
-                fullName.equals("Juwan Howard", ignoreCase = true)
+            if (cardPlayers.size <= 1) return cardPlayers.toList()
+            val juwan = ArrayList<CardPlayer>(1)
+            val others = ArrayList<CardPlayer>(cardPlayers.size)
+            for (cp in cardPlayers) {
+                val fullName = "${cp.player.name} ${cp.player.surname}".trim()
+                if (fullName.equals("Juwan Howard", ignoreCase = true)) {
+                    juwan.add(cp)
+                } else {
+                    others.add(cp)
+                }
             }
-            return juwan + others
+            return if (juwan.isEmpty()) others else (juwan + others)
         }
 
     val playerNames: String

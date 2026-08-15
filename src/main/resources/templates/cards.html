@@ -4,7 +4,7 @@
     <title>Juwan Howard Basketball Trading Card Collection</title>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="theme-color" content="#317EFB">
+    <meta name="theme-color" content="#1e3a8a">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="194x194" href="/favicon/favicon-194x194.png">
@@ -15,11 +15,10 @@
     <meta name="application-name" content="Maulmann.de">
     <meta name="msapplication-TileColor" content="#317EFB">
     <link href="/favicon/favicon.ico" rel="icon" sizes="32x32">
-    <link href="/favicon/apple-touch-icon.png" rel="apple-touch-icon">
     <meta name="description"
           content="Private Collection of Juwan Howard Basketball Trading Cards. Containing many 1/1 and rare Trading Cards from companies like: Panini, Fleer, Topps and Upper Deck. Including Super rare cards like Precious Metal Gems from the 90s">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="../css/main.css" rel="stylesheet" type="text/css">
+    <link href="/css/main.css" rel="stylesheet" type="text/css">
     <meta name="robots" content="index,follow">
     <!-- Open Graph & Meta -->
     <meta property="og:title" content="Juwan Howard Basketball Trading Card Collection">
@@ -28,29 +27,44 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Juwan Howard Basketball Trading Card Collection">
     <meta name="twitter:description" content="Private Collection of Juwan Howard Basketball Trading Cards.">
-    <!-- JSON-LD Structured Data for LLMs and Search Engines -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      "name": "Juwan Howard Basketball Trading Card Collection",
-      "description": "Private Collection of Juwan Howard Basketball Trading Cards containing rare cards from Panini, Fleer, Topps, and Upper Deck.",
-      "about": {
-        "@type": "Person",
-        "name": "Juwan Howard",
-        "jobTitle": "Basketball Player"
-      }
-    }
+
+    <!-- Pre-render Theme Initialization to prevent Flash of Unstyled Theme -->
+    <script>
+        (function () {
+            try {
+                const storedTheme = localStorage.getItem('theme');
+                if (storedTheme) {
+                    document.documentElement.setAttribute('data-theme', storedTheme);
+                } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
+
+    <!-- Dynamic Schema.org JSON-LD ItemList for LLMs and Search Engines -->
+    <script type="application/ld+json" th:utext="${jsonLdSchema}">
     </script>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to main content</a>
-<header>
-    <h1>Sports Card Collection</h1>
+
+<header class="app-header">
+    <div class="header-title-group">
+        <h1>Trading Card Collection</h1>
+        <p>Juwan Howard &amp; Basketball Memorabilia Database</p>
+    </div>
+    <div class="header-actions">
+        <button id="themeToggleBtn" type="button" class="theme-toggle-btn" aria-label="Toggle dark or light theme">
+            <span id="themeToggleIcon" aria-hidden="true">🌓</span>
+            <span id="themeToggleLabel">Theme</span>
+        </button>
+    </div>
 </header>
+
 <aside class="filter-section" aria-label="Card Collection Filters">
-<form th:action="@{/cards}" method="GET" class="filter-form">
-    <div>
+<form th:action="@{/cards}" method="GET" class="filter-form" id="filterForm">
+    <div class="filter-group">
         <label for="manufacturerSelectForm">Vendor/Manufacturer:</label>
         <select id="manufacturerSelectForm" name="manufacturerId" class="styled-select">
             <option value="">All Manufacturers</option>
@@ -60,7 +74,7 @@
                     th:selected="${param.manufacturerId != null && param.manufacturerId == man.id}"></option>
         </select>
     </div>
-    <div>
+    <div class="filter-group">
         <label for="brandSelectForm">Brand:</label>
         <select id="brandSelectForm" name="brandId" class="styled-select">
             <option value="">All Brands</option>
@@ -70,7 +84,7 @@
                     th:selected="${param.brandId != null && param.brandId == brand.id}"></option>
         </select>
     </div>
-    <div>
+    <div class="filter-group">
         <label for="themeSelectForm">Theme:</label>
         <select id="themeSelectForm" name="themeId" class="styled-select">
             <option value="">All Themes</option>
@@ -80,7 +94,7 @@
                     th:selected="${param.themeId != null && param.themeId == theme.id}"></option>
         </select>
     </div>
-    <div>
+    <div class="filter-group">
         <label for="sportSelectForm">Sport:</label>
         <select id="sportSelectForm" name="sportId" class="styled-select">
             <option value="">All Sports</option>
@@ -90,7 +104,7 @@
                     th:selected="${param.sportId != null && param.sportId == sport.id}"></option>
         </select>
     </div>
-    <div>
+    <div class="filter-group">
         <label for="playerSelectForm">Player:</label>
         <select id="playerSelectForm" name="playerId" class="styled-select">
             <option value="">All Players</option>
@@ -100,7 +114,7 @@
                     th:selected="${param.playerId != null && param.playerId == player.id}"></option>
         </select>
     </div>
-    <div>
+    <div class="filter-group">
         <label for="teamSelectForm">Team:</label>
         <select id="teamSelectForm" name="teamId" class="styled-select">
             <option value="">All Teams</option>
@@ -110,7 +124,7 @@
                     th:selected="${param.teamId != null && param.teamId == team.id}"></option>
         </select>
     </div>
-    <div>
+    <div class="filter-group">
         <label for="seasonSelectForm">Season:</label>
         <select id="seasonSelectForm" name="seasonId" class="styled-select">
             <option value="">All Seasons</option>
@@ -120,7 +134,7 @@
                     th:selected="${param.seasonId != null && param.seasonId == s.id}"></option>
         </select>
     </div>
-    <div>
+    <div class="filter-group">
         <label for="gameUsedSelectForm">Game Used:</label>
         <select id="gameUsedSelectForm" name="gameUsed" class="styled-select">
             <option value="">Any</option>
@@ -128,7 +142,7 @@
             <option value="false" th:selected="${param.gameUsed == 'false'}">No</option>
         </select>
     </div>
-    <div>
+    <div class="filter-group">
         <label for="autographSelectForm">Autograph:</label>
         <select id="autographSelectForm" name="autograph" class="styled-select">
             <option value="">Any</option>
@@ -136,7 +150,7 @@
             <option value="false" th:selected="${param.autograph == 'false'}">No</option>
         </select>
     </div>
-    <div>
+    <div class="filter-group">
         <label for="variantSelectForm">Variant:</label>
         <select id="variantSelectForm" name="variantId" class="styled-select">
             <option value="">All Variants</option>
@@ -146,7 +160,7 @@
                     th:selected="${param.variantId != null && param.variantId == variant.id}"></option>
         </select>
     </div>
-    <div>
+    <div class="filter-group">
         <label for="rookieCardSelectForm">Rookie:</label>
         <select id="rookieCardSelectForm" name="rookieCard" class="styled-select">
             <option value="">Any</option>
@@ -154,7 +168,7 @@
             <option value="false" th:selected="${param.rookieCard == 'false'}">No</option>
         </select>
     </div>
-    <div>
+    <div class="filter-group">
         <label for="printRunRangeSelectForm">Print Run:</label>
         <select id="printRunRangeSelectForm" name="printRunRangeKey" class="styled-select">
             <option value="">Any</option>
@@ -164,7 +178,7 @@
                     th:selected="${param.printRunRangeKey != null && param.printRunRangeKey == prRange.key}"></option>
         </select>
     </div>
-    <div>
+    <div class="filter-group">
         <label for="gradingStatusSelectForm">Graded:</label>
         <select id="gradingStatusSelectForm" name="isGradedNullable" class="styled-select">
             <option value="">Any</option>
@@ -173,19 +187,22 @@
         </select>
     </div>
     <div class="filter-buttons-container">
-        <button type="submit">Filter</button>
-        <a th:href="@{/cards}" class="button">Clear Filters</a>
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+        <a th:href="@{/cards}" class="btn btn-reset">Reset All</a>
+        <span class="keyboard-hint">Press <kbd>/</kbd> to filter &bull; <kbd>Esc</kbd> to reset</span>
     </div>
 </form>
 </aside>
+
 <!-- Main Content Area -->
 <main id="main-content" aria-label="Trading Cards Collection Data" tabindex="-1">
     <div id="filterLoadingStatus" class="sr-only" aria-live="polite"></div>
+    <div class="table-container" role="region" aria-label="Cards table container">
     <table aria-label="Sports Trading Cards Collection">
     <thead>
     <tr>
         <th:block th:each="column : ${sortableColumns}">
-            <th th:aria-sort="${column.isSortable && currentSortProperty == column.propertyPath ? (currentSortDirection == 'ASC' ? 'ascending' : 'descending') : 'none'}">
+            <th scope="col" th:aria-sort="${column.isSortable && currentSortProperty == column.propertyPath ? (currentSortDirection == 'ASC' ? 'ascending' : 'descending') : 'none'}">
                 <a th:if="${column.isSortable}"
                    th:with="nextSortDir=${currentSortProperty == column.propertyPath && currentSortDirection == 'ASC' ? 'DESC' : 'ASC'}"
                    th:aria-label="'Sort by ' + column.displayName +
@@ -205,8 +222,8 @@
                    )}">
                     <span th:text="${column.displayName}"></span>
                     <span th:if="${currentSortProperty == column.propertyPath}">
-                        <span th:if="${currentSortDirection == 'ASC'}">▲</span>
-                        <span th:if="${currentSortDirection == 'DESC'}">▼</span>
+                        <span th:if="${currentSortDirection == 'ASC'}" aria-hidden="true">&uarr;</span>
+                        <span th:if="${currentSortDirection == 'DESC'}" aria-hidden="true">&darr;</span>
                     </span>
                 </a>
                 <span th:unless="${column.isSortable}" th:text="${column.displayName}"></span>
@@ -216,7 +233,7 @@
     </thead>
     <tbody>
     <tr th:each="card : ${cards}">
-        <td th:text="${card.playerNames}"></td>
+        <td><strong th:text="${card.playerNames}"></strong></td>
         <td th:text="${card.teamNames}"></td>
         <td th:text="${card.sportNames}"></td>
         <td th:text="${card?.season?.name}"></td>
@@ -224,172 +241,195 @@
         <td th:text="${card?.brand?.name}"></td>
         <td th:text="${card?.theme?.name}"></td>
         <td th:text="${card.variant.name}"></td>
-        <td th:text="${card.number}"></td>
-        <td th:text="${card.serialNumber}"></td>
-        <td th:text="${card.printRun}"></td>
-        <td th:text="${card.rookieCard ? 'Yes' : 'No'}"></td>
-        <td th:text="${card.gameUsedMaterial ? 'Yes' : 'No'}"></td>
-        <td th:text="${card.autograph ? 'Yes' : 'No'}"></td>
-        <td th:text="${card.grading?.gradingCompany?.name()}"></td>
-        <td th:text="${card.grading?.grade}"></td>
+        <td><span class="serial-pill" th:text="${card.number}"></span></td>
+        <td><span class="serial-pill" th:text="${card.serialNumber}"></span></td>
+        <td>
+            <span th:if="${card.printRun == 1}" class="badge badge-oneofone">1/1</span>
+            <span th:if="${card.printRun != null && card.printRun != 1}" class="serial-pill" th:text="'/' + ${card.printRun}"></span>
+            <span th:if="${card.printRun == null}">-</span>
+        </td>
+        <td>
+            <span th:if="${card.rookieCard}" class="badge badge-rc">RC</span>
+            <span th:unless="${card.rookieCard}">-</span>
+        </td>
+        <td>
+            <span th:if="${card.gameUsedMaterial}" class="badge badge-gu">GU</span>
+            <span th:unless="${card.gameUsedMaterial}">-</span>
+        </td>
+        <td>
+            <span th:if="${card.autograph}" class="badge badge-auto">AUTO</span>
+            <span th:unless="${card.autograph}">-</span>
+        </td>
+        <td>
+            <span th:if="${card.grading != null}"
+                  th:class="'badge-grading ' + ${card.grading.gradingCompany?.name() == 'PSA' ? 'badge-psa' : (card.grading.gradingCompany?.name() == 'BGS' ? 'badge-bgs' : 'badge-sgc')}"
+                  th:text="${card.grading.gradingCompany?.name()}"></span>
+            <span th:if="${card.grading == null}">-</span>
+        </td>
+        <td>
+            <span th:if="${card.grading != null}" class="serial-pill" th:text="${card.grading.grade}"></span>
+            <span th:if="${card.grading == null}">-</span>
+        </td>
     </tr>
     </tbody>
-</table>
-<!-- Pagination Controls -->
-<div th:if="${totalPages > 0}" class="pagination-controls">
-    <div class="pagination-info-block">
-        Rows per page:
-        <label for="pageSizeSelector"></label><select id="pageSizeSelector" onchange="changePageSize()"
-                                                      class="styled-select">
-        <option th:each="s : ${#numbers.sequence(10, 100)}" th:if="${s == 10 || s == 20 || s == 50 || s == 100}"
-                th:value="${s}" th:text="${s}" th:selected="${s == pageSize}">_
-        </option>
-    </select>
+    </table>
     </div>
-    <div class="pagination-info-block">
-        Page <span th:text="${currentPage + 1}">_</span> of <span th:text="${totalPages}">_</span>.
-        Total items: <span th:text="${totalItems}">_</span>.
+
+    <!-- Pagination Controls -->
+    <div th:if="${totalPages > 0}" class="pagination-controls">
+        <div class="pagination-info-block">
+            <span>Rows per page:</span>
+            <select id="pageSizeSelector" onchange="changePageSize()" class="styled-select" aria-label="Select number of rows per page">
+                <option th:each="s : ${#numbers.sequence(10, 100)}" th:if="${s == 10 || s == 20 || s == 50 || s == 100}"
+                        th:value="${s}" th:text="${s}" th:selected="${s == pageSize}">_
+                </option>
+            </select>
+            <span>&bull; Page <strong th:text="${currentPage + 1}">1</strong> of <strong th:text="${totalPages}">1</strong> (<span th:text="${totalItems}">0</span> total items)</span>
+        </div>
+        <nav aria-label="Pagination Navigation">
+            <ul class="pagination">
+                <li th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                    <a th:href="@{/cards(page=0, size=${pageSize},
+                                    sort=${param.sort ?: ''},
+                                    manufacturerId=${param.manufacturerId ?: ''},
+                                    brandId=${param.brandId ?: ''},
+                                    themeId=${param.themeId ?: ''},
+                                    sportId=${param.sportId ?: ''},
+                                    playerId=${param.playerId ?: ''},
+                                    teamId=${param.teamId ?: ''},
+                                    seasonId=${param.seasonId ?: ''},
+                                    gameUsed=${param.gameUsed ?: ''},
+                                    autograph=${param.autograph ?: ''},
+                                    variantId=${param.variantId ?: ''},
+                                    rookieCard=${param.rookieCard ?: ''},
+                                    printRunRangeKey=${param.printRunRangeKey ?: ''},
+                                    isGradedNullable=${param.isGradedNullable ?: ''}
+                                    )}" aria-label="Go to first page">First</a>
+                </li>
+                <li th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                    <a th:href="@{/cards(page=${currentPage - 1}, size=${pageSize},
+                                    sort=${param.sort ?: ''},
+                                    manufacturerId=${param.manufacturerId ?: ''},
+                                    brandId=${param.brandId ?: ''},
+                                    themeId=${param.themeId ?: ''},
+                                    sportId=${param.sportId ?: ''},
+                                    playerId=${param.playerId ?: ''},
+                                    teamId=${param.teamId ?: ''},
+                                    seasonId=${param.seasonId ?: ''},
+                                    gameUsed=${param.gameUsed ?: ''},
+                                    autograph=${param.autograph ?: ''},
+                                    variantId=${param.variantId ?: ''},
+                                    rookieCard=${param.rookieCard ?: ''},
+                                    printRunRangeKey=${param.printRunRangeKey ?: ''},
+                                    isGradedNullable=${param.isGradedNullable ?: ''}
+                                    )}"
+                       th:unless="${currentPage == 0}" aria-label="Go to previous page">Previous</a>
+                    <span th:if="${currentPage == 0}">Previous</span>
+                </li>
+                <th:block th:with="window=2">
+                    <th:block th:if="${totalPages <= (2 * window + 5)}">
+                        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:classappend="${i == currentPage} ? 'active' : ''">
+                            <a th:aria-current="${i == currentPage ? 'page' : null}"
+                               th:href="@{/cards(page=${i}, size=${pageSize},
+                                            sort=${param.sort ?: ''},
+                                            manufacturerId=${param.manufacturerId ?: ''},
+                                            brandId=${param.brandId ?: ''},
+                                            themeId=${param.themeId ?: ''},
+                                            sportId=${param.sportId ?: ''},
+                                            playerId=${param.playerId ?: ''},
+                                            teamId=${param.teamId ?: ''},
+                                            seasonId=${param.seasonId ?: ''},
+                                            gameUsed=${param.gameUsed ?: ''},
+                                            autograph=${param.autograph ?: ''},
+                                            variantId=${param.variantId ?: ''},
+                                            rookieCard=${param.rookieCard ?: ''},
+                                            printRunRangeKey=${param.printRunRangeKey ?: ''},
+                                            isGradedNullable=${param.isGradedNullable ?: ''}
+                                            )}" th:text="${i + 1}">_</a>
+                        </li>
+                    </th:block>
+                    <th:block th:unless="${totalPages <= (2 * window + 5)}">
+                        <li th:classappend="${0 == currentPage} ? 'active' : ''">
+                            <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
+                               th:text="1">_</a>
+                        </li>
+                        <li th:if="${currentPage > window + 1}" class="disabled"><span>...</span></li>
+                        <li th:each="i : ${#numbers.sequence( T(java.lang.Math).max(1, currentPage.intValue() - 1), T(java.lang.Math).min(totalPages.intValue() - 2, currentPage.intValue() + 1) )}"
+                            th:classappend="${i == currentPage} ? 'active' : ''">
+                            <a th:href="@{/cards(page=${i}, size=${pageSize},
+                                            sort=${param.sort ?: ''},
+                                            manufacturerId=${param.manufacturerId ?: ''},
+                                            brandId=${param.brandId ?: ''},
+                                            themeId=${param.themeId ?: ''},
+                                            sportId=${param.sportId ?: ''},
+                                            playerId=${param.playerId ?: ''},
+                                            teamId=${param.teamId ?: ''},
+                                            seasonId=${param.seasonId ?: ''},
+                                            gameUsed=${param.gameUsed ?: ''},
+                                            autograph=${param.autograph ?: ''},
+                                            variantId=${param.variantId ?: ''},
+                                            rookieCard=${param.rookieCard ?: ''},
+                                            printRunRangeKey=${param.printRunRangeKey ?: ''},
+                                            isGradedNullable=${param.isGradedNullable ?: ''}
+                                            )}" th:text="${i + 1}">_</a>
+                        </li>
+                        <li th:if="${currentPage < totalPages - window - 2}" class="disabled"><span>...</span></li>
+                        <li th:classappend="${totalPages - 1 == currentPage} ? 'active' : ''">
+                            <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
+                               th:text="${totalPages}">_</a>
+                        </li>
+                    </th:block>
+                </th:block>
+                <li th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
+                    <a th:href="@{/cards(page=${currentPage + 1}, size=${pageSize},
+                                    sort=${param.sort ?: ''},
+                                    manufacturerId=${param.manufacturerId ?: ''},
+                                    brandId=${param.brandId ?: ''},
+                                    themeId=${param.themeId ?: ''},
+                                    sportId=${param.sportId ?: ''},
+                                    playerId=${param.playerId ?: ''},
+                                    teamId=${param.teamId ?: ''},
+                                    seasonId=${param.seasonId ?: ''},
+                                    gameUsed=${param.gameUsed ?: ''},
+                                    autograph=${param.autograph ?: ''},
+                                    variantId=${param.variantId ?: ''},
+                                    rookieCard=${param.rookieCard ?: ''},
+                                    printRunRangeKey=${param.printRunRangeKey ?: ''},
+                                    isGradedNullable=${param.isGradedNullable ?: ''}
+                                    )}"
+                       th:unless="${currentPage >= totalPages - 1}" aria-label="Go to next page">Next</a>
+                    <span th:if="${currentPage >= totalPages - 1}">Next</span>
+                </li>
+                <li th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
+                    <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize},
+                                    sort=${param.sort ?: ''},
+                                    manufacturerId=${param.manufacturerId ?: ''},
+                                    brandId=${param.brandId ?: ''},
+                                    themeId=${param.themeId ?: ''},
+                                    sportId=${param.sportId ?: ''},
+                                    playerId=${param.playerId ?: ''},
+                                    teamId=${param.teamId ?: ''},
+                                    seasonId=${param.seasonId ?: ''},
+                                    gameUsed=${param.gameUsed ?: ''},
+                                    autograph=${param.autograph ?: ''},
+                                    variantId=${param.variantId ?: ''},
+                                    rookieCard=${param.rookieCard ?: ''},
+                                    printRunRangeKey=${param.printRunRangeKey ?: ''},
+                                    isGradedNullable=${param.isGradedNullable ?: ''}
+                                    )}" aria-label="Go to last page">Last</a>
+                </li>
+            </ul>
+        </nav>
     </div>
-    <nav>
-        <ul class="pagination">
-            <li th:classappend="${currentPage == 0} ? 'disabled' : ''">
-                <a th:href="@{/cards(page=0, size=${pageSize},
-                                sort=${param.sort ?: ''},
-                                manufacturerId=${param.manufacturerId ?: ''},
-                                brandId=${param.brandId ?: ''},
-                                themeId=${param.themeId ?: ''},
-                                sportId=${param.sportId ?: ''},
-                                playerId=${param.playerId ?: ''},
-                                teamId=${param.teamId ?: ''},
-                                seasonId=${param.seasonId ?: ''},
-                                gameUsed=${param.gameUsed ?: ''},
-                                autograph=${param.autograph ?: ''},
-                                variantId=${param.variantId ?: ''},
-                                rookieCard=${param.rookieCard ?: ''},
-                                printRunRangeKey=${param.printRunRangeKey ?: ''},
-                                isGradedNullable=${param.isGradedNullable ?: ''}
-                                )}">First</a>
-            </li>
-            <li th:classappend="${currentPage == 0} ? 'disabled' : ''">
-                <a th:href="@{/cards(page=${currentPage - 1}, size=${pageSize},
-                                sort=${param.sort ?: ''},
-                                manufacturerId=${param.manufacturerId ?: ''},
-                                brandId=${param.brandId ?: ''},
-                                themeId=${param.themeId ?: ''},
-                                sportId=${param.sportId ?: ''},
-                                playerId=${param.playerId ?: ''},
-                                teamId=${param.teamId ?: ''},
-                                seasonId=${param.seasonId ?: ''},
-                                gameUsed=${param.gameUsed ?: ''},
-                                autograph=${param.autograph ?: ''},
-                                variantId=${param.variantId ?: ''},
-                                rookieCard=${param.rookieCard ?: ''},
-                                printRunRangeKey=${param.printRunRangeKey ?: ''},
-                                isGradedNullable=${param.isGradedNullable ?: ''}
-                                )}"
-                   th:unless="${currentPage == 0}">Previous</a>
-                <span th:if="${currentPage == 0}">Previous</span>
-            </li>
-            <th:block th:with="window=2">
-                <th:block th:if="${totalPages <= (2 * window + 5)}">
-                    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                        th:classappend="${i == currentPage} ? 'active' : ''">
-                        <a th:aria-current="${i == currentPage ? 'page' : null}"
-                           th:href="@{/cards(page=${i}, size=${pageSize},
-                                        sort=${param.sort ?: ''},
-                                        manufacturerId=${param.manufacturerId ?: ''},
-                                        brandId=${param.brandId ?: ''},
-                                        themeId=${param.themeId ?: ''},
-                                        sportId=${param.sportId ?: ''},
-                                        playerId=${param.playerId ?: ''},
-                                        teamId=${param.teamId ?: ''},
-                                        seasonId=${param.seasonId ?: ''},
-                                        gameUsed=${param.gameUsed ?: ''},
-                                        autograph=${param.autograph ?: ''},
-                                        variantId=${param.variantId ?: ''},
-                                        rookieCard=${param.rookieCard ?: ''},
-                                        printRunRangeKey=${param.printRunRangeKey ?: ''},
-                                        isGradedNullable=${param.isGradedNullable ?: ''}
-                                        )}" th:text="${i + 1}">_</a>
-                    </li>
-                </th:block>
-                <th:block th:unless="${totalPages <= (2 * window + 5)}">
-                    <li th:classappend="${0 == currentPage} ? 'active' : ''">
-                        <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
-                           th:text="1">_</a>
-                    </li>
-                    <li th:if="${currentPage > window + 1}" class="disabled"><span>...</span></li>
-                    <li th:each="i : ${#numbers.sequence( T(java.lang.Math).max(1, currentPage.intValue() - 1), T(java.lang.Math).min(totalPages.intValue() - 2, currentPage.intValue() + 1) )}"
-                        th:classappend="${i == currentPage} ? 'active' : ''">
-                        <a th:href="@{/cards(page=${i}, size=${pageSize},
-                                        sort=${param.sort ?: ''},
-                                        manufacturerId=${param.manufacturerId ?: ''},
-                                        brandId=${param.brandId ?: ''},
-                                        themeId=${param.themeId ?: ''},
-                                        sportId=${param.sportId ?: ''},
-                                        playerId=${param.playerId ?: ''},
-                                        teamId=${param.teamId ?: ''},
-                                        seasonId=${param.seasonId ?: ''},
-                                        gameUsed=${param.gameUsed ?: ''},
-                                        autograph=${param.autograph ?: ''},
-                                        variantId=${param.variantId ?: ''},
-                                        rookieCard=${param.rookieCard ?: ''},
-                                        printRunRangeKey=${param.printRunRangeKey ?: ''},
-                                        isGradedNullable=${param.isGradedNullable ?: ''}
-                                        )}" th:text="${i + 1}">_</a>
-                    </li>
-                    <li th:if="${currentPage < totalPages - window - 2}" class="disabled"><span>...</span></li>
-                    <li th:classappend="${totalPages - 1 == currentPage} ? 'active' : ''">
-                        <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
-                           th:text="${totalPages}">_</a>
-                    </li>
-                </th:block>
-            </th:block>
-            <li th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
-                <a th:href="@{/cards(page=${currentPage + 1}, size=${pageSize},
-                                sort=${param.sort ?: ''},
-                                manufacturerId=${param.manufacturerId ?: ''},
-                                brandId=${param.brandId ?: ''},
-                                themeId=${param.themeId ?: ''},
-                                sportId=${param.sportId ?: ''},
-                                playerId=${param.playerId ?: ''},
-                                teamId=${param.teamId ?: ''},
-                                seasonId=${param.seasonId ?: ''},
-                                gameUsed=${param.gameUsed ?: ''},
-                                autograph=${param.autograph ?: ''},
-                                variantId=${param.variantId ?: ''},
-                                rookieCard=${param.rookieCard ?: ''},
-                                printRunRangeKey=${param.printRunRangeKey ?: ''},
-                                isGradedNullable=${param.isGradedNullable ?: ''}
-                                )}"
-                   th:unless="${currentPage >= totalPages - 1}">Next</a>
-                <span th:if="${currentPage >= totalPages - 1}">Next</span>
-            </li>
-            <li th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
-                <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize},
-                                sort=${param.sort ?: ''},
-                                manufacturerId=${param.manufacturerId ?: ''},
-                                brandId=${param.brandId ?: ''},
-                                themeId=${param.themeId ?: ''},
-                                sportId=${param.sportId ?: ''},
-                                playerId=${param.playerId ?: ''},
-                                teamId=${param.teamId ?: ''},
-                                seasonId=${param.seasonId ?: ''},
-                                gameUsed=${param.gameUsed ?: ''},
-                                autograph=${param.autograph ?: ''},
-                                variantId=${param.variantId ?: ''},
-                                rookieCard=${param.rookieCard ?: ''},
-                                printRunRangeKey=${param.printRunRangeKey ?: ''},
-                                isGradedNullable=${param.isGradedNullable ?: ''}
-                                )}">Last</a>
-            </li>
-        </ul>
-    </nav>
-</div>
-<!-- End Pagination Controls -->
+    <!-- End Pagination Controls -->
 </main>
+
+<footer class="app-footer">
+    <p>&copy; 2026 Maulmann Sports Card Collection &bull; Performance &amp; Accessibility Optimized</p>
+</footer>
+
 <script>
-    /*<![CDATA[*/
     function changePageSize() {
         const selectedSize = document.getElementById('pageSizeSelector').value;
         const currentUrl = new URL(window.location.href);
@@ -398,15 +438,40 @@
         window.location.href = currentUrl.toString();
     }
 
+    // Theme Toggle Functionality
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', function () {
+            const currentTheme = document.documentElement.getAttribute('data-theme') ||
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    // Keyboard Shortcuts (/ to focus search/filter, Esc to reset)
+    document.addEventListener('keydown', function (e) {
+        if (e.key === '/' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+            e.preventDefault();
+            const firstSelect = document.getElementById('manufacturerSelectForm');
+            if (firstSelect) firstSelect.focus();
+        } else if (e.key === 'Escape') {
+            const clearLink = document.querySelector('.btn-reset');
+            if (clearLink) clearLink.click();
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
         const manufacturerSelect = document.getElementById('manufacturerSelectForm');
         const brandSelect = document.getElementById('brandSelectForm');
         const themeSelect = document.getElementById('themeSelectForm');
         const variantSelect = document.getElementById('variantSelectForm');
 
-        const initialBrandId = /*[[${param.brandId}]]*/ null;
-        const initialThemeId = /*[[${param.themeId}]]*/ null;
-        const initialVariantId = /*[[${param.variantId}]]*/ null;
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialBrandId = urlParams.get('brandId');
+        const initialThemeId = urlParams.get('themeId');
+        const initialVariantId = urlParams.get('variantId');
 
         const statusElement = document.getElementById('filterLoadingStatus');
         function setStatus(msg) {
@@ -414,7 +479,7 @@
         }
 
         function updateDropdown(selectElement, options, selectedValue, defaultOptionText) {
-            selectElement.innerHTML = ''; // Clear existing options
+            selectElement.innerHTML = '';
 
             const defaultOption = document.createElement('option');
             defaultOption.value = '';
@@ -432,21 +497,30 @@
             });
         }
 
+        const filterCache = new Map();
+
+        async function fetchJsonWithCache(url) {
+            if (filterCache.has(url)) {
+                return filterCache.get(url);
+            }
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+            }
+            const data = await response.json();
+            filterCache.set(url, data);
+            return data;
+        }
+
         async function fetchAndPopulateBrands(manufacturerId, selectedBrandId) {
             const url = manufacturerId ? `/api/filters/brands?manufacturerId=${manufacturerId}` : '/api/filters/brands';
             try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    console.error('Failed to fetch brands:', response.status, await response.text());
-                    updateDropdown(brandSelect, [], selectedBrandId, 'All Brands'); // Clear or show error
-                    return;
-                }
-                const brands = await response.json();
+                const brands = await fetchJsonWithCache(url);
                 const defaultText = manufacturerId ? 'All Brands (for selected Manufacturer)' : 'All Brands';
                 updateDropdown(brandSelect, brands, selectedBrandId, defaultText);
             } catch (error) {
                 console.error('Error fetching brands:', error);
-                updateDropdown(brandSelect, [], selectedBrandId, 'All Brands'); // Clear on error
+                updateDropdown(brandSelect, [], selectedBrandId, 'All Brands');
             }
         }
 
@@ -464,13 +538,7 @@
             }
 
             try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    console.error('Failed to fetch themes:', response.status, await response.text());
-                    updateDropdown(themeSelect, [], selectedThemeId, 'All Themes'); // Clear or show error
-                    return;
-                }
-                const themes = await response.json();
+                const themes = await fetchJsonWithCache(url);
                 let defaultText = 'All Themes';
                 if (brandId) {
                     defaultText = 'All Themes (for selected Brand)';
@@ -496,13 +564,7 @@
             }
 
             try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    console.error('Failed to fetch variants:', response.status, await response.text());
-                    updateDropdown(variantSelect, [], selectedVariantId, 'All Variants');
-                    return;
-                }
-                const variants = await response.json();
+                const variants = await fetchJsonWithCache(url);
                 let defaultText = 'All Variants';
                 if (themeId) {
                     defaultText = 'All Variants (for selected Theme)';
@@ -590,7 +652,6 @@
 
         initializeFilters();
     });
-    /*]]>*/
 </script>
 </body>
 </html>

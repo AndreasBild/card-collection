@@ -136,11 +136,6 @@ class CardService(
         val fetchSpecification = Specification<Card> { root, query, _ ->
             val resultType = query.resultType
             if (resultType != Long::class.java && resultType != Long::class.javaObjectType && resultType.simpleName != "Long") {
-                val cardPlayersFetch = root.fetch<Card, CardPlayer>("cardPlayers", JoinType.LEFT)
-                val playerFetch = cardPlayersFetch.fetch<CardPlayer, Player>("player", JoinType.LEFT)
-                playerFetch.fetch<Player, Sport>("sport", JoinType.LEFT)
-                cardPlayersFetch.fetch<CardPlayer, Team>("team", JoinType.LEFT)
-
                 root.fetch<Card, Season>("season", JoinType.LEFT)
                 root.fetch<Card, Variant>("variant", JoinType.LEFT)
                 root.fetch<Card, CardTheme>("theme", JoinType.LEFT)

@@ -6,8 +6,8 @@ import java.io.Serializable
 
 @Embeddable
 data class CardPlayerId(
-    @Column(name = "card_id") val cardId: Long = 0,
-    @Column(name = "player_id") val playerId: Long = 0
+    @Column(name = "card_id") var cardId: Long = 0,
+    @Column(name = "player_id") var playerId: Long = 0
 ) : Serializable
 
 @Entity
@@ -15,19 +15,19 @@ data class CardPlayerId(
 @BatchSize(size = 50)
 class CardPlayer(
     @EmbeddedId
-    val id: CardPlayerId,
+    var id: CardPlayerId,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("cardId")
     @JoinColumn(name = "card_id")
-    val card: Card,
+    var card: Card,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("playerId")
     @JoinColumn(name = "player_id")
-    val player: Player,
+    var player: Player,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
-    val team: Team? = null
+    var team: Team? = null
 )

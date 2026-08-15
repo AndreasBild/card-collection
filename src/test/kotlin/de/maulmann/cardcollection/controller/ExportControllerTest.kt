@@ -100,8 +100,7 @@ class ExportControllerTest {
             cardPlayers = mutableSetOf(cardPlayer)
         )
 
-        `when`(seasonRepository.findAllByOrderByNameAsc()).thenReturn(listOf(season))
-        `when`(cardRepository.findAllBySeasonIdWithDetails(1L)).thenReturn(listOf(card))
+        `when`(cardRepository.findAllWithDetails()).thenReturn(listOf(card))
 
         val response = MockHttpServletResponse()
 

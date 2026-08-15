@@ -35,16 +35,19 @@ class ExportController(
         response.contentType = "application/zip"
         response.setHeader("Content-Disposition", "attachment; filename=\"seasons_export.zip\"")
 
-        val seasons = seasonRepository.findAllByOrderByNameAsc()
+        val allCards = cardRepository.findAllWithDetails()
+        val cardsBySeason = allCards.groupBy { it.season.name }.toSortedMap()
 
-        val seasonExports = Executors.newVirtualThreadPerTaskExecutor().use { executor ->
-            seasons.map { season ->
-                executor.submit(Callable {
-                    val cards = cardRepository.findAllBySeasonIdWithDetails(season.id)
-                    if (cards.isEmpty()) null
-                    else season.name to buildSeasonHtml(cards)
-                })
-            }.mapNotNull { it.get() }
+        val seasonExports = if (cardsBySeason.isEmpty()) {
+            emptyList()
+        } else {
+            Executors.newVirtualThreadPerTaskExecutor().use { executor ->
+                cardsBySeason.entries.map { (seasonName, cards) ->
+                    executor.submit(Callable {
+                        seasonName to buildSeasonHtml(cards)
+                    })
+                }.map { it.get() }
+            }
         }
 
         ZipOutputStream(response.outputStream).use { zos ->
