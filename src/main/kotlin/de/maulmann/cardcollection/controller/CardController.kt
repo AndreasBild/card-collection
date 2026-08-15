@@ -63,7 +63,7 @@ class CardController(
         @RequestParam(required = false) teamId: Long?,
         @RequestParam(required = false) isGradedNullable: Boolean?,
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "20") size: Int,
+        @RequestParam(defaultValue = "20") size: String,
         @RequestParam(required = false) sort: String?
     ): String {
         val sortObj = sort?.let {
@@ -85,7 +85,12 @@ class CardController(
             }
         } ?: Sort.by("id")
 
-        val pageable = PageRequest.of(page, size, sortObj)
+        val isAll = size.equals("all", ignoreCase = true)
+        val parsedSize = size.toIntOrNull() ?: 20
+        val pageSize = if (isAll) 100_000 else parsedSize.coerceAtLeast(1)
+        val currentPageIndex = if (isAll) 0 else page
+
+        val pageable = PageRequest.of(currentPageIndex, pageSize, sortObj)
 
         val filter = CardFilter(
             manufacturerId = manufacturerId,
@@ -110,7 +115,8 @@ class CardController(
         model.addAttribute("currentPage", cardsPage.number)
         model.addAttribute("totalPages", cardsPage.totalPages)
         model.addAttribute("totalItems", cardsPage.totalElements)
-        model.addAttribute("pageSize", cardsPage.size)
+        model.addAttribute("pageSize", if (isAll) "all" else parsedSize.toString())
+        model.addAttribute("isAllSize", isAll)
 
         var currentSortProperty = "id"
         var currentSortDirection = "ASC"

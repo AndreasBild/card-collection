@@ -123,4 +123,19 @@ class CardControllerTest {
             .andExpect(model().attribute("currentSortProperty", "number"))
             .andExpect(model().attribute("currentSortDirection", "DESC"))
     }
+
+    @Test
+    fun `getCards with size all parameter`() {
+        val page = PageImpl(emptyList<Card>(), PageRequest.of(0, 100_000), 0)
+        whenever(cardService.getCardsFiltered(any(), any())).thenReturn(page)
+
+        mockMvc.perform(
+            get("/cards")
+                .param("size", "all")
+        )
+            .andExpect(status().isOk)
+            .andExpect(view().name("cards"))
+            .andExpect(model().attribute("pageSize", "all"))
+            .andExpect(model().attribute("isAllSize", true))
+    }
 }

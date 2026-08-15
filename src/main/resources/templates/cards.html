@@ -18,7 +18,7 @@
     <meta name="description"
           content="Private Collection of Juwan Howard Basketball Trading Cards. Containing many 1/1 and rare Trading Cards from companies like: Panini, Fleer, Topps and Upper Deck. Including Super rare cards like Precious Metal Gems from the 90s">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="/css/main.css" rel="stylesheet" type="text/css">
+    <link href="/css/main.css?v=3" rel="stylesheet" type="text/css">
     <meta name="robots" content="index,follow">
     <!-- Open Graph & Meta -->
     <meta property="og:title" content="Juwan Howard Basketball Trading Card Collection">
@@ -281,12 +281,13 @@
             <span>Rows per page:</span>
             <select id="pageSizeSelector" onchange="changePageSize()" class="styled-select" aria-label="Select number of rows per page">
                 <option th:each="s : ${#numbers.sequence(10, 100)}" th:if="${s == 10 || s == 20 || s == 50 || s == 100}"
-                        th:value="${s}" th:text="${s}" th:selected="${s == pageSize}">_
+                        th:value="${s}" th:text="${s}" th:selected="${#strings.equals(pageSize, '' + s)}">_
                 </option>
+                <option value="all" th:selected="${#strings.equals(pageSize, 'all') || isAllSize}">All</option>
             </select>
-            <span>&bull; Page <strong th:text="${currentPage + 1}">1</strong> of <strong th:text="${totalPages}">1</strong> (<span th:text="${totalItems}">0</span> total items)</span>
+            <span>&bull; Page <strong th:text="${currentPage + 1}">1</strong> of <strong th:text="${totalPages > 0 ? totalPages : 1}">1</strong> (<span th:text="${totalItems}">0</span> total items)</span>
         </div>
-        <nav aria-label="Pagination Navigation">
+        <nav th:if="${totalPages > 1 && !isAllSize}" aria-label="Pagination Navigation">
             <ul class="pagination">
                 <li th:classappend="${currentPage == 0} ? 'disabled' : ''">
                     <a th:href="@{/cards(page=0, size=${pageSize},

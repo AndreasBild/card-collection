@@ -83,11 +83,24 @@ class ExportController(
             val variantName = HtmlUtils.htmlEscape(card.variant.name)
             val number = HtmlUtils.htmlEscape(card.number)
             val serial = card.serialNumber
-            val printRun = card.printRun?.toString() ?: ""
-            val rookie = if (card.rookieCard) "Yes" else "No"
-            val gameUsed = if (card.gameUsedMaterial) "Yes" else "No"
-            val autograph = if (card.autograph) "Yes" else "No"
-            val gradeStr = card.grading?.let { HtmlUtils.htmlEscape(it.displayGrade) } ?: ""
+            val printRunHtml = when {
+                card.printRun == 1 -> "<span class=\"badge badge-oneofone\">1/1</span>"
+                card.printRun != null -> "/${card.printRun}"
+                else -> ""
+            }
+            val rookieHtml = if (card.rookieCard) "<span class=\"badge badge-rc\">RC</span>" else "-"
+            val gameUsedHtml = if (card.gameUsedMaterial) "<span class=\"badge badge-gu\">GU</span>" else "-"
+            val autographHtml = if (card.autograph) "<span class=\"badge badge-auto\">AUTO</span>" else "-"
+            val gradeHtml = card.grading?.let {
+                val company = it.gradingCompany?.name ?: ""
+                val badgeClass = when (company) {
+                    "PSA" -> "badge-psa"
+                    "BGS" -> "badge-bgs"
+                    "SGC" -> "badge-sgc"
+                    else -> ""
+                }
+                "<span class=\"badge-grading $badgeClass\">${HtmlUtils.htmlEscape(it.displayGrade)}</span>"
+            } ?: ""
 
             """
             <tr>
@@ -101,11 +114,11 @@ class ExportController(
                 <td>$variantName</td>
                 <td>$number</td>
                 <td>$serial</td>
-                <td>$printRun</td>
-                <td>$rookie</td>
-                <td>$gameUsed</td>
-                <td>$autograph</td>
-                <td>$gradeStr</td>
+                <td>$printRunHtml</td>
+                <td>$rookieHtml</td>
+                <td>$gameUsedHtml</td>
+                <td>$autographHtml</td>
+                <td>$gradeHtml</td>
             </tr>
             """.trimIndent()
         }
@@ -115,7 +128,102 @@ class ExportController(
         <html lang="en">
         <head>
             <meta charset="UTF-8">
-            <link rel="stylesheet" type="text/css" href="../css/main.css"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Juwan Howard Collection - Export</title>
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                    background-color: #0b0f19;
+                    color: #f8fafc;
+                    padding: 24px;
+                    margin: 0;
+                }
+                h2 {
+                    color: #f8fafc;
+                    margin-bottom: 16px;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    background: #131b2e;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    border: 1px solid #1e293b;
+                }
+                th, td {
+                    padding: 10px 14px;
+                    text-align: left;
+                    border-bottom: 1px solid #1e293b;
+                    font-size: 0.875rem;
+                }
+                th {
+                    background-color: #0f172a;
+                    color: #94a3b8;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                }
+                tr:hover {
+                    background-color: #1e293b;
+                }
+                .badge {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    padding: 2px 8px;
+                    border-radius: 4px;
+                    letter-spacing: 0.03em;
+                    text-transform: uppercase;
+                    white-space: nowrap;
+                    border: 1px solid transparent;
+                }
+                .badge-rc {
+                    background-color: rgba(245, 158, 11, 0.2);
+                    color: #fde68a;
+                    border-color: rgba(245, 158, 11, 0.4);
+                }
+                .badge-auto {
+                    background-color: rgba(139, 92, 246, 0.2);
+                    color: #ddd6fe;
+                    border-color: rgba(139, 92, 246, 0.4);
+                }
+                .badge-gu {
+                    background-color: rgba(20, 184, 166, 0.2);
+                    color: #99f6e4;
+                    border-color: rgba(20, 184, 166, 0.4);
+                }
+                .badge-oneofone {
+                    background: linear-gradient(135deg, #f59e0b, #ec4899, #8b5cf6);
+                    color: #ffffff;
+                    font-weight: 800;
+                }
+                .badge-grading {
+                    display: inline-flex;
+                    align-items: center;
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                    border: 1px solid transparent;
+                }
+                .badge-psa {
+                    background-color: rgba(239, 68, 68, 0.2);
+                    color: #fca5a5;
+                    border-color: rgba(239, 68, 68, 0.4);
+                }
+                .badge-bgs {
+                    background-color: rgba(14, 165, 233, 0.2);
+                    color: #7dd3fc;
+                    border-color: rgba(14, 165, 233, 0.4);
+                }
+                .badge-sgc {
+                    background-color: rgba(148, 163, 184, 0.2);
+                    color: #f1f5f9;
+                    border-color: rgba(148, 163, 184, 0.4);
+                }
+            </style>
         </head>
         <body>
         <h2>Juwan Howard Collection [Total: ${cards.size}]</h2>

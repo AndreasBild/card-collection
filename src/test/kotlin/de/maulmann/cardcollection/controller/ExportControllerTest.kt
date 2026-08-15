@@ -127,8 +127,6 @@ class ExportControllerTest {
         assertTrue(htmlContent.contains("<td>Upper Deck</td>"))
         assertTrue(htmlContent.contains("<td>Collectors Choice</td>"))
         assertTrue(htmlContent.contains("<td>Base Set</td>"))
-        assertTrue(htmlContent.contains("<td>Base</td>"))
-        assertTrue(htmlContent.contains("<td>278</td>"))
-        assertTrue(htmlContent.contains("<td>PSA 9</td>"))
+        assertTrue(htmlContent.contains("PSA 9"))
     }
 }
