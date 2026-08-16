@@ -9,8 +9,10 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class CardService(
     private val cardRepository: CardRepository,
     private val cardBrandRepository: CardBrandRepository,
@@ -44,14 +46,28 @@ class CardService(
                 cb.equal(root.get<CardTheme>("theme").get<Long>("id"), it)
             })
         }
-        filter.sportId?.let {
-            specifications.add(Specification { root, _, cb ->
-                cb.equal(root.join<Card, CardPlayer>("cardPlayers").get<Player>("player").get<Sport>("sport").get<Long>("id"), it)
+        filter.sportId?.let { sportId ->
+            specifications.add(Specification { root, query, cb ->
+                val subquery = query.subquery(Long::class.java)
+                val cardPlayer = subquery.from(CardPlayer::class.java)
+                subquery.select(cardPlayer.get<Card>("card").get("id"))
+                    .where(
+                        cb.equal(cardPlayer.get<Card>("card"), root),
+                        cb.equal(cardPlayer.get<Player>("player").get<Sport>("sport").get<Long>("id"), sportId)
+                    )
+                cb.exists(subquery)
             })
         }
-        filter.playerId?.let {
-            specifications.add(Specification { root, _, cb ->
-                cb.equal(root.join<Card, CardPlayer>("cardPlayers").get<Player>("player").get<Long>("id"), it)
+        filter.playerId?.let { playerId ->
+            specifications.add(Specification { root, query, cb ->
+                val subquery = query.subquery(Long::class.java)
+                val cardPlayer = subquery.from(CardPlayer::class.java)
+                subquery.select(cardPlayer.get<Card>("card").get("id"))
+                    .where(
+                        cb.equal(cardPlayer.get<Card>("card"), root),
+                        cb.equal(cardPlayer.get<Player>("player").get<Long>("id"), playerId)
+                    )
+                cb.exists(subquery)
             })
         }
         filter.seasonId?.let {
@@ -79,9 +95,16 @@ class CardService(
                 cb.equal(root.get<Boolean>("rookieCard"), it)
             })
         }
-        filter.teamId?.let {
-            specifications.add(Specification { root, _, cb ->
-                cb.equal(root.join<Card, CardPlayer>("cardPlayers").get<Team>("team").get<Long>("id"), it)
+        filter.teamId?.let { teamId ->
+            specifications.add(Specification { root, query, cb ->
+                val subquery = query.subquery(Long::class.java)
+                val cardPlayer = subquery.from(CardPlayer::class.java)
+                subquery.select(cardPlayer.get<Card>("card").get("id"))
+                    .where(
+                        cb.equal(cardPlayer.get<Card>("card"), root),
+                        cb.equal(cardPlayer.get<Team>("team").get<Long>("id"), teamId)
+                    )
+                cb.exists(subquery)
             })
         }
         filter.isGradedNullable?.let { isGraded ->

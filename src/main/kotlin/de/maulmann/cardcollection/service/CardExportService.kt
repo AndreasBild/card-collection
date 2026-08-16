@@ -7,12 +7,14 @@ import de.maulmann.cardcollection.model.Card
 import de.maulmann.cardcollection.model.GradingCompany
 import de.maulmann.cardcollection.repository.CardRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.io.File
 import java.io.OutputStream
 import java.text.Normalizer
 import java.util.Locale
 
 @Service
+@Transactional(readOnly = true)
 class CardExportService(
     private val cardRepository: CardRepository,
     private val objectMapper: ObjectMapper = ObjectMapper().apply {
