@@ -152,10 +152,10 @@ class CardController(
     private fun buildJsonLd(cards: List<Card>, totalItems: Long): String {
         val items = cards.mapIndexed { index, card ->
             val cardTitle = listOfNotNull(
-                card.season?.name,
-                card.brand?.name,
-                card.theme?.name,
-                card.variant?.name,
+                card.season.name,
+                card.brand.name,
+                card.theme.name,
+                card.variant.name,
                 card.playerNames,
                 card.number.takeIf { it.isNotBlank() }?.let { "#$it" }
             ).filter { it.isNotBlank() }.joinToString(" ")
@@ -169,11 +169,11 @@ class CardController(
                     "category" to "Sports Memorabilia > Trading Cards",
                     "brand" to mapOf(
                         "@type" to "Brand",
-                        "name" to (card.brand?.name ?: "Trading Card")
+                        "name" to card.brand.name.ifBlank { "Trading Card" }
                     ),
                     "manufacturer" to mapOf(
                         "@type" to "Organization",
-                        "name" to (card.manufacturer?.name ?: "Manufacturer")
+                        "name" to card.manufacturer.name.ifBlank { "Manufacturer" }
                     )
                 )
             )
