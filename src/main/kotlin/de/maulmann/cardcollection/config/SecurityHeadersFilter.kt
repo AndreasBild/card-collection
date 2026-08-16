@@ -18,6 +18,12 @@ class SecurityHeadersFilter : Filter {
             response.setHeader("X-Content-Type-Options", "nosniff")
             response.setHeader("X-Frame-Options", "SAMEORIGIN")
             response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin")
+            response.setHeader(
+                "Content-Security-Policy",
+                "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; form-action 'self';"
+            )
+            response.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()")
+            response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
         }
         chain.doFilter(request, response)
     }
