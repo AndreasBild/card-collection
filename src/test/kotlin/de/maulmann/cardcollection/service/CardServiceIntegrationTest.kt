@@ -117,6 +117,26 @@ class CardServiceIntegrationTest {
         val filter = CardFilter(printRunRangeKey = PrintRunRange.LE_10.key, gameUsed = true, autograph = true)
         val result = cardService.getCardsFiltered(filter, PageRequest.of(0, 10))
         assertThat(result.totalElements).isEqualTo(1)
+        assertThat(result.number).isEqualTo(0)
         assertThat(result.content[0].number).isEqualTo("101")
+    }
+
+    @Test
+    fun `test cardPlayers and computed fields are fully initialized and accessible when detached`() {
+        val result = cardService.getCardsFiltered(CardFilter(), PageRequest.of(0, 10))
+        assertThat(result.totalElements).isEqualTo(2)
+
+        // Clear entityManager so entities are detached from the persistence context
+        entityManager.clear()
+
+        val card1 = result.content.first { it.number == "101" }
+        assertThat(card1.playerNames).isEqualTo("Juwan Howard")
+        assertThat(card1.sportNames).isEqualTo("Basketball")
+        assertThat(card1.teamNames).isEqualTo("Miami Heat")
+
+        val card2 = result.content.first { it.number == "1" }
+        assertThat(card2.playerNames).isEqualTo("Lionel Messi")
+        assertThat(card2.sportNames).isEqualTo("Soccer")
+        assertThat(card2.teamNames).isEqualTo("Los Angeles Lakers")
     }
 }

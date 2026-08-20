@@ -171,7 +171,18 @@ class CardService(
 
         finalSpecification = finalSpecification.and(fetchSpecification)
 
-        return cardRepository.findAll(finalSpecification, pageable)
+        val cardsPage = cardRepository.findAll(finalSpecification, pageable)
+        if (cardsPage.hasContent()) {
+            cardsPage.content.forEach { card ->
+                card.cardPlayers.forEach { cp ->
+                    cp.player.name
+                    cp.player.surname
+                    cp.player.sport?.name
+                    cp.team?.name
+                }
+            }
+        }
+        return cardsPage
     }
 
     fun getCardsFiltered(
