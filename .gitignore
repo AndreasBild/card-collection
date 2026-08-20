@@ -1,10 +1,36 @@
-HELP.md
+# Card Collection - Git Ignore Configuration
+
+### Build & Target ###
 target/
+build/
+bin/
+out/
+HELP.md
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-### STS ###
+### Operating System ###
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.DS_Store
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+.idea_modules/
+
+### Eclipse / Spring Tool Suite (STS) ###
 .apt_generated
 .classpath
 .factorypath
@@ -13,24 +39,33 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
+### Visual Studio Code ###
 .vscode/
-/src/main/resources/application.properties
 
-*.DS_Store.
+### AI Agents, Analysis & Scratch ###
+.junie/
+.qodana/
+*.log
+*.tmp
+scratch/
+
+### Temporary Export Dumps & Backups ###
+*.zip
+*.csv.tmp
+*.json.tmp
+
+### Environment & Secrets (Local Overrides Only) ###
+.env
+.env.*
+!.env.example
+*local*.properties
+*secret*.properties
+application-local.properties
+application-secrets.properties
