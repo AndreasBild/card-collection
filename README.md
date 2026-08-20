@@ -55,9 +55,11 @@ The backend serves as the Master Database and provides high-performance export p
    ```bash
    curl -X POST http://localhost:8080/export/json/sync
    ```
-3. **Configuration:**
-   The target path defaults to `../card-collectionJava/content/json/cards.json` and can be customized in `application.properties`:
+3. **Automatic External DB Change Detection:**
+   * When modifying records in Sequel Ace, DataGrip, or MySQL CLI, the backend automatically detects changes within ~3 seconds, evicts stale Caffeine caches, and writes the updated `cards.json` to the static site project.
    ```properties
+   export.db-sync.enabled=true
+   export.db-sync.polling-interval-ms=3000
    export.json.sync-path=${EXPORT_JSON_SYNC_PATH:../card-collectionJava/content/json/cards.json}
    ```
 
