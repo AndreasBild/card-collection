@@ -35,16 +35,31 @@ Access the application web UI at `http://localhost:8080/cards`.
 
 ---
 
-## 📤 Export Pipelines & Integration
+## 📤 Export Pipelines & Static Site Sync
 
-The backend provides optimized export endpoints protected by `ExportRateLimiter`:
+The backend serves as the Master Database and provides high-performance export pipelines:
 
 | Endpoint | Content-Type | Format / Purpose |
 | :--- | :--- | :--- |
-| `GET /export/json` | `application/json` | Syndication payload (`cards.json`) for `card-collectionJava` SSG. Automatically syncs file to `../card-collectionJava/content/json/cards.json`. |
-| `GET/POST /export/json/sync` | `application/json` | Explicit trigger to sync database export directly to `../card-collectionJava/content/json/cards.json`. |
+| `GET /export/json` | `application/json` | Browser download of `cards.json` + **automatic background sync** to `../card-collectionJava/content/json/cards.json`. |
+| `GET/POST /export/json/sync` | `application/json` | Programmatic trigger to sync database records directly to the static site repository without triggering a browser download. |
 | `GET /export/csv` | `text/csv` | RFC 4180 compliant CSV export for spreadsheet analysis. |
 | `GET /export/html` | `application/zip` | Season-partitioned HTML collection archives generated via Java 26 Virtual Threads. |
+
+### How to trigger the Static Site Sync:
+
+1. **Via Web UI or Browser:**
+   * Open `http://localhost:8080/export/json` (downloads `cards.json` and updates the static site generator simultaneously).
+   * Open `http://localhost:8080/export/json/sync` (updates the static site file and returns a JSON confirmation).
+2. **Via Terminal / Build Pipeline:**
+   ```bash
+   curl -X POST http://localhost:8080/export/json/sync
+   ```
+3. **Configuration:**
+   The target path defaults to `../card-collectionJava/content/json/cards.json` and can be customized in `application.properties`:
+   ```properties
+   export.json.sync-path=${EXPORT_JSON_SYNC_PATH:../card-collectionJava/content/json/cards.json}
+   ```
 
 ---
 
