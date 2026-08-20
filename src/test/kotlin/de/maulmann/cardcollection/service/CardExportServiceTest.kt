@@ -253,7 +253,7 @@ class CardExportServiceTest {
         `when`(cardRepository.findAllWithDetails()).thenReturn(listOf(card))
 
         val baos = ByteArrayOutputStream()
-        cardExportService.writeCardsJson(baos)
+        cardExportService.writeCardsJson(baos, null)
 
         val jsonString = baos.toString("UTF-8")
         assertTrue(jsonString.contains("\"id\" : \"1997-98-fleer-metal-universe-precious-metal-gems-red-33-sn47\""))
@@ -262,6 +262,79 @@ class CardExportServiceTest {
         assertTrue(jsonString.contains("\"isPatch\" : true"))
         assertTrue(jsonString.contains("\"isRookie\" : false"))
         assertTrue(jsonString.contains("\"serialNumber\" : \"47\""))
+    }
+
+    @Test
+    fun `test writeCardsJson with automatic sync file creates both stream and file`(@TempDir tempDir: File) {
+        val syncFile = File(tempDir, "content/json/cards.json")
+        val season = Season(id = 1L, name = "1997-98")
+        val manufacturer = CardManufacturer(id = 1L, name = "Fleer")
+        val brand = CardBrand(id = 1L, name = "Fleer Metal Universe")
+        val theme = CardTheme(id = 1L, name = "Base Set")
+        val variant = Variant(id = 1L, name = "Precious Metal Gems Red")
+
+        val card = Card(
+            id = 1L,
+            season = season,
+            manufacturer = manufacturer,
+            brand = brand,
+            variant = variant,
+            theme = theme,
+            number = "33",
+            serialNumber = 47,
+            printRun = 100,
+            rookieCard = false,
+            gameUsedMaterial = true,
+            autograph = true,
+            grading = null
+        )
+
+        `when`(cardRepository.findAllWithDetails()).thenReturn(listOf(card))
+
+        val baos = ByteArrayOutputStream()
+        cardExportService.writeCardsJson(baos, syncFile)
+
+        assertTrue(syncFile.exists())
+        val fileContent = syncFile.readText(Charsets.UTF_8)
+        assertTrue(fileContent.contains("\"id\" : \"1997-98-fleer-metal-universe-precious-metal-gems-red-33-sn47\""))
+
+        val streamContent = baos.toString("UTF-8")
+        assertTrue(streamContent.contains("\"id\" : \"1997-98-fleer-metal-universe-precious-metal-gems-red-33-sn47\""))
+    }
+
+    @Test
+    fun `test syncCardsJsonToStaticSite writes to target file`(@TempDir tempDir: File) {
+        val syncFile = File(tempDir, "deep/nested/cards.json")
+        val season = Season(id = 1L, name = "1994-95")
+        val manufacturer = CardManufacturer(id = 1L, name = "Upper Deck")
+        val brand = CardBrand(id = 1L, name = "Collectors Choice")
+        val theme = CardTheme(id = 1L, name = "Base Set")
+        val variant = Variant(id = 1L, name = "Base")
+
+        val card = Card(
+            id = 1L,
+            season = season,
+            manufacturer = manufacturer,
+            brand = brand,
+            variant = variant,
+            theme = theme,
+            number = "278",
+            serialNumber = 0,
+            printRun = null,
+            rookieCard = false,
+            gameUsedMaterial = false,
+            autograph = false,
+            grading = null
+        )
+
+        `when`(cardRepository.findAllWithDetails()).thenReturn(listOf(card))
+
+        val resultFile = cardExportService.syncCardsJsonToStaticSite(syncFile)
+
+        assertEquals(syncFile.absolutePath, resultFile.absolutePath)
+        assertTrue(resultFile.exists())
+        val content = resultFile.readText(Charsets.UTF_8)
+        assertTrue(content.contains("\"id\" : \"1994-95-collectors-choice-278\""))
     }
 
     @Test

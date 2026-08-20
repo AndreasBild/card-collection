@@ -30,6 +30,20 @@ class ExportController(
         cardExportService.writeCardsJson(response.outputStream)
     }
 
+    @GetMapping("/json/sync")
+    @org.springframework.web.bind.annotation.PostMapping("/json/sync")
+    fun syncJsonToStaticSite(): org.springframework.http.ResponseEntity<Map<String, Any>> {
+        val targetFile = cardExportService.syncCardsJsonToStaticSite()
+        return org.springframework.http.ResponseEntity.ok(
+            mapOf(
+                "status" to "success",
+                "syncedFile" to targetFile.absolutePath,
+                "exists" to targetFile.exists(),
+                "fileSizeBytes" to targetFile.length()
+            )
+        )
+    }
+
     @GetMapping("/csv")
     fun exportCsv(response: HttpServletResponse) {
         response.contentType = "text/csv;charset=UTF-8"
