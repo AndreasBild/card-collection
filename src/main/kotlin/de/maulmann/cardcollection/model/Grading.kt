@@ -22,11 +22,13 @@ import jakarta.validation.constraints.NotNull
 ) {
     val displayGrade: String
         get() {
-            if (grade == null || gradingCompany == null) return ""
-            var gradeValStr = grade.toString()
-            if (gradingCompany == GradingCompany.PSA && grade!! % 1.0f == 0.0f) {
-                gradeValStr = grade!!.toInt().toString()
+            val currentGrade = grade ?: return ""
+            val currentCompany = gradingCompany ?: return ""
+            val gradeValStr = if (currentCompany == GradingCompany.PSA && currentGrade % 1.0f == 0.0f) {
+                currentGrade.toInt().toString()
+            } else {
+                currentGrade.toString()
             }
-            return "$gradingCompany $gradeValStr"
+            return "$currentCompany $gradeValStr"
         }
 }

@@ -55,4 +55,13 @@ class GradingTest {
         assertEquals(1, violations.size)
         assertEquals("Grade cannot be null", violations.first().message)
     }
+
+    @Test
+    fun `test displayGrade formatting`() {
+        assertEquals("PSA 10", Grading(grade = 10.0f, gradingCompany = GradingCompany.PSA).displayGrade)
+        assertEquals("PSA 8.5", Grading(grade = 8.5f, gradingCompany = GradingCompany.PSA).displayGrade)
+        assertEquals("BGS 9.5", Grading(grade = 9.5f, gradingCompany = GradingCompany.BGS).displayGrade)
+        assertEquals("", Grading(grade = null, gradingCompany = GradingCompany.PSA).displayGrade)
+        assertEquals("", Grading(grade = 9.0f, gradingCompany = null).displayGrade)
+    }
 }
