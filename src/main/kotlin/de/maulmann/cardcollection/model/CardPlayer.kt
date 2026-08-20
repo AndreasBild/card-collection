@@ -30,4 +30,14 @@ class CardPlayer(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     var team: Team? = null
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CardPlayer) return false
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+}

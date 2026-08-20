@@ -43,9 +43,7 @@ class CardExportService(
 
         val gradingCompStr = card.grading?.gradingCompany?.name
         val gradeStr = card.grading?.grade?.let { gradeVal ->
-            if (card.grading?.gradingCompany == GradingCompany.PSA && gradeVal % 1.0f == 0.0f) {
-                gradeVal.toInt().toString()
-            } else if (gradeVal % 1.0f == 0.0f) {
+            if (gradeVal % 1.0f == 0.0f) {
                 gradeVal.toInt().toString()
             } else {
                 gradeVal.toString()
@@ -163,10 +161,15 @@ class CardExportService(
 
     private fun toSlug(input: String): String {
         val normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
-        val ascii = normalized.replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
-        return ascii.lowercase(Locale.ENGLISH)
-            .replace(Regex("[^a-z0-9]+"), "-")
-            .replace(Regex("-+"), "-")
+        val ascii = DIACRITICS_REGEX.replace(normalized, "")
+        return NON_ALPHANUMERIC_REGEX.replace(ascii.lowercase(Locale.ENGLISH), "-")
+            .replace(CONSECUTIVE_DASHES_REGEX, "-")
             .trim('-')
+    }
+
+    companion object {
+        private val DIACRITICS_REGEX = Regex("\\p{InCombiningDiacriticalMarks}+")
+        private val NON_ALPHANUMERIC_REGEX = Regex("[^a-z0-9]+")
+        private val CONSECUTIVE_DASHES_REGEX = Regex("-+")
     }
 }
