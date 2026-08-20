@@ -1,30 +1,56 @@
-# Card Collection
+# 🃏 Basketball Trading Card Collection Engine
 
-## Database Setup
+A high-performance **Spring Boot 4 / Kotlin 2 / MySQL** domain engine and inventory system for sports trading cards (specializing in the Juwan Howard Basketball Collection). This repository serves as the **Single Source of Truth (SSOT)** and export engine for downstream static catalog generators (such as [`card-collectionJava`](https://github.com/AndreasBild/card-collectionJava)).
 
-This section describes how to set up the database for this project on a new device.
+---
 
-### Automatic Database Initialization & Migration (Flyway)
+## 🏗️ Architecture & Governance
 
-This project uses [Flyway](https://flywaydb.org/) to manage database schema migrations and initial seed data automatically.
+* **[ARCHITECTURE.md](ARCHITECTURE.md):** Complete architectural blueprint covering normalized 3NF schema, index topology, Caffeine caching tiers, and export contracts.
+* **[AGENTS.md](AGENTS.md):** AI agent instructions, database standards, N+1 prevention, and the 6-stage development lifecycle for IntelliJ IDEA, Jules, and Antigravity.
+* **[Pull Request Template](.github/pull_request_template.md):** Standardized PR checklist ensuring branch protection, Flyway immutability, and contract stability.
 
-1. **Install MySQL:** Ensure you have a MySQL server installed and running.
-2. **Create a Database:** Create an empty database in MySQL for the application:
+---
+
+## 🚀 Quickstart & Local Setup
+
+### 1. Requirements
+* **Java 26** SDK
+* **MySQL 8.x / 9.x** running locally on port `3306`
+
+### 2. Database Initialization (Flyway)
+The application automatically executes all versioned migrations (`src/main/resources/db/migration`) on startup.
+
+1. Create an empty database in MySQL:
    ```sql
    CREATE DATABASE card_collection;
    ```
-3. **Configure Database Connection:** Set database connection details in `src/main/resources/application.properties` (or environment variables):
-   * `spring.datasource.url` (e.g., `jdbc:mysql://localhost:3306/card_collection?useSSL=false&serverTimezone=UTC`)
-   * `spring.datasource.username` (your MySQL username)
-   * `spring.datasource.password` (your MySQL password)
-4. **Run the Application:** Start the Spring Boot application (e.g., `./mvnw spring-boot:run`). Flyway will automatically execute the baseline migration scripts in `src/main/resources/db/migration` to create all tables and populate the seed data in a single step.
+2. Configure local credentials in `src/main/resources/application.properties` (or via environment variables).
 
-### Manual SQL Dump Backup / Restore (Optional)
-
-A complete SQL dump of the database is maintained at `src/main/resources/sql/dump/Dump.sql` for reference or manual backup/restore needs.
-
-If you ever need to manually restore the database from this dump using the MySQL CLI:
+### 3. Running the Application
 ```bash
-mysql -u YOUR_USERNAME -p card_collection < src/main/resources/sql/dump/Dump.sql
+./mvnw spring-boot:run
 ```
+Access the application web UI at `http://localhost:8080/cards`.
 
+---
+
+## 📤 Export Pipelines & Integration
+
+The backend provides optimized export endpoints protected by `ExportRateLimiter`:
+
+| Endpoint | Content-Type | Format / Purpose |
+| :--- | :--- | :--- |
+| `GET /export/json` | `application/json` | Syndication payload (`cards.json`) for `card-collectionJava` SSG. |
+| `GET /export/csv` | `text/csv` | RFC 4180 compliant CSV export for spreadsheet analysis. |
+| `GET /export/html` | `application/zip` | Season-partitioned HTML collection archives generated via Java 26 Virtual Threads. |
+
+---
+
+## 🧪 Testing & Quality Gates
+
+Run the comprehensive unit and integration test suite:
+```bash
+./mvnw clean verify
+```
+* Continuous Integration runs automatically via GitHub Actions on all pushes and PRs against `main`.
