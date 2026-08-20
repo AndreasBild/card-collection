@@ -6,6 +6,8 @@ import de.maulmann.cardcollection.dto.CardJsonDto
 import de.maulmann.cardcollection.model.Card
 import de.maulmann.cardcollection.model.GradingCompany
 import de.maulmann.cardcollection.repository.CardRepository
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.io.File
@@ -19,8 +21,12 @@ class CardExportService(
     private val cardRepository: CardRepository,
     private val objectMapper: ObjectMapper = ObjectMapper().apply {
         enable(SerializationFeature.INDENT_OUTPUT)
-    }
+    },
+    @Value("\${export.json.sync-path:../card-collectionJava/content/json/cards.json}")
+    var syncPath: String = "../card-collectionJava/content/json/cards.json"
 ) {
+
+    private val logger = LoggerFactory.getLogger(CardExportService::class.java)
 
     fun exportAllCardsToJsonDtos(): List<CardJsonDto> {
         val cards = cardRepository.findAllWithDetails()
@@ -76,13 +82,39 @@ class CardExportService(
     }
 
     fun writeCardsJson(outputStream: OutputStream) {
+        writeCardsJson(outputStream, File(syncPath))
+    }
+
+    fun writeCardsJson(outputStream: OutputStream, syncFile: File?) {
         val dtos = exportAllCardsToJsonDtos()
         objectMapper.writeValue(outputStream, dtos)
+        syncFile?.let { file ->
+            syncDtosToFile(dtos, file)
+        }
+    }
+
+    fun syncCardsJsonToStaticSite(): File {
+        return syncCardsJsonToStaticSite(File(syncPath))
+    }
+
+    fun syncCardsJsonToStaticSite(targetFile: File): File {
+        val dtos = exportAllCardsToJsonDtos()
+        syncDtosToFile(dtos, targetFile)
+        return targetFile
     }
 
     fun exportCardsToJsonFile(file: File) {
-        val dtos = exportAllCardsToJsonDtos()
-        objectMapper.writeValue(file, dtos)
+        syncCardsJsonToStaticSite(file)
+    }
+
+    private fun syncDtosToFile(dtos: List<CardJsonDto>, file: File) {
+        try {
+            file.parentFile?.mkdirs()
+            objectMapper.writeValue(file, dtos)
+            logger.info("Successfully synced cards.json [{} cards] to {}", dtos.size, file.absolutePath)
+        } catch (e: Exception) {
+            logger.warn("Could not sync cards.json to {}: {}", file.absolutePath, e.message)
+        }
     }
 
     fun writeCardsCsv(outputStream: OutputStream) {

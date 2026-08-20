@@ -185,7 +185,7 @@ sequenceDiagram
 
 ## 4. Export Interface Specification (SSG: card-collectionJava)
 
-The static site generator `card-collectionJava` depends strictly on the `/export/json` endpoint and the stability of the `CardJsonDto` contract.
+The static site generator `card-collectionJava` consumes the exported `cards.json` schema. Whenever `/export/json` (or `/export/json/sync`) is invoked, `CardExportService` automatically streams the output and syncs the file directly to `../card-collectionJava/content/json/cards.json` (configurable via `export.json.sync-path`).
 
 ### 4.1 JSON Contract (`/export/json` $\rightarrow$ `cards.json`)
 

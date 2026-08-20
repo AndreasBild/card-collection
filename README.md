@@ -41,7 +41,8 @@ The backend provides optimized export endpoints protected by `ExportRateLimiter`
 
 | Endpoint | Content-Type | Format / Purpose |
 | :--- | :--- | :--- |
-| `GET /export/json` | `application/json` | Syndication payload (`cards.json`) for `card-collectionJava` SSG. |
+| `GET /export/json` | `application/json` | Syndication payload (`cards.json`) for `card-collectionJava` SSG. Automatically syncs file to `../card-collectionJava/content/json/cards.json`. |
+| `GET/POST /export/json/sync` | `application/json` | Explicit trigger to sync database export directly to `../card-collectionJava/content/json/cards.json`. |
 | `GET /export/csv` | `text/csv` | RFC 4180 compliant CSV export for spreadsheet analysis. |
 | `GET /export/html` | `application/zip` | Season-partitioned HTML collection archives generated via Java 26 Virtual Threads. |
 
