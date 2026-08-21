@@ -6,8 +6,8 @@ A high-performance **Spring Boot 4 / Kotlin 2 / MySQL** domain engine and invent
 
 ## 🏗️ Architecture & Governance
 
-* **[ARCHITECTURE.md](ARCHITECTURE.md):** Complete architectural blueprint covering normalized 3NF schema, index topology, Caffeine caching tiers, and export contracts.
-* **[AGENTS.md](AGENTS.md):** AI agent instructions, database standards, N+1 prevention, and the 6-stage development lifecycle for IntelliJ IDEA, Jules, and Antigravity.
+* **[ARCHITECTURE.md](ARCHITECTURE.md):** Complete architectural blueprint covering normalized 3NF schema, index topology, multi-tier Caffeine caching, automated DB change detection engine, and export contracts.
+* **[AGENTS.md](AGENTS.md):** AI agent instructions, database standards, count-safe JPA specifications, N+1 prevention, and the 6-stage development lifecycle for IntelliJ IDEA, Jules, and Antigravity.
 * **[Pull Request Template](.github/pull_request_template.md):** Standardized PR checklist ensuring branch protection, Flyway immutability, and contract stability.
 
 ---
