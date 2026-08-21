@@ -24,10 +24,11 @@ You are an expert Principal Full-Stack & Database Systems Engineer specializing 
 * **Composite Indexes:** Design composite indexes reflecting dynamic filter paths (e.g., `(manufacturer_id, brand_id, theme_id, variant_id)`).
 * **Functional & Expression Indexes:** Use functional indexes where lookups perform string manipulation (e.g., `idx_player_full_name` on `(concat(surname, ' ', name))`).
 * **Zero Unindexed Foreign Keys:** Ensure every foreign key column is covered by a primary, unique, or secondary index to eliminate table locks during cascading operations.
-* **N+1 Prevention:**
+* **N+1 Prevention & Dynamic Specifications:**
   - In JpaRepositories, use explicit `LEFT JOIN FETCH` for batch fetching details (`findAllWithDetails()`).
+  - In dynamic `Specification<Card>`, always guard eager entity fetches against count queries (`if (resultType != Long::class.java && resultType != Long::class.javaObjectType && resultType.simpleName != "Long") { root.fetch(...) }`) to prevent count-query syntax errors during pagination.
   - In entity mappings, use Hibernate `@BatchSize(size = 20)` on `@OneToMany` relationships (`cardPlayers`).
-  - Never trigger lazy loading outside a transactional scope.
+  - Never trigger lazy loading outside a transactional scope (`@Transactional(readOnly = true)`).
 
 ### 1.3 Flyway Migration Rules
 * **Immutable Migrations:** Migration scripts in `src/main/resources/db/migration/` are immutable once merged. Never modify an existing script.
@@ -46,7 +47,10 @@ You are an expert Principal Full-Stack & Database Systems Engineer specializing 
   - Slugs are generated via `toSlug()` (Unicode NFD normalization, ASCII transliteration, lowercasing, non-alphanumeric replacement).
   - Slug formula: `[season]-[brand]-[theme]-[variant]-[number]-sn[serialNumber]`.
   - Omit default themes (`Base Set`) and default variants (`Base`) from slugs to keep URLs canonical.
-  - Collisions must deterministically resolve by appending `-card<id>`.
+  - Collisions must deterministically resolve by appending `-card<id>` on first collision, and `-card<id>-<index>` for subsequent collisions.
+* **Automated Sync & Change Detection:**
+  - `DatabaseChangeDetectorService` continuously monitors database signature changes (14 entity metrics).
+  - Upon detecting an external modification, all Caffeine caches are evicted and `cards.json` is auto-synced to `export.json.sync-path`.
 
 ### 2.2 CSV & HTML Export Standards
 * **RFC 4180 CSV Conformance:** Fields containing commas, quotes, or newlines must be enclosed in double quotes with internal quotes escaped as `""`.
