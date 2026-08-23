@@ -18,10 +18,13 @@ graph TD
         REPO <-->|Dynamic Specifications & Left Join Fetch| SRV[CardService & CardExportService]
         CACHE[(Caffeine Multi-Tier Cache)] <-->|TTLs 30m - 24h| SRV
         DETECTOR[DatabaseChangeDetectorService] -->|3s Polling Signature| DB
-        DETECTOR -->|Evict All Caches| CACHE
-        DETECTOR -->|Auto-Sync on Mutation| EXP[CardExportService]
+        DETECTOR -->|Publish DatabaseChangedEvent| BUS[Spring ApplicationEventPublisher]
+        BUS -->|DatabaseChangedEvent| LISTENER[DatabaseChangeEventListener]
+        LISTENER -->|Evict All Caches| CACHE
+        LISTENER -->|Auto-Sync on Mutation| EXP[CardExportService]
         SRV --> CTRL[CardController / FilterDataController / ExportController]
         LIMITER[ExportRateLimiter & SecurityHeadersFilter] --> CTRL
+        HEALTH[DatabaseSyncHealthIndicator & CardCollectionInfoContributor] --> ACT[Actuator /health & /info]
     end
 
     subgraph Export & Syndication Layer
@@ -193,9 +196,11 @@ When external tools (Sequel Ace, DataGrip, MySQL Workbench, or direct SQL script
 sequenceDiagram
     autonumber
     actor Admin as External DBA / Sequel Ace / SQL Script
-    participant DB as MySQL 8.x/9.x
-    participant Det as DatabaseChangeDetectorService (@Scheduled 3s)
-    participant Cache as Caffeine CacheManager
+    participant DB as MySQL Database
+    participant Det as DatabaseChangeDetectorService
+    participant Bus as Spring ApplicationEventPublisher
+    participant Lis as DatabaseChangeEventListener
+    participant Cache as Caffeine Caches
     participant Exp as CardExportService
     participant SSG as Static Site Generator (card-collectionJava)
 
@@ -204,10 +209,12 @@ sequenceDiagram
         Det->>DB: Execute 14-Point Aggregate Signature Query
         DB-->>Det: Return Aggregated Signature Hash
         alt Signature Mismatch
-            Det->>Cache: evictAllCaches() (Purge all Caffeine tiers)
-            Det->>Exp: syncCardsJsonToStaticSite()
+            Det->>Bus: publishEvent(DatabaseChangedEvent)
+            Bus->>Lis: onDatabaseChanged(event)
+            Lis->>Cache: evictAllCaches() (Purge all Caffeine tiers)
+            Lis->>Exp: syncCardsJsonToStaticSite()
             Exp->>SSG: Stream & Write cards.json to sync-path
-            Det->>Det: Update lastStateSignature Reference
+            Det->>Det: Update lastStateSignature & lastSyncTimestamp
         else Signature Matches
             Det->>Det: No-op
         end
@@ -225,7 +232,7 @@ The static site generator `card-collectionJava` consumes the exported `cards.jso
 | Endpoint | Method | Action | Target / Response |
 | :--- | :--- | :--- | :--- |
 | `/export/json` | `GET` | Generates & streams `cards.json` as attachment and syncs to `sync-path` | `application/json` download + File sync |
-| `/export/json/sync` | `GET`, `POST` | Triggers background file sync to `sync-path` without downloading | `application/json` status confirmation |
+| `/export/json/sync` | `GET`, `POST` | Triggers background file sync to `sync-path` without downloading | `application/json` (`SyncStatusResponse` contract) |
 | `/export/csv` | `GET` | RFC 4180 compliant CSV export with quoted fields and double-quote escapes | `text/csv;charset=UTF-8` download |
 | `/export/html` | `GET` | Virtual-thread parallel season archive generation | `application/zip` download |
 

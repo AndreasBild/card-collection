@@ -1,5 +1,6 @@
 package de.maulmann.cardcollection.service
 
+import de.maulmann.cardcollection.event.DatabaseChangedEvent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -7,16 +8,14 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.any
-import org.mockito.Mockito.eq
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
-import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
-import java.io.File
 
 @ExtendWith(MockitoExtension::class)
 class DatabaseChangeDetectorServiceTest {
@@ -28,10 +27,10 @@ class DatabaseChangeDetectorServiceTest {
     private lateinit var cacheManager: CacheManager
 
     @Mock
-    private lateinit var cache: Cache
+    private lateinit var cardExportService: CardExportService
 
     @Mock
-    private lateinit var cardExportService: CardExportService
+    private lateinit var eventPublisher: ApplicationEventPublisher
 
     @Test
     fun `test init sets initial signature without triggering sync when syncOnStartup is false`() {
@@ -43,6 +42,7 @@ class DatabaseChangeDetectorServiceTest {
             jdbcTemplate = jdbcTemplate,
             cacheManager = cacheManager,
             cardExportService = cardExportService,
+            eventPublisher = eventPublisher,
             syncOnStartup = false
         )
 
@@ -53,7 +53,7 @@ class DatabaseChangeDetectorServiceTest {
     }
 
     @Test
-    fun `test checkForDatabaseChanges triggers cache eviction and sync on signature change`() {
+    fun `test checkForDatabaseChanges publishes DatabaseChangedEvent on signature change`() {
         val initialSig = "10:100:10:200:1:2:0:0:1:1:1:1:1:1"
         val modifiedSig = "11:150:11:220:1:2:0:0:1:1:1:1:1:1"
 
@@ -61,15 +61,11 @@ class DatabaseChangeDetectorServiceTest {
             .thenReturn(initialSig)
             .thenReturn(modifiedSig)
 
-        `when`(cacheManager.cacheNames).thenReturn(listOf("filteredCards", "players"))
-        `when`(cacheManager.getCache("filteredCards")).thenReturn(cache)
-        `when`(cacheManager.getCache("players")).thenReturn(cache)
-        `when`(cardExportService.syncCardsJsonToStaticSite()).thenReturn(File("cards.json"))
-
         val service = DatabaseChangeDetectorService(
             jdbcTemplate = jdbcTemplate,
             cacheManager = cacheManager,
             cardExportService = cardExportService,
+            eventPublisher = eventPublisher,
             syncOnStartup = false
         )
 
@@ -81,10 +77,9 @@ class DatabaseChangeDetectorServiceTest {
 
         assertTrue(changed)
         assertEquals(modifiedSig, service.getCurrentSignature())
-        verify(cacheManager).getCache("filteredCards")
-        verify(cacheManager).getCache("players")
-        verify(cache, org.mockito.Mockito.times(2)).clear()
-        verify(cardExportService).syncCardsJsonToStaticSite()
+        verify(eventPublisher).publishEvent(org.mockito.kotlin.argThat<DatabaseChangedEvent> {
+            previousSignature == initialSig && newSignature == modifiedSig
+        })
     }
 
     @Test
@@ -98,6 +93,7 @@ class DatabaseChangeDetectorServiceTest {
             jdbcTemplate = jdbcTemplate,
             cacheManager = cacheManager,
             cardExportService = cardExportService,
+            eventPublisher = eventPublisher,
             syncOnStartup = false
         )
 
@@ -106,6 +102,7 @@ class DatabaseChangeDetectorServiceTest {
         val changed = service.checkForDatabaseChanges()
 
         assertFalse(changed)
+        verify(eventPublisher, never()).publishEvent(any())
         verify(cardExportService, never()).syncCardsJsonToStaticSite()
     }
 }

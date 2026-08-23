@@ -46,12 +46,14 @@ class ExportControllerTest {
     fun `test syncJsonToStaticSite invokes CardExportService and returns response`() {
         val dummyFile = java.io.File("content/json/cards.json")
         `when`(cardExportService.syncCardsJsonToStaticSite()).thenReturn(dummyFile)
+        `when`(cardExportService.exportAllCardsToJsonDtos()).thenReturn(emptyList())
 
         val response = exportController.syncJsonToStaticSite()
 
         assertEquals(org.springframework.http.HttpStatus.OK, response.statusCode)
-        assertEquals("success", response.body?.get("status"))
-        assertEquals(dummyFile.absolutePath, response.body?.get("syncedFile"))
+        assertEquals("success", response.body?.status)
+        assertEquals(dummyFile.absolutePath, response.body?.syncedFile)
+        assertEquals(0, response.body?.cardCount)
     }
 
     @Test

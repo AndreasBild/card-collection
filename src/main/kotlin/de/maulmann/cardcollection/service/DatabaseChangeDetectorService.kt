@@ -1,13 +1,16 @@
 package de.maulmann.cardcollection.service
 
+import de.maulmann.cardcollection.event.DatabaseChangedEvent
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.cache.CacheManager
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import java.time.Instant
 import java.util.concurrent.atomic.AtomicReference
 
 @Service
@@ -16,12 +19,14 @@ class DatabaseChangeDetectorService(
     private val jdbcTemplate: JdbcTemplate,
     private val cacheManager: CacheManager,
     private val cardExportService: CardExportService,
+    private val eventPublisher: ApplicationEventPublisher,
     @Value("\${export.db-sync.sync-on-startup:false}")
     private val syncOnStartup: Boolean = false
 ) {
 
     private val logger = LoggerFactory.getLogger(DatabaseChangeDetectorService::class.java)
     private val lastStateSignature = AtomicReference<String?>(null)
+    private val lastSyncTimestamp = AtomicReference<Instant?>(null)
 
     @PostConstruct
     fun init() {
@@ -32,6 +37,7 @@ class DatabaseChangeDetectorService(
 
             if (syncOnStartup) {
                 val syncedFile = cardExportService.syncCardsJsonToStaticSite()
+                lastSyncTimestamp.set(Instant.now())
                 logger.info("Initial sync on startup completed to {}", syncedFile.absolutePath)
             }
         } catch (e: Exception) {
@@ -47,14 +53,13 @@ class DatabaseChangeDetectorService(
 
             if (previousSignature != null && currentSignature != previousSignature) {
                 logger.info(
-                    "Detected external database change (signature: {} -> {}). Triggering cache eviction and static site sync...",
+                    "Detected external database change (signature: {} -> {}). Publishing DatabaseChangedEvent...",
                     previousSignature,
                     currentSignature
                 )
                 lastStateSignature.set(currentSignature)
-                evictAllCaches()
-                val syncedFile = cardExportService.syncCardsJsonToStaticSite()
-                logger.info("Auto-sync completed successfully to {}", syncedFile.absolutePath)
+                lastSyncTimestamp.set(Instant.now())
+                eventPublisher.publishEvent(DatabaseChangedEvent(previousSignature, currentSignature))
                 true
             } else {
                 if (previousSignature == null) {
@@ -103,5 +108,11 @@ class DatabaseChangeDetectorService(
 
     fun resetSignature(newSignature: String?) {
         lastStateSignature.set(newSignature)
+    }
+
+    fun getLastSyncTimestamp(): Instant? = lastSyncTimestamp.get()
+
+    fun setLastSyncTimestamp(timestamp: Instant?) {
+        lastSyncTimestamp.set(timestamp)
     }
 }
