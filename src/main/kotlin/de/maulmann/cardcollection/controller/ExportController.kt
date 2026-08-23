@@ -32,14 +32,16 @@ class ExportController(
 
     @GetMapping("/json/sync")
     @org.springframework.web.bind.annotation.PostMapping("/json/sync")
-    fun syncJsonToStaticSite(): org.springframework.http.ResponseEntity<Map<String, Any>> {
+    fun syncJsonToStaticSite(): org.springframework.http.ResponseEntity<de.maulmann.cardcollection.dto.SyncStatusResponse> {
+        val dtos = cardExportService.exportAllCardsToJsonDtos()
         val targetFile = cardExportService.syncCardsJsonToStaticSite()
         return org.springframework.http.ResponseEntity.ok(
-            mapOf(
-                "status" to "success",
-                "syncedFile" to targetFile.absolutePath,
-                "exists" to targetFile.exists(),
-                "fileSizeBytes" to targetFile.length()
+            de.maulmann.cardcollection.dto.SyncStatusResponse(
+                status = "success",
+                syncedFile = targetFile.absolutePath,
+                exists = targetFile.exists(),
+                fileSizeBytes = targetFile.length(),
+                cardCount = dtos.size
             )
         )
     }
