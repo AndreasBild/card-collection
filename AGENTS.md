@@ -60,7 +60,7 @@ You are an expert Principal Full-Stack & Database Systems Engineer specializing 
 
 ---
 
-## 3. The 6-Stage Workflow (IntelliJ IDEA & Jules)
+## 3. The 6-Stage Workflow (Antigravity, IntelliJ IDEA & Jules)
 
 All development tasks in this repository must strictly adhere to the following 6-stage lifecycle:
 
@@ -70,7 +70,7 @@ graph LR
     S2 --> S3[3. Work Isolation]
     S3 --> S4[4. TDD & Code]
     S4 --> S5[5. Quality Gate]
-    S5 --> S6[6. PR & Jules Gate]
+    S5 --> S6[6. Automated PR & Review]
 ```
 
 ### Stufe 1: Analyse & Kontext-Erfassung (Analysis & Context Gathering)
@@ -85,9 +85,10 @@ graph LR
 
 ### Stufe 3: Branching & Arbeitsisolation (Branching & Work Isolation)
 * **Protected Main Branch:** Direct commits to `main` are strictly forbidden.
-* Create a dedicated topic branch from `main`:
+* **Autonomous Branch Creation:** The AI Agent (Antigravity) must autonomously create and switch to a dedicated topic branch from updated `main` before modifying files:
   - `feature/<short-description>` for new features.
   - `fix/<short-description>` for bugfixes.
+  - `chore/<short-description>` for configuration, documentation, and dependencies.
   - `migration/<short-description>` for database schema updates.
 
 ### Stufe 4: Testgetriebene Implementierung (TDD & Implementation)
@@ -96,18 +97,17 @@ graph LR
 * Verify query counts to ensure N+1 regressions are prevented.
 
 ### Stufe 5: Quality Gate & Lokale Verifikation (Quality Gate & Verification)
-* Execute the complete test suite: `./mvnw clean test`.
+* Execute the complete test suite: `./mvnw clean test` (or `./mvnw clean verify`).
 * Run static analysis and linting (Qodana / Kotlin compiler checks).
 * Validate code against `.editorconfig` formatting rules.
 
-### Stufe 6: Pull Request & Jules Automated Review (PR & Jules Gate)
-* Open a Pull Request against `main` using `.github/pull_request_template.md`.
-* Ensure all checklist items are ticked:
-  - Protected branch rule respected.
-  - Flyway migration validated and non-destructive.
-  - `card-collectionJava` export contract verified.
-  - Virtual thread & memory safety confirmed.
-* Let Jules / CI run the automated verification pipeline before merging.
+### Stufe 6: Automatisierte PR-Erstellung & Review (Automated PR & Verification Gate)
+* **Autonomous Commit & Push:** Once the local quality gate passes, Antigravity commits changes with conventional commit messages and pushes the topic branch to `origin` (`git push -u origin <branch-name>`).
+* **Autonomous Pull Request Creation:** Antigravity opens the Pull Request against `main` using the structure in `.github/pull_request_template.md` (via CLI/API/push URL):
+  - Pre-fill the PR description with summary of changes, motivation, and type of change.
+  - Pre-tick all applicable checklist items (branch target, secret leaks check, Flyway integrity, DTO compatibility, local test pass).
+  - Document local verification evidence.
+* **Automated CI & Jules Review:** GitHub Actions (`ci.yml`) and Jules automated verification pipeline validate the PR before merging into `main`.
 
 ---
 
