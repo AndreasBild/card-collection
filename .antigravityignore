@@ -1,0 +1,39 @@
+# Build & Compilation Artifacts
+target/
+build/
+.gradle/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE & Editor Metadata
+.idea/
+.vscode/
+.junie/
+.qodana/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+**/.DS_Store
+
+# Temporary Export Dumps & Backups
+*.zip
+*.csv.tmp
+*.json.tmp
+server.log
+*.log
+
+# Database & Binary Dumps
+*.sql.dump
+*.dump
+*.bin
+
+# Secret & Environment Files
+.env
+.env.*
+*local*.properties
+*secret*.properties
+application-local.properties
+application-secrets.properties
