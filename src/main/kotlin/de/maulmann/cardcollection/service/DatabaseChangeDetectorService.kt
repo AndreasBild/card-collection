@@ -84,7 +84,7 @@ class DatabaseChangeDetectorService(
         val sql = """
             SELECT 
                 (SELECT COUNT(*) FROM card),
-                (SELECT COALESCE(SUM(id + serial_number + COALESCE(print_run, 0) + COALESCE(grading_id, 0) + COALESCE(season_id, 0) + COALESCE(manufacturer_id, 0) + COALESCE(brand_id, 0) + COALESCE(theme_id, 0) + COALESCE(variant_id, 0)), 0) FROM card),
+                (SELECT COALESCE(SUM(id + serial_number + COALESCE(print_run, 0) + COALESCE(grading_id, 0) + COALESCE(LENGTH(grading_cert_number), 0) + COALESCE(season_id, 0) + COALESCE(manufacturer_id, 0) + COALESCE(brand_id, 0) + COALESCE(theme_id, 0) + COALESCE(variant_id, 0)), 0) FROM card),
                 (SELECT COUNT(*) FROM card_player),
                 (SELECT COALESCE(SUM(card_id + player_id + COALESCE(team_id, 0)), 0) FROM card_player),
                 (SELECT COUNT(*) FROM player),

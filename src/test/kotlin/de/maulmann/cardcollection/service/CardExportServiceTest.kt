@@ -57,7 +57,8 @@ class CardExportServiceTest {
             rookieCard = true,
             gameUsedMaterial = true,
             autograph = true,
-            grading = grading
+            grading = grading,
+            gradingCertNumber = "83921049"
         )
 
         val cardPlayer = CardPlayer(
@@ -81,6 +82,7 @@ class CardExportServiceTest {
             gameUsedMaterial = true,
             autograph = true,
             grading = grading,
+            gradingCertNumber = "83921049",
             cardPlayers = mutableSetOf(cardPlayer)
         )
 
@@ -99,6 +101,8 @@ class CardExportServiceTest {
         assertEquals(100, dto.printRun)
         assertEquals("PSA", dto.gradingCompany)
         assertEquals("9", dto.grade)
+        assertEquals("83921049", dto.gradingCertNumber)
+        assertEquals("https://www.psacard.com/cert/83921049", dto.gradingUrl)
         assertTrue(dto.isAutograph)
         assertTrue(dto.isPatch)
         assertTrue(dto.isRookie)
@@ -163,6 +167,8 @@ class CardExportServiceTest {
         assertNull(dto.printRun)
         assertNull(dto.gradingCompany)
         assertNull(dto.grade)
+        assertNull(dto.gradingCertNumber)
+        assertNull(dto.gradingUrl)
         assertNull(dto.team)
         assertFalse(dto.isAutograph)
         assertFalse(dto.isPatch)
@@ -427,8 +433,8 @@ class CardExportServiceTest {
         cardExportService.writeCardsCsv(baos)
 
         val csvString = baos.toString("UTF-8")
-        assertTrue(csvString.startsWith("ID,Player,Season,Team,Company,Brand,Theme,Variant,Card Number,Serial Number,Print Run,Grading Company,Grade,Autograph,Patch,Rookie,Collection"))
-        assertTrue(csvString.contains("1994-95-collectors-choice-278,Juwan Howard,1994-95,,Upper Deck,Collectors Choice,Base Set,Base,278,,,,,No,No,Yes,Juwan Howard"))
+        assertTrue(csvString.startsWith("ID,Player,Season,Team,Company,Brand,Theme,Variant,Card Number,Serial Number,Print Run,Grading Company,Grade,Grading Cert Number,Autograph,Patch,Rookie,Collection"))
+        assertTrue(csvString.contains("1994-95-collectors-choice-278,Juwan Howard,1994-95,,Upper Deck,Collectors Choice,Base Set,Base,278,,,,,,No,No,Yes,Juwan Howard"))
     }
 }
 

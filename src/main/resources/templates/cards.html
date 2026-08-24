@@ -278,9 +278,20 @@
             <span th:unless="${card.autograph}">-</span>
         </td>
         <td>
-            <span th:if="${card.grading != null}"
-                  th:class="'badge-grading ' + ${card.grading.gradingCompany?.name() == 'PSA' ? 'badge-psa' : (card.grading.gradingCompany?.name() == 'BGS' ? 'badge-bgs' : 'badge-sgc')}"
-                  th:text="${card.grading.gradingCompany?.name()}"></span>
+            <div th:if="${card.grading != null}" style="display: inline-flex; align-items: center; gap: 4px;">
+                <span th:class="'badge-grading ' + ${card.grading.gradingCompany?.name() == 'PSA' ? 'badge-psa' : (card.grading.gradingCompany?.name() == 'BGS' ? 'badge-bgs' : (card.grading.gradingCompany?.name() == 'MBA' ? 'badge-mba' : 'badge-sgc'))}"
+                      th:text="${card.grading.gradingCompany?.name()}"></span>
+                <a th:if="${card.verificationUrl != null}"
+                   th:href="${card.verificationUrl}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="cert-link"
+                   th:title="'Verify Cert #' + ${card.gradingCertNumber}"
+                   th:text="'#' + ${card.gradingCertNumber}"></a>
+                <span th:if="${card.verificationUrl == null && card.gradingCertNumber != null}"
+                      class="cert-pill"
+                      th:text="'#' + ${card.gradingCertNumber}"></span>
+            </div>
             <span th:if="${card.grading == null}">-</span>
         </td>
         <td>

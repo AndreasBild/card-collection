@@ -55,6 +55,8 @@ class CardExportService(
                 gradeVal.toString()
             }
         }
+        val gradingCertNumStr = card.gradingCertNumber?.trim()?.ifBlank { null }
+        val gradingUrlStr = card.verificationUrl
 
         val collectionStr = playerStr ?: card.sportNames.ifBlank { null } ?: "Juwan Howard"
         val slugId = generateUniqueSlug(card, existingSlugs)
@@ -73,6 +75,8 @@ class CardExportService(
             printRun = printRunVal,
             gradingCompany = gradingCompStr,
             grade = gradeStr,
+            gradingCertNumber = gradingCertNumStr,
+            gradingUrl = gradingUrlStr,
             isAutograph = card.autograph,
             isPatch = card.gameUsedMaterial,
             isRookie = card.rookieCard,
@@ -120,7 +124,7 @@ class CardExportService(
     fun writeCardsCsv(outputStream: OutputStream) {
         val dtos = exportAllCardsToJsonDtos()
         outputStream.writer(Charsets.UTF_8).use { writer ->
-            writer.write("ID,Player,Season,Team,Company,Brand,Theme,Variant,Card Number,Serial Number,Print Run,Grading Company,Grade,Autograph,Patch,Rookie,Collection\r\n")
+            writer.write("ID,Player,Season,Team,Company,Brand,Theme,Variant,Card Number,Serial Number,Print Run,Grading Company,Grade,Grading Cert Number,Autograph,Patch,Rookie,Collection\r\n")
             for (dto in dtos) {
                 val row = listOf(
                     dto.id,
@@ -136,6 +140,7 @@ class CardExportService(
                     dto.printRun?.toString() ?: "",
                     dto.gradingCompany ?: "",
                     dto.grade ?: "",
+                    dto.gradingCertNumber ?: "",
                     if (dto.isAutograph) "Yes" else "No",
                     if (dto.isPatch) "Yes" else "No",
                     if (dto.isRookie) "Yes" else "No",
