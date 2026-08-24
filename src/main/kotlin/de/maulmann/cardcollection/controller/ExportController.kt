@@ -119,10 +119,20 @@ class ExportController(
                 val badgeClass = when (company) {
                     "PSA" -> "badge-psa"
                     "BGS" -> "badge-bgs"
+                    "MBA" -> "badge-mba"
                     "SGC" -> "badge-sgc"
                     else -> ""
                 }
-                "<span class=\"badge-grading $badgeClass\">${HtmlUtils.htmlEscape(it.displayGrade)}</span>"
+                val certHtml = if (!card.gradingCertNumber.isNullOrBlank()) {
+                    val certEscaped = HtmlUtils.htmlEscape(card.gradingCertNumber!!.trim())
+                    val url = card.verificationUrl
+                    if (url != null) {
+                        """ <a href="${HtmlUtils.htmlEscape(url)}" target="_blank" rel="noopener noreferrer" class="cert-link" title="Verify #${certEscaped}">#$certEscaped</a>"""
+                    } else {
+                        """ <span class="cert-pill">#$certEscaped</span>"""
+                    }
+                } else ""
+                "<span class=\"badge-grading $badgeClass\">${HtmlUtils.htmlEscape(it.displayGrade)}</span>$certHtml"
             } ?: ""
 
             """
@@ -241,10 +251,32 @@ class ExportController(
                     color: #7dd3fc;
                     border-color: rgba(14, 165, 233, 0.4);
                 }
+                .badge-mba {
+                    background-color: rgba(168, 85, 247, 0.2);
+                    color: #d8b4fe;
+                    border-color: rgba(168, 85, 247, 0.4);
+                }
                 .badge-sgc {
                     background-color: rgba(148, 163, 184, 0.2);
                     color: #f1f5f9;
                     border-color: rgba(148, 163, 184, 0.4);
+                }
+                .cert-link {
+                    font-size: 0.75rem;
+                    color: #60a5fa;
+                    text-decoration: none;
+                    margin-left: 4px;
+                    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                }
+                .cert-link:hover {
+                    text-decoration: underline;
+                    color: #93c5fd;
+                }
+                .cert-pill {
+                    font-size: 0.75rem;
+                    color: #94a3b8;
+                    margin-left: 4px;
+                    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
                 }
             </style>
         </head>

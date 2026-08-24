@@ -12,6 +12,8 @@ class Card(
     @JoinColumn(name = "grading_id", nullable = true)
     var grading: Grading? = null,
 
+    var gradingCertNumber: String? = null,
+
     var printRun: Int? = null,
     var serialNumber: Int,
 
@@ -67,4 +69,15 @@ class Card(
 
     val teamNames: String
         get() = sortedCardPlayers.mapNotNull { it.team?.name }.distinct().joinToString(", ")
+
+    val verificationUrl: String?
+        get() {
+            val cert = gradingCertNumber?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+            return when (grading?.gradingCompany) {
+                GradingCompany.PSA -> "https://www.psacard.com/cert/$cert"
+                GradingCompany.BGS -> "https://www.beckett.com/grading/card-lookup?item_type=BGS&item_id=$cert"
+                GradingCompany.MBA -> "https://www.mbagrading.com/cert/$cert"
+                null -> null
+            }
+        }
 }

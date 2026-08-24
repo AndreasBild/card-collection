@@ -18,6 +18,8 @@ data class CardJsonDto(
     val printRun: Int?,
     val gradingCompany: String?,
     val grade: String?,
+    val gradingCertNumber: String? = null,
+    val gradingUrl: String? = null,
     @get:JsonProperty("isAutograph")
     val isAutograph: Boolean,
     @get:JsonProperty("isPatch")
