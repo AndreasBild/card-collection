@@ -177,33 +177,43 @@ class GradingScanDownloadService(
     }
 
     private fun resolvePsaScanUrls(certNumber: String): Pair<String?, String?> {
-        // Direct PSA CDN high-res scan pattern
-        val directFrontCdn = "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/front.jpg"
-        val directBackCdn = "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/back.jpg"
+        val frontCandidates = listOf(
+            "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/front-original.jpg",
+            "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/front-large.jpg",
+            "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/front.jpg",
+            "https://cert.psacard.com/$certNumber/front-large.jpg",
+            "https://cert.psacard.com/$certNumber/front.jpg"
+        )
 
-        if (checkUrlExists(directFrontCdn)) {
-            val backUrl = if (checkUrlExists(directBackCdn)) directBackCdn else null
-            return Pair(directFrontCdn, backUrl)
+        val backCandidates = listOf(
+            "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/back-original.jpg",
+            "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/back-large.jpg",
+            "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/back.jpg",
+            "https://cert.psacard.com/$certNumber/back-large.jpg",
+            "https://cert.psacard.com/$certNumber/back.jpg"
+        )
+
+        var frontUrl = frontCandidates.firstOrNull { checkUrlExists(it) }
+        var backUrl = backCandidates.firstOrNull { checkUrlExists(it) }
+
+        if (frontUrl == null || backUrl == null) {
+            // Fallback: parse PSA cert webpage for dynamic images, zoom URLs, or lightboxes
+            val certPageUrl = "https://www.psacard.com/cert/$certNumber"
+            val html = fetchPageHtml(certPageUrl)
+            if (html != null) {
+                val imageUrls = extractImageUrls(html).filter { url ->
+                    url.contains(certNumber, ignoreCase = true) || url.contains("cert", ignoreCase = true) || url.contains("cloudfront", ignoreCase = true)
+                }
+
+                if (frontUrl == null) {
+                    frontUrl = imageUrls.firstOrNull { it.contains("front", ignoreCase = true) } ?: imageUrls.firstOrNull()
+                }
+                if (backUrl == null) {
+                    backUrl = imageUrls.firstOrNull { it.contains("back", ignoreCase = true) && it != frontUrl }
+                }
+            }
         }
 
-        // Secondary CDN pattern
-        val certPsaFront = "https://cert.psacard.com/$certNumber/front.jpg"
-        val certPsaBack = "https://cert.psacard.com/$certNumber/back.jpg"
-        if (checkUrlExists(certPsaFront)) {
-            val backUrl = if (checkUrlExists(certPsaBack)) certPsaBack else null
-            return Pair(certPsaFront, backUrl)
-        }
-
-        // Fallback: parse PSA cert page
-        val certPageUrl = "https://www.psacard.com/cert/$certNumber"
-        val html = fetchPageHtml(certPageUrl) ?: return Pair(null, null)
-
-        val imageUrls = extractImageUrls(html).filter { url ->
-            url.contains(certNumber, ignoreCase = true) || url.contains("cert", ignoreCase = true)
-        }
-
-        val frontUrl = imageUrls.firstOrNull { it.contains("front", ignoreCase = true) } ?: imageUrls.firstOrNull()
-        val backUrl = imageUrls.firstOrNull { it.contains("back", ignoreCase = true) && it != frontUrl }
         return Pair(frontUrl, backUrl)
     }
 
