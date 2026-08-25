@@ -1,12 +1,15 @@
 package de.maulmann.cardcollection.controller
 
+import de.maulmann.cardcollection.dto.SyncStatusResponse
 import de.maulmann.cardcollection.model.Card
 import de.maulmann.cardcollection.repository.CardRepository
 import de.maulmann.cardcollection.repository.SeasonRepository
 import de.maulmann.cardcollection.service.CardExportService
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.util.HtmlUtils
 import java.io.OutputStreamWriter
@@ -30,13 +33,12 @@ class ExportController(
         cardExportService.writeCardsJson(response.outputStream)
     }
 
-    @GetMapping("/json/sync")
-    @org.springframework.web.bind.annotation.PostMapping("/json/sync")
-    fun syncJsonToStaticSite(): org.springframework.http.ResponseEntity<de.maulmann.cardcollection.dto.SyncStatusResponse> {
+    @RequestMapping(value = ["/json/sync"], method = [RequestMethod.GET, RequestMethod.POST])
+    fun syncJsonToStaticSite(): ResponseEntity<SyncStatusResponse> {
         val dtos = cardExportService.exportAllCardsToJsonDtos()
         val targetFile = cardExportService.syncCardsJsonToStaticSite()
-        return org.springframework.http.ResponseEntity.ok(
-            de.maulmann.cardcollection.dto.SyncStatusResponse(
+        return ResponseEntity.ok(
+            SyncStatusResponse(
                 status = "success",
                 syncedFile = targetFile.absolutePath,
                 exists = targetFile.exists(),

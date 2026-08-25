@@ -90,7 +90,7 @@ class DatabaseChangeDetectorService(
                 (SELECT COUNT(*) FROM player),
                 (SELECT COALESCE(SUM(id + sport_id), 0) FROM player),
                 (SELECT COUNT(*) FROM grading),
-                (SELECT COALESCE(SUM(id + CAST(grade * 10 AS INT)), 0) FROM grading),
+                (SELECT COALESCE(SUM(id + CAST(grade * 10 AS SIGNED)), 0) FROM grading),
                 (SELECT COUNT(*) FROM team),
                 (SELECT COUNT(*) FROM season),
                 (SELECT COUNT(*) FROM card_brand),
