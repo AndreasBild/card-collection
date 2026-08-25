@@ -6,9 +6,16 @@ import org.springframework.scheduling.annotation.EnableScheduling
 
 @SpringBootApplication
 @EnableScheduling
-class CardCollectionApplication
+class CardCollectionApplication {
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            runApplication<CardCollectionApplication>(*args)
+        }
+    }
+}
 
 fun main(args: Array<String>) {
-	runApplication<CardCollectionApplication>(*args)
+    runApplication<CardCollectionApplication>(*args)
 }
 
