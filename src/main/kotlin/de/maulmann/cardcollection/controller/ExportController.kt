@@ -1,15 +1,18 @@
 package de.maulmann.cardcollection.controller
 
+import de.maulmann.cardcollection.dto.GradingScanDownloadSummary
 import de.maulmann.cardcollection.dto.SyncStatusResponse
 import de.maulmann.cardcollection.model.Card
 import de.maulmann.cardcollection.repository.CardRepository
 import de.maulmann.cardcollection.repository.SeasonRepository
 import de.maulmann.cardcollection.service.CardExportService
+import de.maulmann.cardcollection.service.GradingScanDownloadService
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.util.HtmlUtils
 import java.io.OutputStreamWriter
@@ -23,8 +26,17 @@ import java.util.zip.ZipOutputStream
 class ExportController(
     private val seasonRepository: SeasonRepository,
     private val cardRepository: CardRepository,
-    private val cardExportService: CardExportService
+    private val cardExportService: CardExportService,
+    private val gradingScanDownloadService: GradingScanDownloadService
 ) {
+
+    @RequestMapping(value = ["/grading-scans/download"], method = [RequestMethod.GET, RequestMethod.POST])
+    fun downloadGradingScans(
+        @RequestParam(defaultValue = "false") overwrite: Boolean
+    ): ResponseEntity<GradingScanDownloadSummary> {
+        val summary = gradingScanDownloadService.downloadAllGradingScans(overwrite)
+        return ResponseEntity.ok(summary)
+    }
 
     @GetMapping("/json")
     fun exportJson(response: HttpServletResponse) {
