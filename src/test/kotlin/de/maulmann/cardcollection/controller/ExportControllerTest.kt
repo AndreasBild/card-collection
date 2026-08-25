@@ -1,9 +1,11 @@
 package de.maulmann.cardcollection.controller
 
+import de.maulmann.cardcollection.dto.GradingScanDownloadSummary
 import de.maulmann.cardcollection.model.*
 import de.maulmann.cardcollection.repository.CardRepository
 import de.maulmann.cardcollection.repository.SeasonRepository
 import de.maulmann.cardcollection.service.CardExportService
+import de.maulmann.cardcollection.service.GradingScanDownloadService
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
@@ -27,6 +29,9 @@ class ExportControllerTest {
 
     @Mock
     private lateinit var cardExportService: CardExportService
+
+    @Mock
+    private lateinit var gradingScanDownloadService: GradingScanDownloadService
 
     @InjectMocks
     private lateinit var exportController: ExportController
@@ -54,6 +59,25 @@ class ExportControllerTest {
         assertEquals("success", response.body?.status)
         assertEquals(dummyFile.absolutePath, response.body?.syncedFile)
         assertEquals(0, response.body?.cardCount)
+    }
+
+    @Test
+    fun `test downloadGradingScans invokes GradingScanDownloadService and returns summary`() {
+        val dummySummary = GradingScanDownloadSummary(
+            totalGradedCards = 2,
+            successfulDownloads = 2,
+            alreadyPresent = 0,
+            notAvailableOrFailed = 0,
+            outputDirectory = "gradingImages",
+            cardResults = emptyList()
+        )
+        `when`(gradingScanDownloadService.downloadAllGradingScans(false)).thenReturn(dummySummary)
+
+        val response = exportController.downloadGradingScans(overwrite = false)
+
+        assertEquals(org.springframework.http.HttpStatus.OK, response.statusCode)
+        assertEquals(2, response.body?.totalGradedCards)
+        assertEquals(2, response.body?.successfulDownloads)
     }
 
     @Test

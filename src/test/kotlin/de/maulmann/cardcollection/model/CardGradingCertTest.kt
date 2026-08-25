@@ -75,7 +75,7 @@ class CardGradingCertTest {
             gradingCertNumber = "MBA-99882"
         )
 
-        assertEquals("https://www.mbagrading.com/cert/MBA-99882", card.verificationUrl)
+        assertEquals("https://checkcoa.com/mba-grading-certificate-lookup/", card.verificationUrl)
     }
 
     @Test

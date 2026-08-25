@@ -76,7 +76,7 @@ class Card(
             return when (grading?.gradingCompany) {
                 GradingCompany.PSA -> "https://www.psacard.com/cert/$cert"
                 GradingCompany.BGS -> "https://www.beckett.com/grading/card-lookup?item_type=BGS&item_id=$cert"
-                GradingCompany.MBA -> "https://www.mbagrading.com/cert/$cert"
+                GradingCompany.MBA -> "https://checkcoa.com/mba-grading-certificate-lookup/"
                 null -> null
             }
         }
