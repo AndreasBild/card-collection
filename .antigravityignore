@@ -22,6 +22,8 @@ build/
 *.zip
 *.csv.tmp
 *.json.tmp
+cards.json
+content/
 server.log
 *.log
 
