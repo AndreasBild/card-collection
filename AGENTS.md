@@ -91,15 +91,21 @@ graph LR
   - `chore/<short-description>` for configuration, documentation, and dependencies.
   - `migration/<short-description>` for database schema updates.
 
-### Stufe 4: Testgetriebene Implementierung (TDD & Implementation)
+### Stufe 4: Testgetriebene Implementierung (Fast Inner Loop)
+* **Fast Inner Feedback Loop:** During active development and TDD iterations, iterate rapidly without executing full regression suites:
+  - Verify compilation and types with `./mvnw test-compile`.
+  - Execute targeted single-class tests with `./mvnw test -Dtest=TargetClassTest`.
 * Implement unit and integration tests first or in lockstep (`kotlin-test-junit5`, `mockito-kotlin`, Spring Data JPA test slices).
 * Write complete, functional Kotlin code. Placeholders like `// implementation goes here` are strictly forbidden.
 * Verify query counts to ensure N+1 regressions are prevented.
 
-### Stufe 5: Quality Gate & Lokale Verifikation (Quality Gate & Verification)
-* Execute the complete test suite: `./mvnw clean test` (or `./mvnw clean verify`).
-* Run static analysis and linting (Qodana / Kotlin compiler checks).
-* Validate code against `.editorconfig` formatting rules.
+### Stufe 5: Quality Gate & Lokale Verifikation (Comprehensive Outer Gate)
+Execute full local verification only after the inner loop passes and task logic is finalized:
+1. **Compilation & Inspections:** `./mvnw clean test-compile` (verifies Kotlin 2.x, Java 26 preview features, and compiler warnings).
+2. **Code Formatting & Standards:** Validate code against `.editorconfig` formatting rules and Qodana / Kotlin compiler checks.
+3. **Full Test Suite:** Execute the complete test suite: `./mvnw clean test` (or `./mvnw clean verify`).
+4. **Schema & Migration Verification:** If migrations were added, verify script immutability and synchronize `src/main/resources/sql/dump/Dump.sql`.
+5. **DTO & Export Contract Verification:** Ensure `CardJsonDto` backward compatibility with downstream `card-collectionJava`.
 
 ### Stufe 6: Automatisierte PR-Erstellung & Review (Automated PR & Verification Gate)
 * **Autonomous Commit & Push:** Once the local quality gate passes, Antigravity commits changes with conventional commit messages and pushes the topic branch to `origin` (`git push -u origin <branch-name>`).
@@ -111,11 +117,46 @@ graph LR
 
 ---
 
-## 4. Execution, Security & Token Optimization
+## 4. Agent Execution, Token Economics & Tool Usage
 
+### 4.1 Token Economics & Context Boundary Discipline
+* **Massive File Invariant:** Never load large raw datasets, SQL dumps, or generated files (`src/main/resources/sql/dump/Dump.sql` [173 KB], downstream `cards.json` [770 KB], or generated HTML archives) into prompt context in full.
+* **Targeted Lookups:** Use `grep_search` or slice reads with bounded `StartLine` and `EndLine` (≤ 100 lines). Inspect Kotlin data classes and entities (`Card`, `Player`, `CardJsonDto`) rather than raw SQL dumps or JSON payloads.
+* **Surgical Diff Edits:** Use narrow replacement blocks (`replace_file_content` / `multi_replace_file_content`). Never rewrite entire large Kotlin classes unmodified.
+* **High-Signal Output:** Eliminate conversational filler. Provide concise, actionable summaries with direct clickable `file://` links.
+
+### 4.2 Dual-Loop Execution Protocol
+* **Inner Development Loop:** Use `./mvnw test-compile` and targeted tests (`./mvnw test -Dtest=TargetTest`) during active implementation to prevent log noise and conserve runner tokens.
+* **Outer Quality Gate:** Reserve full test execution (`./mvnw clean test`) and complete schema/DTO verification for Stage 5 pre-commit verification.
+* **Cache & Signature Preservation:** Respect Caffeine cache TTLs and `DatabaseChangeDetectorService` signature metrics. Never disable caching mechanisms arbitrarily.
+
+### 4.3 Dynamic Model Tier Recommendation Protocol
+When creating implementation plans or analyzing tasks, the agent dynamically recommends the optimal model tier:
+* **Tier 1: Fast / Medium (Cost-Efficient)** (e.g., latest Flash / Medium available in IDE):
+  * *Applicability:* Spring Data JPA repository & service minor enhancements, single-class JUnit tests (`./mvnw test -Dtest=TargetTest`), Flyway migration DDL creation (`V...__...sql`), DTO mapping and Jackson serialization (`CardJsonDto`), controller endpoints, Thymeleaf views, static assets, routine bugfixes, dependency bumps, agent governance rules.
+  * *Benefit:* Ultra-fast turnaround, minimal latency, maximum token efficiency.
+* **Tier 2: Deep Reasoning / Pro (High-Capability)** (e.g., latest Pro / Thinking available in IDE):
+  * *Applicability:* Dynamic JPA `Specification<Card>` multi-join query optimization, count query syntax error prevention, multi-system 3NF database schema refactoring and constraint topology, Java 26 Virtual Thread batch export coordination & streaming ZIPs, multi-tier Caffeine cache synchronization, downstream SSOT export schema contract negotiations (`card-collectionJava`).
+  * *Benefit:* Deep multi-step reasoning, exhaustive edge-case resolution, and structural schema validation.
+* **Plan Standard:** Every `implementation_plan.md` includes a `## 🎯 Recommended Execution Model` block declaring the tier and rationale.
+
+### 4.4 Working Tree Hygiene & Dataset Protection
+* **Preserve User Modifications & Local Configs:** The workspace owner may have local overrides in `application-local.properties`, unstaged baseline syncs, or independent database exports.
+* **Never Stage Unrelated Files:** Antigravity must never run `git add .` or stage unrelated modified data files. Only stage the files directly touched by the specific task.
+
+### 4.5 Security & Concurrency Invariants
 * **OWASP Top 10 Security:**
   - Never concatenate SQL queries; always use parameterized JPA queries or Criteria/Specification APIs.
-  - Sanitize all exported outputs to prevent CSV/HTML injection.
+  - Sanitize all exported outputs to prevent CSV/HTML injection (`HtmlUtils.htmlEscape()`, RFC 4180 escaping).
   - Never commit credentials or secrets (enforced via `.gitignore`).
-* **Virtual Threads & Non-blocking I/O:** Leverage Java 26 virtual threads for concurrent export processing.
-* **Token Efficiency:** Keep reasoning concise, eliminate conversational fluff, and use targeted diffs.
+* **Virtual Threads & Non-blocking I/O:** Leverage Java 26 virtual threads (`Executors.newVirtualThreadPerTaskExecutor()`) for concurrent export processing.
+
+### 4.6 Workspace Skills & Customizations
+Use dedicated project skills located in `.agents/skills/`:
+* `run-test-suite`: Run full Maven test suite or targeted test slices.
+* `verify-export-contract`: Validate `CardJsonDto` serialization, slug generation, and `cards.json` compatibility.
+* `verify-nplus1-queries`: Validate JPA queries, Specifications, fetch joins, and batch sizing.
+* `verify-schema-and-migrations`: Validate Flyway migration scripts, database dump consistency, and 3NF schema.
+
+### 4.7 Mandatory Automated PR Creation
+At the conclusion of every completed task, Antigravity must automatically stage changes, commit with a semantic message, push to remote, and open/update the PR without requiring additional user prompting.

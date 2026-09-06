@@ -328,6 +328,7 @@ This ensures maximum CPU/IO utilization while streaming the resulting ZIP archiv
 
 ## 6. Security & Operational Governance
 
+### 6.1 Security Invariants & Defensive Controls
 * **SQL Injection Immunity:** All dynamic queries use Spring Data `JpaSpecificationExecutor` and CriteriaBuilder. No string concatenation for queries.
 * **Count-Safe JPA Specification:** Fetch specifications check `query.resultType` before attaching entity joins to preserve compatibility with pagination count queries.
 * **Rate Limiting:** `ExportRateLimiter` enforces a dual-protection mechanism:
@@ -340,3 +341,30 @@ This ensures maximum CPU/IO utilization while streaming the resulting ZIP archiv
   - `Referrer-Policy: strict-origin-when-cross-origin`
   - `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()`
   - `Strict-Transport-Security: max-age=31536000; includeSubDomains`
+
+### 6.2 Agent Governance, Token Economics & Jules Operational Rules
+Repository workflows are governed by automated protocols ensuring token efficiency and deterministic execution:
+* **Token Economics & Context Boundaries:** Codified in [`.agents/rules/token-and-execution-efficiency.md`](file:///Users/andreasbild/IdeaProjects/card-collection/.agents/rules/token-and-execution-efficiency.md) and [`AGENTS.md`](file:///Users/andreasbild/IdeaProjects/card-collection/AGENTS.md). Large dataset dumps (`src/main/resources/sql/dump/Dump.sql` [173 KB] and downstream `cards.json` [770 KB]) are never ingested in full; agents utilize bounded line slices and targeted AST/class inspection.
+* **Dynamic Model Tier Recommendation Protocol:** Every implementation plan declares a recommended tier (**Tier 1 Fast/Medium** for routine services, tests, DTO mappings; **Tier 2 Deep Reasoning/Pro** for complex multi-join queries, virtual thread concurrency, and 3NF schema refactoring).
+* **Jules Operational Directives:** [`.jules/instructions.md`](file:///Users/andreasbild/IdeaProjects/card-collection/.jules/instructions.md) enforces JDK 26 immutability, scoped PR diff inspection, and test isolation.
+
+### 6.3 Dual-Loop Execution Strategy & Developer Shortcuts
+Iteration is separated into two distinct loops:
+```bash
+# === Fast Inner Loop (Active Development & TDD) ===
+# 1. Incremental syntax and type compilation
+./mvnw test-compile
+
+# 2. Targeted test execution (sub-second feedback)
+./mvnw test -Dtest=TargetClassTest
+
+# 3. Export contract and slug generation validation
+./mvnw test -Dtest=*Export*Test,*Slug*Test
+
+# 4. JPA query and N+1 prevention verification
+./mvnw test -Dtest=CardRepositoryTest,CardSpecificationTest
+
+# === Comprehensive Outer Gate (Pre-Commit & CI) ===
+# Run full JUnit 5 suite across all test slices
+./mvnw clean test
+```
