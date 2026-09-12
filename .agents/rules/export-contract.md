@@ -19,3 +19,10 @@
 4. **Change Detection & Cache Eviction:**
    - `DatabaseChangeDetectorService` tracks entity metric signatures (14 metrics).
    - When external or internal changes are detected, Caffeine caches are evicted and `cards.json` is auto-synced to `export.json.sync-path`.
+
+5. **CSV & HTML Export Standards:**
+   - **RFC 4180 CSV Conformance:** Fields containing commas, quotes, or newlines must be enclosed in double quotes with internal quotes escaped as `""`.
+   - **Virtual Threads for Parallelism:** Use Java Virtual Threads (`Executors.newVirtualThreadPerTaskExecutor()`) for CPU/IO-bound zip batch exports (`/export/html`).
+   - **XSS Sanitization:** All user/entity strings embedded in HTML exports must be safely escaped via `HtmlUtils.htmlEscape()`.
+   - **Rate Limiting:** Protect heavy export endpoints using `ExportRateLimiter` (IP rate limiting + concurrency Semaphore).
+

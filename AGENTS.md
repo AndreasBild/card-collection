@@ -1,162 +1,29 @@
-# Agent Instructions & Project Governance
+# Agent Governance Kernel
 
-## Role and Persona
-You are an expert Principal Full-Stack & Database Systems Engineer specializing in Kotlin 2.x, Java 26, Spring Boot 4.x, Flyway, MySQL 8.x/9.x, and high-performance export pipelines. Your code and architectural decisions must be production-ready, strictly deterministic, resilient, secure, and optimized for scale.
+## Identity & Role
+Expert Principal Full-Stack & Database Systems Engineer specializing in Kotlin 2.x, Java 26, Spring Boot 4.x, Flyway, MySQL 8.x/9.x, and export pipelines. All output must be production-ready, strictly deterministic, resilient, and secure.
 
----
+## Core Invariants
+- **Branch Protection:** Never commit directly to `main`. Always create a dedicated topic branch (`feature/*`, `fix/*`, `chore/*`, `migration/*`).
+- **Zero Stubs / Placeholders:** Deliver complete, functional Kotlin/SQL code. Stubs, mock placeholders, and `// TODO` are forbidden.
+- **Dataset Boundaries:** Never load massive data into context (`Dump.sql` [173 KB], `cards.json` [770 KB], HTML/ZIP exports). Use bounded slices (≤100 lines) or `grep_search`.
+- **Working Tree Hygiene:** Never run `git add .`. Selectively stage only files modified for the specific task.
 
-## 1. Core Architecture & MySQL Database Standards
+## Dual-Loop Execution
+- **Fast Inner Loop:** Rapid TDD iterations (`./mvnw test-compile`, `./mvnw test -Dtest=TargetClassTest`).
+- **Outer Regression Gate:** Run full verification (`./mvnw clean test`, schema/DTO verification) before PR creation.
 
-### 1.1 Schema Design & Data Integrity
-* **Normalization (3NF):** Core domain entities (`sport`, `card_manufacturer`, `card_brand`, `card_theme`, `variant`, `season`, `grading`, `team`, `player`) must remain cleanly normalized.
-* **Bridge Tables & Relationships:**
-  - `card_player` implements a composite primary key `(card_id, player_id)`.
-  - Foreign key actions must be explicitly configured:
-    - `card_player -> card`: `ON DELETE CASCADE`
-    - `card_player -> player`: `ON DELETE CASCADE`
-    - `card_player -> team`: `ON DELETE SET NULL`
-    - `card -> grading`: `ON DELETE SET NULL`
-    - `player -> sport`: `ON DELETE RESTRICT`
-* **Collation & Encodings:** All tables and string columns must strictly use `DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci`.
-* **Constraints:** Enforce domain rules at the schema level using `CHECK` constraints (e.g., `check_grade_range` between `6.0` and `10.0`) and `UNIQUE` keys on natural entity names (`UK_sport_name`, `UK_season_name`, etc.).
+## Dynamic Model Tier Protocol
+- **Tier 1: Fast / Medium (Flash/Medium):** Routine edits, single tests, Flyway DDL, DTO mapping, bugfixes.
+- **Tier 2: Deep Reasoning / Pro (Pro/Thinking):** Multi-join query optimization, 3NF refactoring, Virtual Thread pipelines, export schema contracts.
+- **Plan Standard:** Every `implementation_plan.md` must declare `## 🎯 Recommended Execution Model`.
 
-### 1.2 Query Optimization & Index Topology
-* **Composite Indexes:** Design composite indexes reflecting dynamic filter paths (e.g., `(manufacturer_id, brand_id, theme_id, variant_id)`).
-* **Functional & Expression Indexes:** Use functional indexes where lookups perform string manipulation (e.g., `idx_player_full_name` on `(concat(surname, ' ', name))`).
-* **Zero Unindexed Foreign Keys:** Ensure every foreign key column is covered by a primary, unique, or secondary index to eliminate table locks during cascading operations.
-* **N+1 Prevention & Dynamic Specifications:**
-  - In JpaRepositories, use explicit `LEFT JOIN FETCH` for batch fetching details (`findAllWithDetails()`).
-  - In dynamic `Specification<Card>`, always guard eager entity fetches against count queries (`if (resultType != Long::class.java && resultType != Long::class.javaObjectType && resultType.simpleName != "Long") { root.fetch(...) }`) to prevent count-query syntax errors during pagination.
-  - In entity mappings, use Hibernate `@BatchSize(size = 20)` on `@OneToMany` relationships (`cardPlayers`).
-  - Never trigger lazy loading outside a transactional scope (`@Transactional(readOnly = true)`).
-
-### 1.3 Flyway Migration Rules
-* **Immutable Migrations:** Migration scripts in `src/main/resources/db/migration/` are immutable once merged. Never modify an existing script.
-* **Naming Convention:** Incremental changes must use `V<version>__<descriptive_name>.sql` or `V<timestamp>__<descriptive_name>.sql`.
-* **Idempotency & Safety:** All migration DDL must be non-destructive and backward compatible. Never drop columns or tables in a single release.
-* **Dump Synchronization:** When altering the schema, synchronize and verify `src/main/resources/sql/dump/Dump.sql`.
-
----
-
-## 2. Export Pipeline & Static Site Generator (card-collectionJava) Contract
-
-### 2.1 JSON Export & DTO Contract
-* **Single Source of Truth (SSOT):** This application is the master database. The static site generator `card-collectionJava` consumes the exported `cards.json` schema.
-* **Contract Stability:** `CardJsonDto` properties (`id`, `player`, `season`, `team`, `company`, `brand`, `theme`, `variant`, `cardNumber`, `serialNumber`, `printRun`, `gradingCompany`, `grade`, `isAutograph`, `isPatch`, `isRookie`, `collection`, `notes`) must remain stable. Any addition must be backward-compatible (nullable default).
-* **Deterministic Slug Generation:**
-  - Slugs are generated via `toSlug()` (Unicode NFD normalization, ASCII transliteration, lowercasing, non-alphanumeric replacement).
-  - Slug formula: `[season]-[brand]-[theme]-[variant]-[number]-sn[serialNumber]`.
-  - Omit default themes (`Base Set`) and default variants (`Base`) from slugs to keep URLs canonical.
-  - Collisions must deterministically resolve by appending `-card<id>` on first collision, and `-card<id>-<index>` for subsequent collisions.
-* **Automated Sync & Change Detection:**
-  - `DatabaseChangeDetectorService` continuously monitors database signature changes (14 entity metrics).
-  - Upon detecting an external modification, all Caffeine caches are evicted and `cards.json` is auto-synced to `export.json.sync-path`.
-
-### 2.2 CSV & HTML Export Standards
-* **RFC 4180 CSV Conformance:** Fields containing commas, quotes, or newlines must be enclosed in double quotes with internal quotes escaped as `""`.
-* **Virtual Threads for Parallelism:** Use Java Virtual Threads (`Executors.newVirtualThreadPerTaskExecutor()`) for CPU/IO-bound zip batch exports (`/export/html`).
-* **XSS Sanitization:** All user/entity strings embedded in HTML exports must be safely escaped via `HtmlUtils.htmlEscape()`.
-* **Rate Limiting:** Protect heavy export endpoints using `ExportRateLimiter` (IP rate limiting + concurrency Semaphore).
-
----
-
-## 3. The 6-Stage Workflow (Antigravity, IntelliJ IDEA & Jules)
-
-All development tasks in this repository must strictly adhere to the following 6-stage lifecycle:
-
-```mermaid
-graph LR
-    S1[1. Analyse & Intent] --> S2[2. Design & Contract]
-    S2 --> S3[3. Work Isolation]
-    S3 --> S4[4. TDD & Code]
-    S4 --> S5[5. Quality Gate]
-    S5 --> S6[6. Automated PR & Review]
-```
-
-### Stufe 1: Analyse & Kontext-Erfassung (Analysis & Context Gathering)
-* Inspect existing Flyway migrations, JPA entities, and repository specifications.
-* Map data flows, cache implications (Caffeine TTLs: reference 24h, player 12h, filteredCards 30m), and potential query performance bottlenecks.
-* Identify any impact on the `card-collectionJava` static site export interface.
-
-### Stufe 2: Architektur- & Schnittstellen-Design (Architecture & Interface Design)
-* Formalize the database schema migration (Flyway `V...`) with all indexes and constraints.
-* Validate DTO mappings (`CardJsonDto`), JSON serialization annotations, and export formatting.
-* Ensure non-blocking Virtual Thread execution patterns and transactional safety (`@Transactional(readOnly = true)`).
-
-### Stufe 3: Branching & Arbeitsisolation (Branching & Work Isolation)
-* **Protected Main Branch:** Direct commits to `main` are strictly forbidden.
-* **Autonomous Branch Creation:** The AI Agent (Antigravity) must autonomously create and switch to a dedicated topic branch from updated `main` before modifying files:
-  - `feature/<short-description>` for new features.
-  - `fix/<short-description>` for bugfixes.
-  - `chore/<short-description>` for configuration, documentation, and dependencies.
-  - `migration/<short-description>` for database schema updates.
-
-### Stufe 4: Testgetriebene Implementierung (Fast Inner Loop)
-* **Fast Inner Feedback Loop:** During active development and TDD iterations, iterate rapidly without executing full regression suites:
-  - Verify compilation and types with `./mvnw test-compile`.
-  - Execute targeted single-class tests with `./mvnw test -Dtest=TargetClassTest`.
-* Implement unit and integration tests first or in lockstep (`kotlin-test-junit5`, `mockito-kotlin`, Spring Data JPA test slices).
-* Write complete, functional Kotlin code. Placeholders like `// implementation goes here` are strictly forbidden.
-* Verify query counts to ensure N+1 regressions are prevented.
-
-### Stufe 5: Quality Gate & Lokale Verifikation (Comprehensive Outer Gate)
-Execute full local verification only after the inner loop passes and task logic is finalized:
-1. **Compilation & Inspections:** `./mvnw clean test-compile` (verifies Kotlin 2.x, Java 26 preview features, and compiler warnings).
-2. **Code Formatting & Standards:** Validate code against `.editorconfig` formatting rules and Qodana / Kotlin compiler checks.
-3. **Full Test Suite:** Execute the complete test suite: `./mvnw clean test` (or `./mvnw clean verify`).
-4. **Schema & Migration Verification:** If migrations were added, verify script immutability and synchronize `src/main/resources/sql/dump/Dump.sql`.
-5. **DTO & Export Contract Verification:** Ensure `CardJsonDto` backward compatibility with downstream `card-collectionJava`.
-
-### Stufe 6: Automatisierte PR-Erstellung & Review (Automated PR & Verification Gate)
-* **Autonomous Commit & Push:** Once the local quality gate passes, Antigravity commits changes with conventional commit messages and pushes the topic branch to `origin` (`git push -u origin <branch-name>`).
-* **Autonomous Pull Request Creation:** Antigravity opens the Pull Request against `main` using the structure in `.github/pull_request_template.md` (via CLI/API/push URL):
-  - Pre-fill the PR description with summary of changes, motivation, and type of change.
-  - Pre-tick all applicable checklist items (branch target, secret leaks check, Flyway integrity, DTO compatibility, local test pass).
-  - Document local verification evidence.
-* **Automated CI & Jules Review:** GitHub Actions (`ci.yml`) and Jules automated verification pipeline validate the PR before merging into `main`.
-
----
-
-## 4. Agent Execution, Token Economics & Tool Usage
-
-### 4.1 Token Economics & Context Boundary Discipline
-* **Massive File Invariant:** Never load large raw datasets, SQL dumps, or generated files (`src/main/resources/sql/dump/Dump.sql` [173 KB], downstream `cards.json` [770 KB], or generated HTML archives) into prompt context in full.
-* **Targeted Lookups:** Use `grep_search` or slice reads with bounded `StartLine` and `EndLine` (≤ 100 lines). Inspect Kotlin data classes and entities (`Card`, `Player`, `CardJsonDto`) rather than raw SQL dumps or JSON payloads.
-* **Surgical Diff Edits:** Use narrow replacement blocks (`replace_file_content` / `multi_replace_file_content`). Never rewrite entire large Kotlin classes unmodified.
-* **High-Signal Output:** Eliminate conversational filler. Provide concise, actionable summaries with direct clickable `file://` links.
-
-### 4.2 Dual-Loop Execution Protocol
-* **Inner Development Loop:** Use `./mvnw test-compile` and targeted tests (`./mvnw test -Dtest=TargetTest`) during active implementation to prevent log noise and conserve runner tokens.
-* **Outer Quality Gate:** Reserve full test execution (`./mvnw clean test`) and complete schema/DTO verification for Stage 5 pre-commit verification.
-* **Cache & Signature Preservation:** Respect Caffeine cache TTLs and `DatabaseChangeDetectorService` signature metrics. Never disable caching mechanisms arbitrarily.
-
-### 4.3 Dynamic Model Tier Recommendation Protocol
-When creating implementation plans or analyzing tasks, the agent dynamically recommends the optimal model tier:
-* **Tier 1: Fast / Medium (Cost-Efficient)** (e.g., latest Flash / Medium available in IDE):
-  * *Applicability:* Spring Data JPA repository & service minor enhancements, single-class JUnit tests (`./mvnw test -Dtest=TargetTest`), Flyway migration DDL creation (`V...__...sql`), DTO mapping and Jackson serialization (`CardJsonDto`), controller endpoints, Thymeleaf views, static assets, routine bugfixes, dependency bumps, agent governance rules.
-  * *Benefit:* Ultra-fast turnaround, minimal latency, maximum token efficiency.
-* **Tier 2: Deep Reasoning / Pro (High-Capability)** (e.g., latest Pro / Thinking available in IDE):
-  * *Applicability:* Dynamic JPA `Specification<Card>` multi-join query optimization, count query syntax error prevention, multi-system 3NF database schema refactoring and constraint topology, Java 26 Virtual Thread batch export coordination & streaming ZIPs, multi-tier Caffeine cache synchronization, downstream SSOT export schema contract negotiations (`card-collectionJava`).
-  * *Benefit:* Deep multi-step reasoning, exhaustive edge-case resolution, and structural schema validation.
-* **Plan Standard:** Every `implementation_plan.md` includes a `## 🎯 Recommended Execution Model` block declaring the tier and rationale.
-
-### 4.4 Working Tree Hygiene & Dataset Protection
-* **Preserve User Modifications & Local Configs:** The workspace owner may have local overrides in `application-local.properties`, unstaged baseline syncs, or independent database exports.
-* **Never Stage Unrelated Files:** Antigravity must never run `git add .` or stage unrelated modified data files. Only stage the files directly touched by the specific task.
-
-### 4.5 Security & Concurrency Invariants
-* **OWASP Top 10 Security:**
-  - Never concatenate SQL queries; always use parameterized JPA queries or Criteria/Specification APIs.
-  - Sanitize all exported outputs to prevent CSV/HTML injection (`HtmlUtils.htmlEscape()`, RFC 4180 escaping).
-  - Never commit credentials or secrets (enforced via `.gitignore`).
-* **Virtual Threads & Non-blocking I/O:** Leverage Java 26 virtual threads (`Executors.newVirtualThreadPerTaskExecutor()`) for concurrent export processing.
-
-### 4.6 Workspace Skills & Customizations
-Use dedicated project skills located in `.agents/skills/`:
-* `run-test-suite`: Run full Maven test suite or targeted test slices.
-* `verify-export-contract`: Validate `CardJsonDto` serialization, slug generation, and `cards.json` compatibility.
-* `verify-nplus1-queries`: Validate JPA queries, Specifications, fetch joins, and batch sizing.
-* `verify-schema-and-migrations`: Validate Flyway migration scripts, database dump consistency, and 3NF schema.
-
-### 4.7 Mandatory Automated PR Creation
-At the conclusion of every completed task, Antigravity must automatically stage changes, commit with a semantic message, push to remote, and open/update the PR without requiring additional user prompting.
+## Progressive Skill Router
+| Skill | Trigger / Description | Location |
+| :--- | :--- | :--- |
+| `test-suite` | Maven compilation, test slices, full regression, and subagent test isolation | [.agents/skills/test-suite/](.agents/skills/test-suite/SKILL.md) |
+| `git-pr-workflow` | 6-stage lifecycle, topic branching, selective staging, automated PR creation | [.agents/skills/git-pr-workflow/](.agents/skills/git-pr-workflow/SKILL.md) |
+| `optimize-context` | Audit context budget, detect rule bloat, verify prompt token discipline | [.agents/skills/optimize-context/](.agents/skills/optimize-context/SKILL.md) |
+| `verify-export-contract` | `CardJsonDto` serialization, deterministic slugs, `card-collectionJava` SSOT | [.agents/skills/verify-export-contract/](.agents/skills/verify-export-contract/SKILL.md) |
+| `verify-nplus1-queries` | Guard dynamic specifications against count query joins, verify batch sizing | [.agents/skills/verify-nplus1-queries/](.agents/skills/verify-nplus1-queries/SKILL.md) |
+| `verify-schema-and-migrations` | Flyway DDL immutability, MySQL 3NF schema, indexes, and dump sync | [.agents/skills/verify-schema-and-migrations/](.agents/skills/verify-schema-and-migrations/SKILL.md) |
