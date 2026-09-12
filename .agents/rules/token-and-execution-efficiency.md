@@ -48,15 +48,25 @@ Execute only after the inner loop passes and task logic is finalized:
 2. Verify Flyway migrations and `src/main/resources/sql/dump/Dump.sql` consistency if schema was modified.
 3. Verify DTO backward-compatibility (`CardJsonDto`).
 
-## 6. Command Output & Log Truncation
+## 6. Subagent Boundary Isolation
+- **Context Pollution Prevention:** Heavy verification runs (e.g. `./mvnw clean test`, full multi-suite regression, extensive linting) generate thousands of lines of terminal output that quickly consume context tokens and degrade the main orchestrator's reasoning window.
+- **Isolated Subagent Delegation:** Offload verbose, long-running build, test, or verification runs to isolated subagents or asynchronous background executions.
+- **Executive Memo Protocol:** Subagents must synthesize execution outcomes into a compact executive memo returned to the primary context:
+  - **Status:** Explicit PASS / FAIL verdict.
+  - **Metrics:** Total tests executed, passed, failed, and duration.
+  - **Surgical Failure Snippets:** Extract only relevant compiler errors or failing stack traces; suppress successful test outputs.
+  - **Actionable Remediation:** Provide direct clickable links to offending source files and line numbers.
+
+## 7. Command Output & Log Truncation
 - Avoid commands that generate unbounded terminal output into conversation context.
 - Scope and filter Maven commands (`-Dtest=...` or `-q`).
 - Do not poll running tasks or background timers in tight loops. Use reactive wakeup.
 
-## 7. Cache & Signature Preservation
+## 8. Cache & Signature Preservation
 - Respect Caffeine cache TTLs and `DatabaseChangeDetectorService` entity signature metrics.
 - Never arbitrarily evict or disable cache mechanisms unless testing change listener reactivity.
 
-## 8. High-Signal Communication
+## 9. High-Signal Communication
 - Eliminate conversational pleasantries, repetitive apologies, and generic introductions.
 - Always provide concise, actionable markdown with direct clickable `file://` links.
+

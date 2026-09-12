@@ -19,10 +19,13 @@
      - `card -> grading`: `ON DELETE SET NULL`
      - `player -> sport`: `ON DELETE RESTRICT`
 
-4. **Charset & Indexing Topology:**
+4. **Charset, Indexing & Constraints Topology:**
    - All tables and text columns must use `DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci`.
    - Zero unindexed foreign keys: Every FK column must be covered by a primary, unique, or secondary index.
    - Use composite indexes matching filter combinations (`(manufacturer_id, brand_id, theme_id, variant_id)`).
+   - Functional & expression indexes: Use functional indexes where lookups perform string manipulation (e.g., `idx_player_full_name` on `(concat(surname, ' ', name))`).
+   - Constraints: Enforce domain rules at the schema level using `CHECK` constraints (e.g., `check_grade_range` between `6.0` and `10.0`) and `UNIQUE` keys on natural entity names (`UK_sport_name`, `UK_season_name`, etc.).
 
 5. **Dump File Synchronization:**
    - Whenever schema migrations are added, verify and synchronize the baseline dump in `src/main/resources/sql/dump/Dump.sql`.
+
