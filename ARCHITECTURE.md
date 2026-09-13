@@ -282,7 +282,7 @@ The unique identifier (`id`) in `CardJsonDto` is generated deterministically via
 
 ```mermaid
 graph TD
-    subgraph Long-Term Reference Caches [TTL: 24 Hours | Max Size: 500]
+    subgraph LongTermCaches ["Long-Term Reference Caches (TTL: 24 Hours, Max Size: 500)"]
         C1[sports]
         C2[seasons]
         C3[manufacturers]
@@ -292,15 +292,15 @@ graph TD
         C7[variants]
     end
 
-    subgraph Entity Cache [TTL: 12 Hours | Max Size: 1,000]
+    subgraph EntityCache ["Entity Cache (TTL: 12 Hours, Max Size: 1,000)"]
         C8[players]
     end
 
-    subgraph Dynamic Query Cache [TTL: 30 Minutes | Max Size: 2,000]
+    subgraph DynamicQueryCache ["Dynamic Query Cache (TTL: 30 Minutes, Max Size: 2,000)"]
         C9[filteredCards]
     end
 
-    subgraph Default Fallback [TTL: 1 Hour | Max Size: 1,000]
+    subgraph DefaultFallback ["Default Fallback (TTL: 1 Hour, Max Size: 1,000)"]
         C10[Any other registered cache]
     end
 ```
