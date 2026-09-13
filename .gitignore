@@ -23,7 +23,9 @@ Thumbs.db
 *.DS_Store
 
 ### IntelliJ IDEA ###
-.idea/
+.idea/**
+!.idea/runConfigurations/
+!.idea/runConfigurations/**
 *.iws
 *.iml
 *.ipr

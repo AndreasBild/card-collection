@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="CardCollectionApplication" type="JetRunConfigurationType" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="de.maulmann.cardcollection.CardCollectionApplicationKt" />
+    <module name="card-collection" />
+    <shortenClasspath name="NONE" />
+    <method v="2">
+      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/pom.xml" goal="compile" />
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
