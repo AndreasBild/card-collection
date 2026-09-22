@@ -5,7 +5,7 @@ description: Execute Maven tests, verify builds, run targeted test slices, and m
 
 # Test Suite Skill
 
-Tailored for Maven, Kotlin 2.x, Java 26, and Spring Boot 4.x.
+Tailored for Maven, Kotlin 2.x, Java 27, and Spring Boot 4.x.
 
 ## 1. Fast Inner Loop (Development & TDD)
 Iterate quickly during coding without invoking the entire regression suite:

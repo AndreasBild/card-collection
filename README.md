@@ -15,7 +15,7 @@ A high-performance **Spring Boot 4 / Kotlin 2 / MySQL** domain engine and invent
 ## 🚀 Quickstart & Local Setup
 
 ### 1. Requirements
-* **Java 26** SDK
+* **Java 27** SDK
 * **MySQL 8.x / 9.x** running locally on port `3306`
 
 ### 2. Database Initialization (Flyway)
@@ -44,7 +44,7 @@ The backend serves as the Master Database and provides high-performance export p
 | `GET /export/json` | `application/json` | Browser download of `cards.json` + **automatic background sync** to `../card-collectionJava/content/json/cards.json`. |
 | `GET/POST /export/json/sync` | `application/json` | Programmatic trigger to sync database records directly to the static site repository without triggering a browser download. |
 | `GET /export/csv` | `text/csv` | RFC 4180 compliant CSV export for spreadsheet analysis. |
-| `GET /export/html` | `application/zip` | Season-partitioned HTML collection archives generated via Java 26 Virtual Threads. |
+| `GET /export/html` | `application/zip` | Season-partitioned HTML collection archives generated via Java 27 Virtual Threads. |
 
 ### How to trigger the Static Site Sync:
 

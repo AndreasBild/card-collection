@@ -2,7 +2,7 @@
 
 ## 1. System Overview & Context
 
-`card-collection` is a high-performance, domain-driven Spring Boot application written in Kotlin (running on Java 26) backed by a relational MySQL database. It serves as the **Single Source of Truth (SSOT)** for sports trading card inventory, advanced relational querying, and data syndication.
+`card-collection` is a high-performance, domain-driven Spring Boot application written in Kotlin (running on Java 27) backed by a relational MySQL database. It serves as the **Single Source of Truth (SSOT)** for sports trading card inventory, advanced relational querying, and data syndication.
 
 The application feeds structured data to the downstream static site generator **`card-collectionJava`**, which generates static collection catalogs, SEO-optimized landing pages, and interactive showcase portals.
 
@@ -310,7 +310,7 @@ graph TD
 
 ### 5.2 Virtual Thread Export Parallelization
 
-When exporting the entire collection partitioned by season (`/export/html`), the controller splits processing across Java 26 Virtual Threads:
+When exporting the entire collection partitioned by season (`/export/html`), the controller splits processing across Java 27 Virtual Threads:
 
 ```kotlin
 Executors.newVirtualThreadPerTaskExecutor().use { executor ->

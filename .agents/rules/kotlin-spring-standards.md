@@ -7,7 +7,7 @@
    - Enforce strict null-safety; avoid force unwrap operator (`!!`) unless guarded by exhaustive null-checks.
    - Leverage extension functions and sealed interfaces/classes for expressive domain modeling.
 
-2. **Java 26 Virtual Threads & Concurrency:**
+2. **Java 27 Virtual Threads & Concurrency:**
    - Use Virtual Threads (`Executors.newVirtualThreadPerTaskExecutor()`) for CPU/IO-bound zip batch exports and parallel processing.
    - Ensure non-blocking execution patterns and thread safety.
 
