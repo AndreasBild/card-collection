@@ -149,4 +149,42 @@ class GradingScanDownloadServiceTest {
         val (front, back) = service.resolveScanUrls(GradingCompany.PSA, "00000000_non_existent_cert")
         // Non-existent certificate won't crash and should return nulls or candidate URLs
     }
+
+    @Test
+    fun `test downloadAllGradingScans with multiple cards processes concurrently and aggregates summary`() {
+        val grading = Grading(id = 1L, grade = 10.0f, gradingCompany = GradingCompany.PSA)
+        val cards = (1..5).map { id ->
+            val cert = "cert_$id"
+            val frontFile = File(tempDir.toFile(), "PSA_${cert}_front.jpg")
+            val backFile = File(tempDir.toFile(), "PSA_${cert}_back.jpg")
+            frontFile.writeText("front-$id")
+            backFile.writeText("back-$id")
+
+            Card(
+                id = id.toLong(),
+                season = season,
+                manufacturer = manufacturer,
+                brand = brand,
+                variant = variant,
+                theme = theme,
+                number = id.toString(),
+                serialNumber = 0,
+                rookieCard = false,
+                gameUsedMaterial = false,
+                autograph = false,
+                grading = grading,
+                gradingCertNumber = cert
+            )
+        }
+
+        whenever(cardRepository.findAllWithDetails()).thenReturn(cards)
+
+        val summary = service.downloadAllGradingScans(overwrite = false)
+        assertEquals(5, summary.totalGradedCards)
+        assertEquals(5, summary.alreadyPresent)
+        assertEquals(0, summary.successfulDownloads)
+        assertEquals(0, summary.notAvailableOrFailed)
+        assertEquals(5, summary.cardResults.size)
+    }
 }
+

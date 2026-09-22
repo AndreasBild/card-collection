@@ -101,7 +101,7 @@ class DatabaseChangeDetectorService(
 
         return jdbcTemplate.queryForObject(sql) { rs, _ ->
             (1..14).joinToString(":") { rs.getLong(it).toString() }
-        } ?: "0"
+        }
     }
 
     fun getCurrentSignature(): String? = lastStateSignature.get()

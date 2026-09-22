@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.io.File
-import java.io.InputStream
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -18,8 +17,11 @@ import java.net.http.HttpResponse
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
+import java.nio.file.StandardOpenOption
 import java.time.Duration
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
+import java.util.concurrent.Semaphore
 import java.util.regex.Pattern
 
 @Service
@@ -28,6 +30,8 @@ class GradingScanDownloadService(
     @Value("\${grading.images.download-dir:gradingImages}")
     private val downloadDirSetting: String = "gradingImages",
     private val httpClient: HttpClient = HttpClient.newBuilder()
+        .executor(Executors.newVirtualThreadPerTaskExecutor())
+        .version(HttpClient.Version.HTTP_2)
         .connectTimeout(Duration.ofSeconds(10))
         .followRedirects(HttpClient.Redirect.NORMAL)
         .build()
@@ -57,15 +61,37 @@ class GradingScanDownloadService(
 
         logger.info("Found {} graded cards with certificate numbers for scan download.", allGradedCards.size)
 
+        if (allGradedCards.isEmpty()) {
+            return GradingScanDownloadSummary(
+                totalGradedCards = 0,
+                successfulDownloads = 0,
+                alreadyPresent = 0,
+                notAvailableOrFailed = 0,
+                outputDirectory = targetDir.absolutePath,
+                cardResults = emptyList()
+            )
+        }
+
+        val concurrencyLimit = 8
+        val semaphore = Semaphore(concurrencyLimit)
+        val results = Executors.newVirtualThreadPerTaskExecutor().use { executor ->
+            allGradedCards.map { card ->
+                executor.submit(Callable {
+                    semaphore.acquire()
+                    try {
+                        downloadScansForCard(card, targetDir, overwrite)
+                    } finally {
+                        semaphore.release()
+                    }
+                })
+            }.map { it.get() }
+        }
+
         var successfulDownloads = 0
         var alreadyPresent = 0
         var notAvailableOrFailed = 0
-        val results = mutableListOf<GradingScanCardResult>()
 
-        for (card in allGradedCards) {
-            val result = downloadScansForCard(card, targetDir, overwrite)
-            results.add(result)
-
+        for (result in results) {
             when (result.status) {
                 "SUCCESS" -> successfulDownloads++
                 "ALREADY_EXISTS" -> alreadyPresent++
@@ -193,8 +219,14 @@ class GradingScanDownloadService(
             "https://cert.psacard.com/$certNumber/back.jpg"
         )
 
-        var frontUrl = frontCandidates.firstOrNull { checkUrlExists(it) }
-        var backUrl = backCandidates.firstOrNull { checkUrlExists(it) }
+        val (frontUrlCandidate, backUrlCandidate) = Executors.newVirtualThreadPerTaskExecutor().use { executor ->
+            val frontFuture = executor.submit(Callable { findFirstValidCandidate(frontCandidates) })
+            val backFuture = executor.submit(Callable { findFirstValidCandidate(backCandidates) })
+            Pair(frontFuture.get(), backFuture.get())
+        }
+
+        var frontUrl = frontUrlCandidate
+        var backUrl = backUrlCandidate
 
         if (frontUrl == null || backUrl == null) {
             // Fallback: parse PSA cert webpage for dynamic images, zoom URLs, or lightboxes
@@ -281,6 +313,16 @@ class GradingScanDownloadService(
         }
     }
 
+    private fun findFirstValidCandidate(candidates: List<String>): String? {
+        if (candidates.isEmpty()) return null
+        return Executors.newVirtualThreadPerTaskExecutor().use { executor ->
+            val futures = candidates.map { url ->
+                url to executor.submit(Callable { checkUrlExists(url) })
+            }
+            futures.firstOrNull { (_, future) -> future.get() }?.first
+        }
+    }
+
     private fun downloadFile(url: String, targetFile: File): Boolean {
         return try {
             val request = HttpRequest.newBuilder()
@@ -290,19 +332,26 @@ class GradingScanDownloadService(
                 .GET()
                 .build()
 
-            val response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream())
+            val response = httpClient.send(
+                request,
+                HttpResponse.BodyHandlers.ofFile(
+                    targetFile.toPath(),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.TRUNCATE_EXISTING
+                )
+            )
             if (response.statusCode() in 200..299) {
-                response.body().use { input ->
-                    Files.copy(input, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-                }
                 logger.info("Successfully downloaded scan from {} to {}", url, targetFile.name)
                 true
             } else {
                 logger.warn("Download from {} failed with status {}", url, response.statusCode())
+                Files.deleteIfExists(targetFile.toPath())
                 false
             }
         } catch (e: Exception) {
             logger.warn("Failed to download file from {}: {}", url, e.message)
+            Files.deleteIfExists(targetFile.toPath())
             false
         }
     }
