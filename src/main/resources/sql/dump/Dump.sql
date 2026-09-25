@@ -30,6 +30,7 @@ CREATE TABLE `card`
 (
     `id`                  bigint NOT NULL AUTO_INCREMENT,
     `print_run`           int          DEFAULT NULL,
+    `pack_odds`           varchar(50)  DEFAULT NULL,
     `serial_number`       int    NOT NULL,
     `number`              varchar(255) DEFAULT NULL,
     `theme_id`            bigint       DEFAULT NULL,
@@ -44,6 +45,7 @@ CREATE TABLE `card`
     `brand_id`            bigint NOT NULL,
     PRIMARY KEY (`id`),
     KEY `idx_card_print_run` (`print_run`),
+    KEY `idx_card_pack_odds` (`pack_odds`),
     KEY `idx_card_mfg_brand_theme_variant` (`manufacturer_id`, `brand_id`, `theme_id`, `variant_id`),
     KEY `idx_card_mfg_brand_theme` (`manufacturer_id`, `brand_id`, `theme_id`),
     KEY `idx_card_attributes` (`rookie_card`, `game_used_material`, `autograph`),

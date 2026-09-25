@@ -111,5 +111,42 @@ class CardTest {
         val foundCard = cardRepository.findById(card.id).orElse(null)
         assertThat(foundCard).isNotNull
         assertThat(foundCard.printRun).isNull()
+        assertThat(foundCard.packOdds).isNull()
+    }
+
+    @Test
+    fun `should save and retrieve card with pack odds`() {
+        val manufacturer = CardManufacturer(name = "Test Manufacturer 3")
+        entityManager.persist(manufacturer)
+        val brand = CardBrand(name = "Test Brand 3")
+        entityManager.persist(brand)
+        val theme = CardTheme(name = "Test Theme 3")
+        entityManager.persist(theme)
+        val season = Season(name = "1996-97")
+        entityManager.persist(season)
+        val variant = Variant(name = "Refractor")
+        entityManager.persist(variant)
+
+        val card = Card(
+            printRun = null,
+            packOdds = "1:12",
+            serialNumber = 0,
+            season = season,
+            number = "789",
+            rookieCard = false,
+            gameUsedMaterial = false,
+            autograph = false,
+            manufacturer = manufacturer,
+            brand = brand,
+            variant = variant,
+            theme = theme
+        )
+        cardRepository.save(card)
+        entityManager.flush()
+        entityManager.clear()
+
+        val foundCard = cardRepository.findById(card.id).orElse(null)
+        assertThat(foundCard).isNotNull
+        assertThat(foundCard.packOdds).isEqualTo("1:12")
     }
 }

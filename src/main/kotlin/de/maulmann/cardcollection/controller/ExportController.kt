@@ -149,6 +149,8 @@ class ExportController(
                 "<span class=\"badge-grading $badgeClass\">${HtmlUtils.htmlEscape(it.displayGrade)}</span>$certHtml"
             } ?: ""
 
+            val packOddsHtml = card.packOdds?.let { HtmlUtils.htmlEscape(it) } ?: "-"
+
             """
             <tr>
                 <td>$playerName</td>
@@ -162,6 +164,7 @@ class ExportController(
                 <td>$number</td>
                 <td>$serial</td>
                 <td>$printRunHtml</td>
+                <td>$packOddsHtml</td>
                 <td>$rookieHtml</td>
                 <td>$gameUsedHtml</td>
                 <td>$autographHtml</td>
@@ -309,6 +312,7 @@ class ExportController(
                 <th>Number</th>
                 <th>Serial</th>
                 <th>Print Run</th>
+                <th>Ratio</th>
                 <th>Rookie</th>
                 <th>Game Used</th>
                 <th>Autograph</th>

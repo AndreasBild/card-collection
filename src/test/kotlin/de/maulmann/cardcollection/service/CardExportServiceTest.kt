@@ -78,6 +78,7 @@ class CardExportServiceTest {
             number = "33",
             serialNumber = 47,
             printRun = 100,
+            packOdds = "1:288",
             rookieCard = true,
             gameUsedMaterial = true,
             autograph = true,
@@ -99,6 +100,7 @@ class CardExportServiceTest {
         assertEquals("33", dto.cardNumber)
         assertEquals("47", dto.serialNumber)
         assertEquals(100, dto.printRun)
+        assertEquals("1:288", dto.packOdds)
         assertEquals("PSA", dto.gradingCompany)
         assertEquals("9", dto.grade)
         assertEquals("83921049", dto.gradingCertNumber)
@@ -165,6 +167,7 @@ class CardExportServiceTest {
         assertEquals("1994-95-collectors-choice-278", dto.id)
         assertNull(dto.serialNumber)
         assertNull(dto.printRun)
+        assertNull(dto.packOdds)
         assertNull(dto.gradingCompany)
         assertNull(dto.grade)
         assertNull(dto.gradingCertNumber)
@@ -433,8 +436,8 @@ class CardExportServiceTest {
         cardExportService.writeCardsCsv(baos)
 
         val csvString = baos.toString("UTF-8")
-        assertTrue(csvString.startsWith("ID,Player,Season,Team,Company,Brand,Theme,Variant,Card Number,Serial Number,Print Run,Grading Company,Grade,Grading Cert Number,Autograph,Patch,Rookie,Collection"))
-        assertTrue(csvString.contains("1994-95-collectors-choice-278,Juwan Howard,1994-95,,Upper Deck,Collectors Choice,Base Set,Base,278,,,,,,No,No,Yes,Juwan Howard"))
+        assertTrue(csvString.startsWith("ID,Player,Season,Team,Company,Brand,Theme,Variant,Card Number,Serial Number,Print Run,Ratio,Grading Company,Grade,Grading Cert Number,Autograph,Patch,Rookie,Collection"))
+        assertTrue(csvString.contains("1994-95-collectors-choice-278,Juwan Howard,1994-95,,Upper Deck,Collectors Choice,Base Set,Base,278,,,,,,,No,No,Yes,Juwan Howard"))
     }
 }
 

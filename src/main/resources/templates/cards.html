@@ -266,6 +266,10 @@
             <span th:if="${card.printRun == null}">-</span>
         </td>
         <td>
+            <span th:if="${card.packOdds != null}" class="serial-pill" th:text="${card.packOdds}"></span>
+            <span th:if="${card.packOdds == null}">-</span>
+        </td>
+        <td>
             <span th:if="${card.rookieCard}" class="badge badge-rc">RC</span>
             <span th:unless="${card.rookieCard}">-</span>
         </td>

@@ -15,6 +15,7 @@ class Card(
     var gradingCertNumber: String? = null,
 
     var printRun: Int? = null,
+    var packOdds: String? = null,
     var serialNumber: Int,
 
     @ManyToOne(fetch = FetchType.LAZY)
