@@ -38,6 +38,7 @@ class CardController(
             SortableColumnInfo("Number", "number"),
             SortableColumnInfo("Serial", "serialNumber"),
             SortableColumnInfo("Print Run", "printRun"),
+            SortableColumnInfo("Ratio", "packOdds"),
             SortableColumnInfo("Rookie", "rookieCard"),
             SortableColumnInfo("Game Used", "gameUsedMaterial"),
             SortableColumnInfo("Autograph", "autograph"),

@@ -46,6 +46,7 @@ class CardExportService(
 
         val serialNumStr = if (card.serialNumber != 0) card.serialNumber.toString() else null
         val printRunVal = card.printRun
+        val packOddsVal = card.packOdds?.trim()?.ifBlank { null }
 
         val gradingCompStr = card.grading?.gradingCompany?.name
         val gradeStr = card.grading?.grade?.let { gradeVal ->
@@ -73,6 +74,7 @@ class CardExportService(
             cardNumber = cardNumberStr,
             serialNumber = serialNumStr,
             printRun = printRunVal,
+            packOdds = packOddsVal,
             gradingCompany = gradingCompStr,
             grade = gradeStr,
             gradingCertNumber = gradingCertNumStr,
@@ -124,7 +126,7 @@ class CardExportService(
     fun writeCardsCsv(outputStream: OutputStream) {
         val dtos = exportAllCardsToJsonDtos()
         outputStream.writer(Charsets.UTF_8).use { writer ->
-            writer.write("ID,Player,Season,Team,Company,Brand,Theme,Variant,Card Number,Serial Number,Print Run,Grading Company,Grade,Grading Cert Number,Autograph,Patch,Rookie,Collection\r\n")
+            writer.write("ID,Player,Season,Team,Company,Brand,Theme,Variant,Card Number,Serial Number,Print Run,Ratio,Grading Company,Grade,Grading Cert Number,Autograph,Patch,Rookie,Collection\r\n")
             for (dto in dtos) {
                 val row = listOf(
                     dto.id,
@@ -138,6 +140,7 @@ class CardExportService(
                     dto.cardNumber ?: "",
                     dto.serialNumber ?: "",
                     dto.printRun?.toString() ?: "",
+                    dto.packOdds ?: "",
                     dto.gradingCompany ?: "",
                     dto.grade ?: "",
                     dto.gradingCertNumber ?: "",

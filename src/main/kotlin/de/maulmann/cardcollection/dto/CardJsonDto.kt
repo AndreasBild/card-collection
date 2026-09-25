@@ -16,6 +16,7 @@ data class CardJsonDto(
     val cardNumber: String?,
     val serialNumber: String?,
     val printRun: Int?,
+    val packOdds: String? = null,
     val gradingCompany: String?,
     val grade: String?,
     val gradingCertNumber: String? = null,
