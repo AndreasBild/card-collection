@@ -138,4 +138,27 @@ class CardControllerTest {
             .andExpect(model().attribute("pageSize", "all"))
             .andExpect(model().attribute("isAllSize", true))
     }
+
+    @Test
+    fun `getCards populates activeFilterChips when filters are provided`() {
+        val manufacturer = CardManufacturer(id = 5L, name = "Upper Deck")
+        val page = PageImpl(emptyList<Card>(), PageRequest.of(0, 20), 0)
+        whenever(cardService.getCardsFiltered(any(), any())).thenReturn(page)
+        whenever(cardService.getAllCardManufacturers()).thenReturn(listOf(manufacturer))
+
+        val result = mockMvc.perform(
+            get("/cards")
+                .param("manufacturerId", "5")
+                .param("rookieCard", "true")
+        )
+            .andExpect(status().isOk)
+            .andExpect(model().attributeExists("activeFilterChips"))
+            .andReturn()
+
+        @Suppress("UNCHECKED_CAST")
+        val chips = result.modelAndView?.model?.get("activeFilterChips") as List<CardController.Companion.ActiveFilterChip>
+        org.junit.jupiter.api.Assertions.assertEquals(2, chips.size)
+        org.junit.jupiter.api.Assertions.assertTrue(chips.any { it.label == "Manufacturer" && it.value == "Upper Deck" })
+        org.junit.jupiter.api.Assertions.assertTrue(chips.any { it.label == "Rookie" && it.value == "Yes" })
+    }
 }

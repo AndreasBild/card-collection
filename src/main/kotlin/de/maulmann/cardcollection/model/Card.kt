@@ -81,4 +81,14 @@ class Card(
                 null -> null
             }
         }
+
+    val frontScanUrl: String?
+        get() {
+            val cert = gradingCertNumber?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+            return when (grading?.gradingCompany) {
+                GradingCompany.PSA -> "https://d1htnxwo4o0jhw.cloudfront.net/cert/$cert/front-large.jpg"
+                GradingCompany.BGS -> "https://www.beckett.com/grading/card-lookup?item_type=BGS&item_id=$cert"
+                else -> null
+            }
+        }
 }

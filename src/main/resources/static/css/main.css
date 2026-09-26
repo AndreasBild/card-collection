@@ -553,6 +553,41 @@ th {
     margin-left: 2px;
 }
 
+.filter-chip.btn-reset-chip {
+    background: var(--bg-surface);
+    color: var(--accent-color, #d97706);
+    border-color: var(--accent-color, #d97706);
+    font-weight: 600;
+}
+
+.filter-chip.btn-reset-chip:hover {
+    background: rgba(217, 119, 6, 0.1);
+}
+
+.scan-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    background: var(--bg-surface-hover);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    text-decoration: none;
+    margin-left: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.scan-btn:hover {
+    background: var(--primary-color);
+    color: #ffffff;
+    border-color: var(--primary-hover);
+    transform: scale(1.1);
+}
+
 /* ==========================================================================
    Print Layout Optimization
    ========================================================================== */
