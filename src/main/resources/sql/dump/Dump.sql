@@ -1779,7 +1779,7 @@ CREATE TABLE `card_player` (
   PRIMARY KEY (`card_id`,`player_id`),
   KEY `idx_card_player_player_card` (`player_id`,`card_id`),
   KEY `idx_card_player_team_card` (`team_id`,`card_id`),
-  CONSTRAINT `card_player_ibfk_1` FOREIGN KEY (`card_id`) REFERENCES `card` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `card_player_ibfk_1` FOREIGN KEY (`card_id`) REFERENCES `card` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `card_player_ibfk_2` FOREIGN KEY (`player_id`) REFERENCES `player` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_card_player_team` FOREIGN KEY (`team_id`) REFERENCES `team` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
