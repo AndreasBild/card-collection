@@ -132,7 +132,7 @@ erDiagram
 
 | Relationship | Cardinality | FK Constraint Action | Rationale |
 | :--- | :--- | :--- | :--- |
-| `card_player` $\rightarrow$ `card` | $N:1$ | `ON DELETE CASCADE` | Removing a card cascades to its player associations. |
+| `card_player` $\rightarrow$ `card` | $N:1$ | `ON DELETE CASCADE ON UPDATE CASCADE` | Removing a card cascades to player associations; updating card ID propagates to card_player. |
 | `card_player` $\rightarrow$ `player` | $N:1$ | `ON DELETE CASCADE` | Removing a player removes their links in card collections. |
 | `card_player` $\rightarrow$ `team` | $N:1$ | `ON DELETE SET NULL` | Card link remains intact if a team entry is cleared. |
 | `card` $\rightarrow$ `grading` | $1:1$ | `ON DELETE SET NULL` | Deleting a grading record keeps the physical card record. |
