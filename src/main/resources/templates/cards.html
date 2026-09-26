@@ -198,6 +198,22 @@
 <main id="main-content" aria-label="Trading Cards Collection Data" tabindex="-1">
     <div id="filterLoadingStatus" class="sr-only" aria-live="polite"></div>
 
+    <!-- Active Filter Chips Ribbon -->
+    <div class="filter-chips-ribbon" th:if="${activeFilterChips != null && not #lists.isEmpty(activeFilterChips)}" role="region" aria-label="Active Filters">
+        <span class="filter-chips-label">Active Filters:</span>
+        <a th:each="chip : ${activeFilterChips}"
+           th:href="${chip.removeUrl}"
+           class="filter-chip"
+           th:title="'Remove ' + ${chip.label} + ' filter'">
+            <span th:text="${chip.label} + ': ' + ${chip.value}"></span>
+            <span class="filter-chip-remove" aria-hidden="true">&times;</span>
+        </a>
+        <a th:href="@{/cards}" class="filter-chip btn-reset-chip" title="Clear all active filters">
+            <span>Clear All</span>
+            <span class="filter-chip-remove" aria-hidden="true">&times;</span>
+        </a>
+    </div>
+
     <div class="export-toolbar" role="region" aria-label="Export and Tools Toolbar">
         <span class="export-toolbar-label">Export:</span>
         <a th:href="@{/export/csv}" class="export-btn" title="Download collection as CSV file">
@@ -295,6 +311,14 @@
                 <span th:if="${card.verificationUrl == null && card.gradingCertNumber != null}"
                       class="cert-pill"
                       th:text="'#' + ${card.gradingCertNumber}"></span>
+                <a th:if="${card.frontScanUrl != null}"
+                   th:href="${card.frontScanUrl}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="scan-btn"
+                   th:title="'View scan for cert #' + ${card.gradingCertNumber}">
+                    <span aria-hidden="true">📷</span>
+                </a>
             </div>
             <span th:if="${card.grading == null}">-</span>
         </td>
@@ -483,17 +507,6 @@
         });
     }
 
-    // Keyboard Shortcuts (/ to focus search/filter, Esc to reset)
-    document.addEventListener('keydown', function (e) {
-        if (e.key === '/' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-            e.preventDefault();
-            const firstSelect = document.getElementById('manufacturerSelectForm');
-            if (firstSelect) firstSelect.focus();
-        } else if (e.key === 'Escape') {
-            const clearLink = document.querySelector('.btn-reset');
-            if (clearLink) clearLink.click();
-        }
-    });
 
     document.addEventListener('DOMContentLoaded', function () {
         const manufacturerSelect = document.getElementById('manufacturerSelectForm');
@@ -693,13 +706,17 @@
             if (!isTyping) {
                 if (e.key === '/') {
                     e.preventDefault();
-                    playerSelect.focus();
+                    const filterInput = document.getElementById('manufacturerSelectForm') || document.getElementById('playerSelectForm');
+                    if (filterInput) filterInput.focus();
                 } else if (e.key === 'ArrowLeft' || e.key === 'p' || e.key === 'P') {
-                    const prevLink = document.querySelector('a[aria-label="Previous Page"]');
+                    const prevLink = document.querySelector('a[aria-label="Go to previous page"]');
                     if (prevLink) prevLink.click();
                 } else if (e.key === 'ArrowRight' || e.key === 'n' || e.key === 'N') {
-                    const nextLink = document.querySelector('a[aria-label="Next Page"]');
+                    const nextLink = document.querySelector('a[aria-label="Go to next page"]');
                     if (nextLink) nextLink.click();
+                } else if (e.key === 'Escape') {
+                    const clearLink = document.querySelector('.btn-reset');
+                    if (clearLink) clearLink.click();
                 }
             } else {
                 if (e.key === 'Escape') {
