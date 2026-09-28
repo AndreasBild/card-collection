@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ContentFilter</key>
+	<dict/>
+	<key>auto_connect</key>
+	<true/>
+	<key>data</key>
+	<dict>
+		<key>connection</key>
+		<dict>
+			<key>database</key>
+			<string>card_collection</string>
+			<key>host</key>
+			<string>127.0.0.1</string>
+			<key>name</key>
+			<string>Card Collection (Local)</string>
+			<key>port</key>
+			<integer>3306</integer>
+			<key>rdbms_type</key>
+			<string>mysql</string>
+			<key>sslCACertFileLocation</key>
+			<string></string>
+			<key>sslCACertFileLocationEnabled</key>
+			<integer>0</integer>
+			<key>sslCertificateFileLocation</key>
+			<string></string>
+			<key>sslCertificateFileLocationEnabled</key>
+			<integer>0</integer>
+			<key>sslKeyFileLocation</key>
+			<string></string>
+			<key>sslKeyFileLocationEnabled</key>
+			<integer>0</integer>
+			<key>type</key>
+			<string>SPTCPIPConnection</string>
+			<key>useSSL</key>
+			<integer>0</integer>
+			<key>user</key>
+			<string>root</string>
+		</dict>
+		<key>session</key>
+		<dict>
+			<key>connectionEncoding</key>
+			<string>utf8mb4</string>
+			<key>contentFilter</key>
+			<dict/>
+			<key>contentPageNumber</key>
+			<integer>1</integer>
+			<key>contentSortColIsAsc</key>
+			<true/>
+			<key>contentViewport</key>
+			<string>{{0, 0}, {1000, 600}}</string>
+			<key>isToolbarVisible</key>
+			<true/>
+			<key>queries</key>
+			<string>-- Full 3NF Denormalized Card Inspection
+SELECT 
+    c.id AS card_id,
+    c.number AS card_number,
+    c.serial_number,
+    c.print_run,
+    s.name AS season,
+    m.name AS manufacturer,
+    b.name AS brand,
+    t.name AS theme,
+    v.name AS variant,
+    CONCAT(p.surname, ' ', p.name) AS player_name,
+    tm.name AS team_name,
+    g.grading_company,
+    g.grade,
+    c.grading_cert_number,
+    c.pack_odds,
+    c.rookie_card,
+    c.autograph,
+    c.game_used_material
+FROM card c
+JOIN card_manufacturer m ON c.manufacturer_id = m.id
+JOIN card_brand b ON c.brand_id = b.id
+LEFT JOIN season s ON c.season_id = s.id
+LEFT JOIN card_theme t ON c.theme_id = t.id
+LEFT JOIN variant v ON c.variant_id = v.id
+LEFT JOIN grading g ON c.grading_id = g.id
+LEFT JOIN card_player cp ON c.id = cp.card_id
+LEFT JOIN player p ON cp.player_id = p.id
+LEFT JOIN team tm ON cp.team_id = tm.id
+ORDER BY c.id DESC
+LIMIT 50;
+</string>
+		</dict>
+	</dict>
+	<key>encrypted</key>
+	<false/>
+	<key>format</key>
+	<string>connection</string>
+	<key>queryFavorites</key>
+	<array>
+		<dict>
+			<key>name</key>
+			<string>1. Duplicate Card (Flyway V8 SP)</string>
+			<key>query</key>
+			<string>CALL duplicate_card(1); -- Replace 1 with target card_id</string>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>2. Missing Pack Odds / Cert Numbers</string>
+			<key>query</key>
+			<string>SELECT id, number, manufacturer_id, brand_id, grading_id, pack_odds, grading_cert_number
+FROM card
+WHERE (grading_id IS NOT NULL AND (grading_cert_number IS NULL OR grading_cert_number = ''))
+   OR (pack_odds IS NULL OR pack_odds = '')
+ORDER BY id ASC;</string>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>3. Collection Summary by Season &amp; Brand</string>
+			<key>query</key>
+			<string>SELECT 
+    s.name AS season,
+    b.name AS brand,
+    COUNT(c.id) AS total_cards,
+    SUM(c.autograph) AS autographs,
+    SUM(c.game_used_material) AS relics,
+    SUM(c.rookie_card) AS rookies
+FROM card c
+LEFT JOIN season s ON c.season_id = s.id
+JOIN card_brand b ON c.brand_id = b.id
+GROUP BY s.name, b.name
+ORDER BY s.name DESC, total_cards DESC;</string>
+		</dict>
+		<dict>
+			<key>name</key>
+			<string>4. Orphan / Integrity Check</string>
+			<key>query</key>
+			<string>-- Cards without associated players
+SELECT c.id, c.number, b.name AS brand 
+FROM card c 
+JOIN card_brand b ON c.brand_id = b.id 
+LEFT JOIN card_player cp ON c.id = cp.card_id 
+WHERE cp.player_id IS NULL;</string>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -16,16 +16,21 @@ A high-performance **Spring Boot 4 / Kotlin 2 / MySQL** domain engine and invent
 
 ### 1. Requirements
 * **Java 27** SDK
-* **MySQL 8.x / 9.x** running locally on port `3306`
+* **MySQL 8.x / 9.x** running locally on port `3306` (or use `docker compose up -d`)
 
 ### 2. Database Initialization (Flyway)
 The application automatically executes all versioned migrations (`src/main/resources/db/migration`) on startup.
 
-1. Create an empty database in MySQL:
-   ```sql
-   CREATE DATABASE card_collection;
+1. Start MySQL locally or with Docker Compose:
+   ```bash
+   docker compose up -d
    ```
+   *(Or create `CREATE DATABASE card_collection;` manually).*
 2. Configure local credentials in `src/main/resources/application.properties` (or via environment variables).
+3. Connect instantly with **Sequel Ace**:
+   ```bash
+   open card_collection.spf
+   ```
 
 ### 3. Running the Application
 ```bash
