@@ -3678,8 +3678,7 @@ CREATE TABLE `flyway_schema_history` (
 --
 
 INSERT INTO `flyway_schema_history`
-VALUES (1,'1','Initial schema','SQL','V1__Initial_schema.sql',785160753,'root','2026-08-16 13:21:42',76,1),
-       (2,'2','initial data','SQL','V2__initial_data.sql',-1999483866,'root','2026-08-16 13:21:42',102,1);
+VALUES (1,'1','Initial schema','SQL','V1__Initial_schema.sql',NULL,'root','2026-08-16 13:21:42',76,1);
 
 --
 -- Table structure for table `grading`
