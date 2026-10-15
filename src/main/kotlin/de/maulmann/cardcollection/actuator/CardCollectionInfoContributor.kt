@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class CardCollectionInfoContributor(
     private val cardRepository: CardRepository,
     private val playerRepository: PlayerRepository,
-    @Value("\${export.json.sync-path:../card-collectionJava/content/json/cards.json}")
+    @param:Value("\${export.json.sync-path:../card-collectionJava/content/json/cards.json}")
     private val syncPath: String
 ) : InfoContributor {
 

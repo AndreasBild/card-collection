@@ -10,9 +10,9 @@ import java.io.File
 
 @Component
 class DatabaseSyncHealthIndicator(
-    @Value("\${export.json.sync-path:../card-collectionJava/content/json/cards.json}")
+    @param:Value("\${export.json.sync-path:../card-collectionJava/content/json/cards.json}")
     private val syncPath: String,
-    @Autowired(required = false)
+    @param:Autowired(required = false)
     private val changeDetectorService: DatabaseChangeDetectorService?
 ) : HealthIndicator {
 

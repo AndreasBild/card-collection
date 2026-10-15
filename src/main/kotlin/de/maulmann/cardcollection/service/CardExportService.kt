@@ -26,7 +26,7 @@ class CardExportService(
     private val objectMapper: ObjectMapper = ObjectMapper().apply {
         enable(SerializationFeature.INDENT_OUTPUT)
     },
-    @Value("\${export.json.sync-path:../card-collectionJava/content/json/cards.json}")
+    @param:Value("\${export.json.sync-path:../card-collectionJava/content/json/cards.json}")
     var syncPath: String = "../card-collectionJava/content/json/cards.json"
 ) {
 

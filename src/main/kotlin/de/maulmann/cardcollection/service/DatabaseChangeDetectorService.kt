@@ -20,7 +20,7 @@ class DatabaseChangeDetectorService(
     private val cacheManager: CacheManager,
     private val cardExportService: CardExportService,
     private val eventPublisher: ApplicationEventPublisher,
-    @Value("\${export.db-sync.sync-on-startup:false}")
+    @param:Value("\${export.db-sync.sync-on-startup:false}")
     private val syncOnStartup: Boolean = false
 ) {
 
