@@ -27,7 +27,7 @@ import java.util.regex.Pattern
 @Service
 class GradingScanDownloadService(
     private val cardRepository: CardRepository,
-    @Value("\${grading.images.download-dir:gradingImages}")
+    @param:Value("\${grading.images.download-dir:gradingImages}")
     private val downloadDirSetting: String = "gradingImages",
     private val httpClient: HttpClient = HttpClient.newBuilder()
         .executor(Executors.newVirtualThreadPerTaskExecutor())
