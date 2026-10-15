@@ -50,8 +50,8 @@ class ExportControllerTest {
     @Test
     fun `test syncJsonToStaticSite invokes CardExportService and returns response`() {
         val dummyFile = java.io.File("content/json/cards.json")
-        `when`(cardExportService.syncCardsJsonToStaticSite()).thenReturn(dummyFile)
         `when`(cardExportService.exportAllCardsToJsonDtos()).thenReturn(emptyList())
+        `when`(cardExportService.syncCardsJsonToStaticSite(emptyList())).thenReturn(dummyFile)
 
         val response = exportController.syncJsonToStaticSite()
 

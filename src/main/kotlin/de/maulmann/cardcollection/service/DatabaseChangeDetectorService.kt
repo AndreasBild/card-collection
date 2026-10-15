@@ -83,20 +83,24 @@ class DatabaseChangeDetectorService(
     fun computeDatabaseSignature(): String {
         val sql = """
             SELECT 
-                (SELECT COUNT(*) FROM card),
-                (SELECT COALESCE(SUM(id + serial_number + COALESCE(print_run, 0) + COALESCE(grading_id, 0) + COALESCE(LENGTH(grading_cert_number), 0) + COALESCE(LENGTH(pack_odds), 0) + COALESCE(LENGTH(number), 0) + COALESCE(season_id, 0) + COALESCE(manufacturer_id, 0) + COALESCE(brand_id, 0) + COALESCE(theme_id, 0) + COALESCE(variant_id, 0) + CASE WHEN rookie_card IS TRUE THEN 7 ELSE 0 END + CASE WHEN game_used_material IS TRUE THEN 13 ELSE 0 END + CASE WHEN autograph IS TRUE THEN 29 ELSE 0 END), 0) FROM card),
-                (SELECT COUNT(*) FROM card_player),
-                (SELECT COALESCE(SUM(card_id + player_id + COALESCE(team_id, 0)), 0) FROM card_player),
-                (SELECT COUNT(*) FROM player),
-                (SELECT COALESCE(SUM(id + sport_id), 0) FROM player),
-                (SELECT COUNT(*) FROM grading),
-                (SELECT COALESCE(SUM(id + CAST(grade * 10 AS SIGNED)), 0) FROM grading),
+                c.cnt, c.sm,
+                cp.cnt, cp.sm,
+                p.cnt, p.sm,
+                g.cnt, g.sm,
                 (SELECT COUNT(*) FROM team),
                 (SELECT COUNT(*) FROM season),
                 (SELECT COUNT(*) FROM card_brand),
                 (SELECT COUNT(*) FROM card_theme),
                 (SELECT COUNT(*) FROM variant),
                 (SELECT COUNT(*) FROM card_manufacturer)
+            FROM 
+                (SELECT COUNT(*) AS cnt, COALESCE(SUM(id + serial_number + COALESCE(print_run, 0) + COALESCE(grading_id, 0) + COALESCE(LENGTH(grading_cert_number), 0) + COALESCE(LENGTH(pack_odds), 0) + COALESCE(LENGTH(number), 0) + COALESCE(season_id, 0) + COALESCE(manufacturer_id, 0) + COALESCE(brand_id, 0) + COALESCE(theme_id, 0) + COALESCE(variant_id, 0) + CASE WHEN rookie_card IS TRUE THEN 7 ELSE 0 END + CASE WHEN game_used_material IS TRUE THEN 13 ELSE 0 END + CASE WHEN autograph IS TRUE THEN 29 ELSE 0 END), 0) AS sm FROM card) c
+            CROSS JOIN
+                (SELECT COUNT(*) AS cnt, COALESCE(SUM(card_id + player_id + COALESCE(team_id, 0)), 0) AS sm FROM card_player) cp
+            CROSS JOIN
+                (SELECT COUNT(*) AS cnt, COALESCE(SUM(id + sport_id), 0) AS sm FROM player) p
+            CROSS JOIN
+                (SELECT COUNT(*) AS cnt, COALESCE(SUM(id + CAST(grade * 10 AS SIGNED)), 0) AS sm FROM grading) g
         """.trimIndent()
 
         return jdbcTemplate.queryForObject(sql) { rs, _ ->

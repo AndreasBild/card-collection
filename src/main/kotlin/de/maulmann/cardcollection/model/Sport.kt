@@ -7,7 +7,7 @@ import jakarta.persistence.Id
 import org.hibernate.annotations.BatchSize
 
 @Entity
-@BatchSize(size = 50)
+@BatchSize(size = 100)
 
  class Sport(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
