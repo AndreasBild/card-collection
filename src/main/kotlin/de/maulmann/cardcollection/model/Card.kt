@@ -27,7 +27,7 @@ class Card(
     var autograph: Boolean,
 
     @OneToMany(mappedBy = "card", cascade = [CascadeType.ALL], orphanRemoval = true)
-    @BatchSize(size = 20)
+    @BatchSize(size = 100)
     var cardPlayers: MutableSet<CardPlayer> = mutableSetOf(),
 
     @ManyToOne(fetch = FetchType.LAZY)

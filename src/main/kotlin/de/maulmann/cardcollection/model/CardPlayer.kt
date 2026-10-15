@@ -12,7 +12,7 @@ data class CardPlayerId(
 
 @Entity
 @Table(name = "card_player")
-@BatchSize(size = 50)
+@BatchSize(size = 100)
 class CardPlayer(
     @EmbeddedId
     var id: CardPlayerId,

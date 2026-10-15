@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.ui.ConcurrentModel
 
+@Suppress("UNCHECKED_CAST")
 class GlobalExceptionHandlerTest {
 
     private val handler = GlobalExceptionHandler()

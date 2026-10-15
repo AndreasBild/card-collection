@@ -10,10 +10,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.io.BufferedWriter
 import java.io.File
 import java.io.OutputStream
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.text.Normalizer
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 @Transactional(readOnly = true)
@@ -99,13 +103,13 @@ class CardExportService(
         }
     }
 
-    fun syncCardsJsonToStaticSite(): File {
-        return syncCardsJsonToStaticSite(File(syncPath))
+    fun syncCardsJsonToStaticSite(dtos: List<CardJsonDto>? = null): File {
+        return syncCardsJsonToStaticSite(File(syncPath), dtos)
     }
 
-    fun syncCardsJsonToStaticSite(targetFile: File): File {
-        val dtos = exportAllCardsToJsonDtos()
-        syncDtosToFile(dtos, targetFile)
+    fun syncCardsJsonToStaticSite(targetFile: File, dtos: List<CardJsonDto>? = null): File {
+        val resolvedDtos = dtos ?: exportAllCardsToJsonDtos()
+        syncDtosToFile(resolvedDtos, targetFile)
         return targetFile
     }
 
@@ -114,18 +118,34 @@ class CardExportService(
     }
 
     private fun syncDtosToFile(dtos: List<CardJsonDto>, file: File) {
+        val parent = file.parentFile
+        var tempFile: File? = null
         try {
-            file.parentFile?.mkdirs()
-            objectMapper.writeValue(file, dtos)
+            parent?.mkdirs()
+            tempFile = File.createTempFile("cards_", ".json.tmp", parent ?: File("."))
+            objectMapper.writeValue(tempFile, dtos)
+            try {
+                Files.move(
+                    tempFile.toPath(),
+                    file.toPath(),
+                    StandardCopyOption.ATOMIC_MOVE,
+                    StandardCopyOption.REPLACE_EXISTING
+                )
+            } catch (e: Exception) {
+                // Fallback to non-atomic replace if atomic move is not supported across filesystem boundaries
+                Files.move(tempFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            }
             logger.info("Successfully synced cards.json [{} cards] to {}", dtos.size, file.absolutePath)
         } catch (e: Exception) {
             logger.warn("Could not sync cards.json to {}: {}", file.absolutePath, e.message)
+        } finally {
+            tempFile?.let { Files.deleteIfExists(it.toPath()) }
         }
     }
 
     fun writeCardsCsv(outputStream: OutputStream) {
         val dtos = exportAllCardsToJsonDtos()
-        outputStream.writer(Charsets.UTF_8).use { writer ->
+        BufferedWriter(outputStream.writer(Charsets.UTF_8)).use { writer ->
             writer.write("ID,Player,Season,Team,Company,Brand,Theme,Variant,Card Number,Serial Number,Print Run,Ratio,Grading Company,Grade,Grading Cert Number,Autograph,Patch,Rookie,Collection\r\n")
             for (dto in dtos) {
                 val row = listOf(
@@ -199,12 +219,16 @@ class CardExportService(
         return candidateSlug
     }
 
+    private val slugCache = ConcurrentHashMap<String, String>()
+
     private fun toSlug(input: String): String {
-        val normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
-        val ascii = DIACRITICS_REGEX.replace(normalized, "")
-        return NON_ALPHANUMERIC_REGEX.replace(ascii.lowercase(Locale.ENGLISH), "-")
-            .replace(CONSECUTIVE_DASHES_REGEX, "-")
-            .trim('-')
+        return slugCache.computeIfAbsent(input) { raw ->
+            val normalized = Normalizer.normalize(raw, Normalizer.Form.NFD)
+            val ascii = DIACRITICS_REGEX.replace(normalized, "")
+            NON_ALPHANUMERIC_REGEX.replace(ascii.lowercase(Locale.ENGLISH), "-")
+                .replace(CONSECUTIVE_DASHES_REGEX, "-")
+                .trim('-')
+        }
     }
 
     companion object {

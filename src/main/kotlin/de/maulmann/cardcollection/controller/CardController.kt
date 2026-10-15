@@ -91,8 +91,8 @@ class CardController(
 
         val isAll = size.equals("all", ignoreCase = true)
         val parsedSize = size.toIntOrNull() ?: 20
-        val pageSize = if (isAll) 100_000 else parsedSize.coerceAtLeast(1)
-        val currentPageIndex = if (isAll) 0 else page
+        val pageSize = if (isAll) 10_000 else parsedSize.coerceIn(1, 100)
+        val currentPageIndex = if (isAll) 0 else page.coerceAtLeast(0)
 
         val pageable = PageRequest.of(currentPageIndex, pageSize, sortObj)
 

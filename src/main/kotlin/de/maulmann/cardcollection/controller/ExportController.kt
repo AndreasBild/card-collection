@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.util.HtmlUtils
+import java.io.BufferedOutputStream
 import java.io.OutputStreamWriter
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
@@ -48,7 +49,7 @@ class ExportController(
     @RequestMapping(value = ["/json/sync"], method = [RequestMethod.GET, RequestMethod.POST])
     fun syncJsonToStaticSite(): ResponseEntity<SyncStatusResponse> {
         val dtos = cardExportService.exportAllCardsToJsonDtos()
-        val targetFile = cardExportService.syncCardsJsonToStaticSite()
+        val targetFile = cardExportService.syncCardsJsonToStaticSite(dtos = dtos)
         return ResponseEntity.ok(
             SyncStatusResponse(
                 status = "success",
@@ -87,7 +88,7 @@ class ExportController(
             }
         }
 
-        ZipOutputStream(response.outputStream).use { zos ->
+        ZipOutputStream(BufferedOutputStream(response.outputStream, 32768)).use { zos ->
             if (seasonExports.isEmpty()) {
                 val emptyEntry = ZipEntry("empty.txt")
                 zos.putNextEntry(emptyEntry)

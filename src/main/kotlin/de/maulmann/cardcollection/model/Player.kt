@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import org.hibernate.annotations.BatchSize
 
 @Entity
-@BatchSize(size = 50)
+@BatchSize(size = 100)
 class Player(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,

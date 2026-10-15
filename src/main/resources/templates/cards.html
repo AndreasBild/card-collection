@@ -628,33 +628,43 @@
 
         manufacturerSelect.addEventListener('change', async function () {
             const selectedManufacturerId = this.value;
-            await fetchAndPopulateBrands(selectedManufacturerId, brandSelect.value);
-            await fetchAndPopulateThemes(selectedManufacturerId, null, themeSelect.value);
-            await fetchAndPopulateVariants(selectedManufacturerId, null, null, variantSelect.value);
-
-            if (!selectedManufacturerId) {
+            if (selectedManufacturerId) {
+                await Promise.all([
+                    fetchAndPopulateBrands(selectedManufacturerId, brandSelect.value),
+                    fetchAndPopulateThemes(selectedManufacturerId, null, themeSelect.value),
+                    fetchAndPopulateVariants(selectedManufacturerId, null, null, variantSelect.value)
+                ]);
+            } else {
                 brandSelect.value = '';
                 themeSelect.value = '';
                 variantSelect.value = '';
-                await fetchAndPopulateBrands(null, null);
-                await fetchAndPopulateThemes(null, null, null);
-                await fetchAndPopulateVariants(null, null, null, null);
+                await Promise.all([
+                    fetchAndPopulateBrands(null, null),
+                    fetchAndPopulateThemes(null, null, null),
+                    fetchAndPopulateVariants(null, null, null, null)
+                ]);
             }
         });
 
         brandSelect.addEventListener('change', async function () {
             const selectedBrandId = this.value;
             const selectedManufacturerId = manufacturerSelect.value;
-            await fetchAndPopulateThemes(selectedManufacturerId, selectedBrandId, themeSelect.value);
-            await fetchAndPopulateVariants(selectedManufacturerId, selectedBrandId, null, variantSelect.value);
-
-            if (!selectedBrandId) {
+            if (selectedBrandId) {
+                await Promise.all([
+                    fetchAndPopulateThemes(selectedManufacturerId, selectedBrandId, themeSelect.value),
+                    fetchAndPopulateVariants(selectedManufacturerId, selectedBrandId, null, variantSelect.value)
+                ]);
+            } else {
                 if (selectedManufacturerId) {
-                    await fetchAndPopulateThemes(selectedManufacturerId, null, themeSelect.value);
-                    await fetchAndPopulateVariants(selectedManufacturerId, null, null, variantSelect.value);
+                    await Promise.all([
+                        fetchAndPopulateThemes(selectedManufacturerId, null, themeSelect.value),
+                        fetchAndPopulateVariants(selectedManufacturerId, null, null, variantSelect.value)
+                    ]);
                 } else {
-                    await fetchAndPopulateThemes(null, null, themeSelect.value);
-                    await fetchAndPopulateVariants(null, null, null, variantSelect.value);
+                    await Promise.all([
+                        fetchAndPopulateThemes(null, null, themeSelect.value),
+                        fetchAndPopulateVariants(null, null, null, variantSelect.value)
+                    ]);
                 }
             }
         });
