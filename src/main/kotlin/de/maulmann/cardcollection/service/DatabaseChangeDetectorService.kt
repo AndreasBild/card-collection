@@ -45,7 +45,7 @@ class DatabaseChangeDetectorService(
         }
     }
 
-    @Scheduled(fixedDelayString = "\${export.db-sync.polling-interval-ms:3000}")
+    @Scheduled(fixedDelayString = "\${export.db-sync.polling-interval-ms:30000}")
     fun checkForDatabaseChanges(): Boolean {
         return try {
             val currentSignature = computeDatabaseSignature()

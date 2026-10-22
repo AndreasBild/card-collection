@@ -8,7 +8,6 @@ import de.maulmann.cardcollection.repository.CardRepository
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.io.File
 import java.net.URI
 import java.net.http.HttpClient
@@ -53,7 +52,8 @@ class GradingScanDownloadService(
         return dir
     }
 
-    @Transactional(readOnly = true)
+    // Intentionally not transactional: cards are loaded fully (fetch joins) by the repository call below,
+    // so no DB connection is held while performing slow outbound HTTP downloads.
     fun downloadAllGradingScans(overwrite: Boolean = false): GradingScanDownloadSummary {
         val targetDir = getDownloadDirectory()
         val allGradedCards = cardRepository.findAllWithDetails()

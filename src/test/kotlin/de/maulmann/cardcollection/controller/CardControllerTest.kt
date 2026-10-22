@@ -10,6 +10,8 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -123,6 +125,22 @@ class CardControllerTest {
             .andExpect(model().attribute("currentSortProperty", "number"))
             .andExpect(model().attribute("currentSortDirection", "DESC"))
     }
+    @Test
+    fun `getCards with unsupported sort property falls back to id`() {
+        val page = PageImpl(emptyList<Card>(), PageRequest.of(0, 10), 0)
+        whenever(cardService.getCardsFiltered(any(), any())).thenReturn(page)
+
+        mockMvc.perform(get("/cards").param("sort", "bogusField,desc"))
+            .andExpect(status().isOk)
+            .andExpect(model().attributeExists("error"))
+
+        val pageableCaptor = argumentCaptor<org.springframework.data.domain.Pageable>()
+        verify(cardService).getCardsFiltered(any(), pageableCaptor.capture())
+        org.junit.jupiter.api.Assertions.assertNotNull(pageableCaptor.firstValue.sort.getOrderFor("id"))
+        org.junit.jupiter.api.Assertions.assertNull(pageableCaptor.firstValue.sort.getOrderFor("bogusField"))
+    }
+
+
 
     @Test
     fun `getCards with size all parameter`() {

@@ -80,10 +80,10 @@ class CardController(
                     parts.size > 1 && parts[1].matches(Regex("desc|DESC|DESCENDING", RegexOption.IGNORE_CASE)) -> Sort.Direction.DESC
                     else -> Sort.Direction.ASC
                 }
-                try {
+                if (field == "id" || SORTABLE_COLUMNS.any { col -> col.isSortable && col.propertyPath == field }) {
                     Sort.by(direction, field)
-                } catch (e: Exception) {
-                    e.message?.let { model.addAttribute("error", it) }
+                } else {
+                    model.addAttribute("error", "Unsupported sort property: $field")
                     Sort.by("id")
                 }
             }
