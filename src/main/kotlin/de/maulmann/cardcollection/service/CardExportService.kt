@@ -39,9 +39,10 @@ class CardExportService(
     }
 
     fun mapToCardJsonDto(card: Card, existingSlugs: MutableSet<String> = mutableSetOf()): CardJsonDto {
-        val playerStr = card.playerNames.ifBlank { null }
+        val people = card.peopleSummary()
+        val playerStr = people.playerNames.ifBlank { null }
         val seasonStr = card.season.name.ifBlank { null }
-        val teamStr = card.teamNames.ifBlank { null }
+        val teamStr = people.teamNames.ifBlank { null }
         val companyStr = card.manufacturer.name.ifBlank { null }
         val brandStr = card.brand.name.ifBlank { null }
         val themeStr = card.theme.name.ifBlank { null }
@@ -63,7 +64,7 @@ class CardExportService(
         val gradingCertNumStr = card.gradingCertNumber?.trim()?.ifBlank { null }
         val gradingUrlStr = card.verificationUrl
 
-        val collectionStr = playerStr ?: card.sportNames.ifBlank { null } ?: "Juwan Howard"
+        val collectionStr = playerStr ?: people.sportNames.ifBlank { null } ?: "Juwan Howard"
         val slugId = generateUniqueSlug(card, existingSlugs)
 
         return CardJsonDto(
@@ -97,11 +98,14 @@ class CardExportService(
 
     fun writeCardsJson(outputStream: OutputStream, syncFile: File?) {
         val dtos = exportAllCardsToJsonDtos()
-        objectMapper.writeValue(outputStream, dtos)
+        // Serialise once and reuse the bytes for both the HTTP response and the sync file.
+        val json = objectMapper.writeValueAsBytes(dtos)
+        outputStream.write(json)
+        outputStream.flush()
         syncFile?.let { file ->
             // Best-effort side effect: the HTTP response has already been written at this point.
             try {
-                syncDtosToFile(dtos, file)
+                writeBytesAtomically(json, dtos.size, file)
             } catch (e: Exception) {
                 logger.warn("Could not sync cards.json to {}: {}", file.absolutePath, e.message)
             }
@@ -123,12 +127,16 @@ class CardExportService(
     }
 
     private fun syncDtosToFile(dtos: List<CardJsonDto>, file: File) {
+        writeBytesAtomically(objectMapper.writeValueAsBytes(dtos), dtos.size, file)
+    }
+
+    private fun writeBytesAtomically(json: ByteArray, cardCount: Int, file: File) {
         val parent = file.parentFile
         var tempFile: File? = null
         try {
             parent?.mkdirs()
             tempFile = File.createTempFile("cards_", ".json.tmp", parent ?: File("."))
-            objectMapper.writeValue(tempFile, dtos)
+            tempFile.writeBytes(json)
             try {
                 Files.move(
                     tempFile.toPath(),
@@ -140,7 +148,7 @@ class CardExportService(
                 // Fallback to non-atomic replace if atomic move is not supported across filesystem boundaries
                 Files.move(tempFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING)
             }
-            logger.info("Successfully synced cards.json [{} cards] to {}", dtos.size, file.absolutePath)
+            logger.info("Successfully synced cards.json [{} cards] to {}", cardCount, file.absolutePath)
         } finally {
             tempFile?.let { Files.deleteIfExists(it.toPath()) }
         }
