@@ -147,18 +147,13 @@ class CardService(
             })
         }
 
+        // No DISTINCT needed: filters use EXISTS subqueries and fetches are to-one only, so rows cannot duplicate.
         var finalSpecification = specifications.reduceOrNull { acc, spec -> acc.and(spec) }
             ?: Specification { _, _, _ -> null }
 
-        val distinctSpecification = Specification<Card> { _, query, cb ->
-            query.distinct(true)
-            null
-        }
-        finalSpecification = finalSpecification.and(distinctSpecification)
-
         val fetchSpecification = Specification<Card> { root, query, _ ->
-            val resultType = query.resultType
-            if (resultType != Long::class.java && resultType != Long::class.javaObjectType && resultType.simpleName != "Long") {
+            // Only fetch-join for the entity select; the pagination count query returns Long.
+            if (Card::class.java.isAssignableFrom(query.resultType)) {
                 root.fetch<Card, Season>("season", JoinType.LEFT)
                 root.fetch<Card, Variant>("variant", JoinType.LEFT)
                 root.fetch<Card, CardTheme>("theme", JoinType.LEFT)

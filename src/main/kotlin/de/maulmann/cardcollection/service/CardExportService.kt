@@ -99,7 +99,12 @@ class CardExportService(
         val dtos = exportAllCardsToJsonDtos()
         objectMapper.writeValue(outputStream, dtos)
         syncFile?.let { file ->
-            syncDtosToFile(dtos, file)
+            // Best-effort side effect: the HTTP response has already been written at this point.
+            try {
+                syncDtosToFile(dtos, file)
+            } catch (e: Exception) {
+                logger.warn("Could not sync cards.json to {}: {}", file.absolutePath, e.message)
+            }
         }
     }
 
@@ -136,8 +141,6 @@ class CardExportService(
                 Files.move(tempFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING)
             }
             logger.info("Successfully synced cards.json [{} cards] to {}", dtos.size, file.absolutePath)
-        } catch (e: Exception) {
-            logger.warn("Could not sync cards.json to {}: {}", file.absolutePath, e.message)
         } finally {
             tempFile?.let { Files.deleteIfExists(it.toPath()) }
         }

@@ -17,7 +17,7 @@ graph TD
         DB <-->|Hibernate 7 / Spring Data JPA| REPO[Repository & JPA Layer]
         REPO <-->|Dynamic Specifications & Left Join Fetch| SRV[CardService & CardExportService]
         CACHE[(Caffeine Multi-Tier Cache)] <-->|TTLs 30m - 24h| SRV
-        DETECTOR[DatabaseChangeDetectorService] -->|3s Polling Signature| DB
+        DETECTOR[DatabaseChangeDetectorService] -->|30s Polling Signature| DB
         DETECTOR -->|Publish DatabaseChangedEvent| BUS[Spring ApplicationEventPublisher]
         BUS -->|DatabaseChangedEvent| LISTENER[DatabaseChangeEventListener]
         LISTENER -->|Evict All Caches| CACHE
@@ -205,7 +205,7 @@ sequenceDiagram
     participant SSG as Static Site Generator (card-collectionJava)
 
     Admin->>DB: Direct INSERT / UPDATE / DELETE
-    loop Every 3000ms
+    loop Every 30000ms
         Det->>DB: Execute 14-Point Aggregate Signature Query
         DB-->>Det: Return Aggregated Signature Hash
         alt Signature Mismatch
