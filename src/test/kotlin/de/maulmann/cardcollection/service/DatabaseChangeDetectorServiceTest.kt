@@ -12,7 +12,6 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
-import org.springframework.cache.CacheManager
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
@@ -22,9 +21,6 @@ class DatabaseChangeDetectorServiceTest {
 
     @Mock
     private lateinit var jdbcTemplate: JdbcTemplate
-
-    @Mock
-    private lateinit var cacheManager: CacheManager
 
     @Mock
     private lateinit var cardExportService: CardExportService
@@ -40,7 +36,6 @@ class DatabaseChangeDetectorServiceTest {
 
         val service = DatabaseChangeDetectorService(
             jdbcTemplate = jdbcTemplate,
-            cacheManager = cacheManager,
             cardExportService = cardExportService,
             eventPublisher = eventPublisher,
             syncOnStartup = false
@@ -63,7 +58,6 @@ class DatabaseChangeDetectorServiceTest {
 
         val service = DatabaseChangeDetectorService(
             jdbcTemplate = jdbcTemplate,
-            cacheManager = cacheManager,
             cardExportService = cardExportService,
             eventPublisher = eventPublisher,
             syncOnStartup = false
@@ -91,7 +85,6 @@ class DatabaseChangeDetectorServiceTest {
 
         val service = DatabaseChangeDetectorService(
             jdbcTemplate = jdbcTemplate,
-            cacheManager = cacheManager,
             cardExportService = cardExportService,
             eventPublisher = eventPublisher,
             syncOnStartup = false

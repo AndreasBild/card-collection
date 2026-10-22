@@ -3,11 +3,9 @@ package de.maulmann.cardcollection.service
 import de.maulmann.cardcollection.dto.CardFilter
 import de.maulmann.cardcollection.model.*
 import de.maulmann.cardcollection.repository.*
-import jakarta.persistence.criteria.JoinType
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -29,144 +27,7 @@ class CardService(
         filter: CardFilter,
         pageable: Pageable
     ): Page<Card> {
-        val specifications = mutableListOf<Specification<Card>>()
-
-        filter.manufacturerId?.let {
-            specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<CardManufacturer>("manufacturer").get<Long>("id"), it)
-            })
-        }
-        filter.brandId?.let {
-            specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<CardBrand>("brand").get<Long>("id"), it)
-            })
-        }
-        filter.themeId?.let {
-            specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<CardTheme>("theme").get<Long>("id"), it)
-            })
-        }
-        filter.sportId?.let { sportId ->
-            specifications.add(Specification { root, query, cb ->
-                val subquery = query.subquery(Long::class.java)
-                val cardPlayer = subquery.from(CardPlayer::class.java)
-                subquery.select(cardPlayer.get<Card>("card").get("id"))
-                    .where(
-                        cb.equal(cardPlayer.get<Card>("card"), root),
-                        cb.equal(cardPlayer.get<Player>("player").get<Sport>("sport").get<Long>("id"), sportId)
-                    )
-                cb.exists(subquery)
-            })
-        }
-        filter.playerId?.let { playerId ->
-            specifications.add(Specification { root, query, cb ->
-                val subquery = query.subquery(Long::class.java)
-                val cardPlayer = subquery.from(CardPlayer::class.java)
-                subquery.select(cardPlayer.get<Card>("card").get("id"))
-                    .where(
-                        cb.equal(cardPlayer.get<Card>("card"), root),
-                        cb.equal(cardPlayer.get<Player>("player").get<Long>("id"), playerId)
-                    )
-                cb.exists(subquery)
-            })
-        }
-        filter.seasonId?.let {
-            specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<Season>("season").get<Long>("id"), it)
-            })
-        }
-        filter.gameUsed?.let {
-            specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<Boolean>("gameUsedMaterial"), it)
-            })
-        }
-        filter.autograph?.let {
-            specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<Boolean>("autograph"), it)
-            })
-        }
-        filter.variantId?.let {
-            specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<Variant>("variant").get<Long>("id"), it)
-            })
-        }
-        filter.rookieCard?.let {
-            specifications.add(Specification { root, _, cb ->
-                cb.equal(root.get<Boolean>("rookieCard"), it)
-            })
-        }
-        filter.teamId?.let { teamId ->
-            specifications.add(Specification { root, query, cb ->
-                val subquery = query.subquery(Long::class.java)
-                val cardPlayer = subquery.from(CardPlayer::class.java)
-                subquery.select(cardPlayer.get<Card>("card").get("id"))
-                    .where(
-                        cb.equal(cardPlayer.get<Card>("card"), root),
-                        cb.equal(cardPlayer.get<Team>("team").get<Long>("id"), teamId)
-                    )
-                cb.exists(subquery)
-            })
-        }
-        filter.isGradedNullable?.let { isGraded ->
-            specifications.add(Specification { root, _, cb ->
-                if (isGraded) {
-                    cb.isNotNull(root.get<Any>("grading"))
-                } else {
-                    cb.isNull(root.get<Any>("grading"))
-                }
-            })
-        }
-
-        val selectedPrintRunRange = PrintRunRange.fromKey(filter.printRunRangeKey)
-        selectedPrintRunRange?.let { range ->
-            specifications.add(Specification { root, _, cb ->
-                when (range) {
-                    PrintRunRange.ONE -> cb.equal(root.get<Int?>("printRun"), 1)
-                    PrintRunRange.LE_10 -> cb.and(
-                        cb.isNotNull(root.get<Int?>("printRun")),
-                        cb.lessThanOrEqualTo(root.get("printRun"), 10)
-                    )
-                    PrintRunRange.LE_50 -> cb.and(
-                        cb.isNotNull(root.get<Int?>("printRun")),
-                        cb.lessThanOrEqualTo(root.get("printRun"), 50)
-                    )
-                    PrintRunRange.LE_100 -> cb.and(
-                        cb.isNotNull(root.get<Int?>("printRun")),
-                        cb.lessThanOrEqualTo(root.get("printRun"), 100)
-                    )
-                    PrintRunRange.LE_500 -> cb.and(
-                        cb.isNotNull(root.get<Int?>("printRun")),
-                        cb.lessThanOrEqualTo(root.get("printRun"), 500)
-                    )
-                    PrintRunRange.LE_1000 -> cb.and(
-                        cb.isNotNull(root.get<Int?>("printRun")),
-                        cb.lessThanOrEqualTo(root.get("printRun"), 1000)
-                    )
-                    PrintRunRange.ALL_WITH_PRINT_RUN -> cb.isNotNull(root.get<Int?>("printRun"))
-                }
-            })
-        }
-
-        // No DISTINCT needed: filters use EXISTS subqueries and fetches are to-one only, so rows cannot duplicate.
-        var finalSpecification = specifications.reduceOrNull { acc, spec -> acc.and(spec) }
-            ?: Specification { _, _, _ -> null }
-
-        val fetchSpecification = Specification<Card> { root, query, _ ->
-            // Only fetch-join for the entity select; the pagination count query returns Long.
-            if (Card::class.java.isAssignableFrom(query.resultType)) {
-                root.fetch<Card, Season>("season", JoinType.LEFT)
-                root.fetch<Card, Variant>("variant", JoinType.LEFT)
-                root.fetch<Card, CardTheme>("theme", JoinType.LEFT)
-                root.fetch<Card, CardBrand>("brand", JoinType.LEFT)
-                root.fetch<Card, CardManufacturer>("manufacturer", JoinType.LEFT)
-                root.fetch<Card, Grading>("grading", JoinType.LEFT)
-            }
-            null
-        }
-
-        finalSpecification = finalSpecification.and(fetchSpecification)
-
-        val cardsPage = cardRepository.findAll(finalSpecification, pageable)
+        val cardsPage = cardRepository.findAll(CardSpecifications.fromFilter(filter), pageable)
         if (cardsPage.hasContent()) {
             cardsPage.content.forEach { card ->
                 card.cardPlayers.forEach { cp ->
@@ -178,40 +39,6 @@ class CardService(
             }
         }
         return cardsPage
-    }
-
-    fun getCardsFiltered(
-        manufacturerId: Long? = null,
-        brandId: Long? = null,
-        themeId: Long? = null,
-        sportId: Long? = null,
-        playerId: Long? = null,
-        seasonId: Long? = null,
-        gameUsed: Boolean? = null,
-        autograph: Boolean? = null,
-        variantId: Long? = null,
-        rookieCard: Boolean? = null,
-        printRunRangeKey: String? = null,
-        teamId: Long? = null,
-        isGradedNullable: Boolean? = null,
-        pageable: Pageable
-    ): Page<Card> {
-        val filter = CardFilter(
-            manufacturerId = manufacturerId,
-            brandId = brandId,
-            themeId = themeId,
-            sportId = sportId,
-            playerId = playerId,
-            seasonId = seasonId,
-            gameUsed = gameUsed,
-            autograph = autograph,
-            variantId = variantId,
-            rookieCard = rookieCard,
-            printRunRangeKey = printRunRangeKey,
-            teamId = teamId,
-            isGradedNullable = isGradedNullable
-        )
-        return getCardsFiltered(filter, pageable)
     }
 
     @Cacheable("brands")
