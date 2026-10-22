@@ -11,8 +11,10 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager
 import org.springframework.context.annotation.Import
 import org.springframework.data.domain.PageRequest
+import jakarta.persistence.EntityManagerFactory
+import org.hibernate.SessionFactory
 
-@DataJpaTest
+@DataJpaTest(properties = ["spring.jpa.properties.hibernate.generate_statistics=true"])
 @Import(CardService::class)
 class CardServiceIntegrationTest {
 
@@ -21,6 +23,9 @@ class CardServiceIntegrationTest {
 
     @Autowired
     private lateinit var cardService: CardService
+
+    @Autowired
+    private lateinit var entityManagerFactory: EntityManagerFactory
 
     private lateinit var pan: CardManufacturer
     private lateinit var ud: CardManufacturer
@@ -138,5 +143,17 @@ class CardServiceIntegrationTest {
         assertThat(card2.playerNames).isEqualTo("Lionel Messi")
         assertThat(card2.sportNames).isEqualTo("Soccer")
         assertThat(card2.teamNames).isEqualTo("Los Angeles Lakers")
+    }
+
+    @Test
+    fun `test page with players is loaded with a bounded number of statements`() {
+        val statistics = entityManagerFactory.unwrap(SessionFactory::class.java).statistics
+        statistics.clear()
+
+        val result = cardService.getCardsFiltered(CardFilter(), PageRequest.of(0, 10))
+        result.content.forEach { it.peopleSummary() }
+
+        // 1 page query + 1 explicit people query; no per-card lazy loading afterwards
+        assertThat(statistics.prepareStatementCount).isLessThanOrEqualTo(3)
     }
 }

@@ -43,6 +43,20 @@ interface CardRepository : JpaRepository<Card, Long>, JpaSpecificationExecutor<C
     fun findAllWithDetails(): List<Card>
 
 
+    /**
+     * Initialises the player/sport/team graph of already-loaded cards in one query. Intended to run after a
+     * paged query within the same persistence context: the fetch join fills the managed cards' collections.
+     */
+    @org.springframework.data.jpa.repository.Query("""
+        SELECT DISTINCT c FROM Card c
+        LEFT JOIN FETCH c.cardPlayers cp
+        LEFT JOIN FETCH cp.player p
+        LEFT JOIN FETCH p.sport
+        LEFT JOIN FETCH cp.team
+        WHERE c.id IN :ids
+    """)
+    fun fetchPeopleByIds(@Param("ids") ids: Collection<Long>): List<Card>
+
     @org.springframework.data.jpa.repository.Query("""
         SELECT DISTINCT c.brand FROM Card c 
         WHERE :manufacturerId IS NULL OR c.manufacturer.id = :manufacturerId
