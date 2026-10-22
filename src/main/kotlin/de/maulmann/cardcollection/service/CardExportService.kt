@@ -10,7 +10,6 @@ import de.maulmann.cardcollection.repository.CardRepository
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.io.BufferedWriter
 import java.io.File
 import java.io.OutputStream
@@ -20,8 +19,9 @@ import java.text.Normalizer
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 
+// Not transactional on purpose: findAllWithDetails() loads everything via fetch joins, so no DB connection
+// is held while serialising, streaming to the client or writing files.
 @Service
-@Transactional(readOnly = true)
 class CardExportService(
     private val cardRepository: CardRepository,
     private val objectMapper: ObjectMapper = ObjectMapper().apply {
