@@ -28,17 +28,16 @@ class CardService(
         pageable: Pageable
     ): Page<Card> {
         val cardsPage = cardRepository.findAll(CardSpecifications.fromFilter(filter), pageable)
-        if (cardsPage.hasContent()) {
-            cardsPage.content.forEach { card ->
-                card.cardPlayers.forEach { cp ->
-                    cp.player.name
-                    cp.player.surname
-                    cp.player.sport?.name
-                    cp.team?.name
-                }
-            }
+        // The page query cannot fetch-join the cardPlayers collection (pagination would happen in memory),
+        // so initialise players, sports and teams for exactly this page with one explicit query.
+        cardsPage.content.map { it.id }.chunked(PEOPLE_FETCH_CHUNK_SIZE).forEach { ids ->
+            cardRepository.fetchPeopleByIds(ids)
         }
         return cardsPage
+    }
+
+    private companion object {
+        const val PEOPLE_FETCH_CHUNK_SIZE = 1000
     }
 
     @Cacheable("brands")
