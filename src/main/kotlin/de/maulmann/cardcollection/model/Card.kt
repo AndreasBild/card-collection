@@ -62,6 +62,16 @@ class Card(
             return if (juwan.isEmpty()) others else (juwan + others)
         }
 
+    /** Player, sport and team display names computed in a single sort pass (use when more than one is needed). */
+    fun peopleSummary(): CardPeopleSummary {
+        val sorted = sortedCardPlayers
+        return CardPeopleSummary(
+            playerNames = sorted.joinToString(", ") { "${it.player.name} ${it.player.surname}".trim() },
+            sportNames = sorted.mapNotNull { it.player.sport?.name }.distinct().joinToString(", "),
+            teamNames = sorted.mapNotNull { it.team?.name }.distinct().joinToString(", ")
+        )
+    }
+
     val playerNames: String
         get() = sortedCardPlayers.joinToString(", ") { "${it.player.name} ${it.player.surname}".trim() }
 
@@ -92,3 +102,5 @@ class Card(
             }
         }
 }
+
+data class CardPeopleSummary(val playerNames: String, val sportNames: String, val teamNames: String)

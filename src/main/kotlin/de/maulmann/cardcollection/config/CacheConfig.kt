@@ -6,6 +6,7 @@ import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.domain.Page
 import java.util.concurrent.TimeUnit
 
 @Configuration
@@ -39,11 +40,13 @@ class CacheConfig {
                 .build()
         )
 
-        // Filtered card results (dynamic query cache: 30 mins TTL, 2000 entries)
+        // Filtered card results (dynamic query cache: 30 mins TTL). Bounded by total cards held
+        // (weight = page size) rather than page count, so one large "size=all" page cannot exhaust memory.
         caffeineCacheManager.registerCustomCache(
             "filteredCards",
             Caffeine.newBuilder()
-                .maximumSize(2000)
+                .maximumWeight(20_000)
+                .weigher<Any, Any> { _, value -> (value as? Page<*>)?.numberOfElements?.coerceAtLeast(1) ?: 1 }
                 .expireAfterWrite(30, TimeUnit.MINUTES)
                 .recordStats()
                 .build()

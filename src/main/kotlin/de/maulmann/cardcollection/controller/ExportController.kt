@@ -111,9 +111,10 @@ class ExportController(
 
     private fun buildSeasonHtml(cards: List<Card>): String {
         val rows = cards.joinToString("\n") { card ->
-            val playerName = HtmlUtils.htmlEscape(card.playerNames)
-            val teamName = HtmlUtils.htmlEscape(card.teamNames)
-            val sportName = HtmlUtils.htmlEscape(card.sportNames)
+            val people = card.peopleSummary()
+            val playerName = HtmlUtils.htmlEscape(people.playerNames)
+            val teamName = HtmlUtils.htmlEscape(people.teamNames)
+            val sportName = HtmlUtils.htmlEscape(people.sportNames)
             val seasonName = HtmlUtils.htmlEscape(card.season.name)
             val companyName = HtmlUtils.htmlEscape(card.manufacturer.name)
             val brandName = HtmlUtils.htmlEscape(card.brand.name)
