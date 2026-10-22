@@ -303,7 +303,7 @@ class CardController(
             "description" to "Private Collection of Juwan Howard Basketball Trading Cards containing rare cards from Panini, Fleer, Topps, and Upper Deck.",
             "about" to mapOf(
                 "@type" to "Person",
-                "name" to "Juwan Howard",
+                "name" to FEATURED_PLAYER_NAME,
                 "jobTitle" to "Basketball Player"
             ),
             "mainEntity" to mapOf(

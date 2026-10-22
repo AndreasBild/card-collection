@@ -5,7 +5,6 @@ import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.cache.CacheManager
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.scheduling.annotation.Scheduled
@@ -17,7 +16,6 @@ import java.util.concurrent.atomic.AtomicReference
 @ConditionalOnProperty(name = ["export.db-sync.enabled"], havingValue = "true", matchIfMissing = true)
 class DatabaseChangeDetectorService(
     private val jdbcTemplate: JdbcTemplate,
-    private val cacheManager: CacheManager,
     private val cardExportService: CardExportService,
     private val eventPublisher: ApplicationEventPublisher,
     @param:Value("\${export.db-sync.sync-on-startup:false}")
@@ -71,13 +69,6 @@ class DatabaseChangeDetectorService(
             logger.warn("Database change detection check failed: {}", e.message)
             false
         }
-    }
-
-    fun evictAllCaches() {
-        for (cacheName in cacheManager.cacheNames) {
-            cacheManager.getCache(cacheName)?.clear()
-        }
-        logger.debug("Evicted all application Caffeine caches.")
     }
 
     fun computeDatabaseSignature(): String {
