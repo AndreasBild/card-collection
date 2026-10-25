@@ -62,13 +62,17 @@ The backend serves as the Master Database and provides high-performance export p
    ```bash
    curl -X POST http://localhost:8080/export/json/sync
    ```
-3. **Automatic External DB Change Detection:**
-   * When modifying records in Sequel Ace, DataGrip, or MySQL CLI, the backend automatically detects changes within ~30 seconds (default, configurable), evicts stale Caffeine caches, and writes the updated `cards.json` to the static site project.
+3. **Automatic External DB Change Detection & Live Backups:**
+   * When modifying records in Sequel Ace, DataGrip, or MySQL CLI, the backend automatically detects changes within ~30 seconds (default, configurable), evicts stale Caffeine caches, writes the updated `cards.json` to the static site project, and **automatically syncs `src/main/resources/sql/dump/Dump.sql` while creating a timestamped rolling backup in `backups/`**.
    ```properties
    export.db-sync.enabled=true
    export.db-sync.polling-interval-ms=30000
    export.json.sync-path=${EXPORT_JSON_SYNC_PATH:../card-collectionJava/content/json/cards.json}
+   export.dump.enabled=true
+   export.dump.max-backups=30
    ```
+4. **Manual One-Click Dump Sync:**
+   * Run `python3 scripts/sync_db_dump.py` from CLI, or use the pre-configured **Sync Database Dump** run action in IntelliJ IDEA.
 
 ---
 

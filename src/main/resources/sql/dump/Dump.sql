@@ -1,10 +1,10 @@
 CREATE DATABASE IF NOT EXISTS `card_collection` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION = 'N' */;
 USE `card_collection`;
--- MySQL dump 10.13  Distrib 26.7.0, for macos27.0 (arm64)
+-- MySQL dump 10.13  Distrib 26.10.0, for macos27.0 (arm64)
 --
 -- Host: localhost    Database: card_collection
 -- ------------------------------------------------------
--- Server version	26.7.0
+-- Server version	26.10.0
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1038,7 +1038,7 @@ VALUES (10,NULL,NULL,0,'278',30,1,100,_binary '',_binary '\0',_binary '\0',NULL
        (20520,25,NULL,19,'28',30,11,2410,_binary '\0',_binary '\0',_binary '\0',NULL,NULL,1,1020),
        (20600,NULL,NULL,0,'81',30,11,100,_binary '\0',_binary '',_binary '\0',NULL,NULL,1,1040),
        (20610,100,NULL,58,'81',30,11,380,_binary '\0',_binary '',_binary '\0',NULL,NULL,1,1040),
-       (20630,100,NULL,86,'AF2-HG',1400,11,1920,_binary '\0',_binary '',_binary '\0',NULL,NULL,1,1040),
+       (20630,100,NULL,85,'AF2-HG',1400,11,1920,_binary '\0',_binary '',_binary '\0',NULL,NULL,1,1040),
        (20640,10,NULL,2,'AF2P-HG',1400,11,1940,_binary '\0',_binary '',_binary '\0',NULL,NULL,1,1040),
        (20700,NULL,NULL,0,'30',30,11,100,_binary '\0',_binary '\0',_binary '\0',NULL,NULL,1,1380),
        (20790,NULL,NULL,0,'104',30,11,100,_binary '\0',_binary '\0',_binary '\0',NULL,NULL,2,2000),
@@ -1782,7 +1782,6 @@ CREATE TABLE `card_player` (
   PRIMARY KEY (`card_id`,`player_id`),
   KEY `idx_card_player_player_card` (`player_id`,`card_id`),
   KEY `idx_card_player_team_card` (`team_id`,`card_id`),
-  CONSTRAINT `card_player_ibfk_1` FOREIGN KEY (`card_id`) REFERENCES `card` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `card_player_ibfk_2` FOREIGN KEY (`player_id`) REFERENCES `player` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_card_player_team` FOREIGN KEY (`team_id`) REFERENCES `team` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -3678,7 +3677,8 @@ CREATE TABLE `flyway_schema_history` (
 --
 
 INSERT INTO `flyway_schema_history`
-VALUES (1,'1','Initial schema','SQL','V1__Initial_schema.sql',NULL,'root','2026-08-16 13:21:42',76,1);
+VALUES (1,'1','Initial schema','SQL','V1__Initial_schema.sql',785160753,'root','2026-08-16 13:21:42',76,1),
+       (2,'2','initial data','SQL','V2__initial_data.sql',-1999483866,'root','2026-08-16 13:21:42',102,1);
 
 --
 -- Table structure for table `grading`
@@ -4135,4 +4135,4 @@ VALUES (1700,'10th Anniversary'),
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-26  1:33:21
+-- Dump completed on 2026-10-25 11:52:40
