@@ -116,10 +116,6 @@ class CardExportService(
         return targetFile
     }
 
-    fun exportCardsToJsonFile(file: File) {
-        syncCardsJsonToStaticSite(file)
-    }
-
     private fun syncDtosToFile(dtos: List<CardJsonDto>, file: File) {
         CardsJsonFileWriter.writeAtomically(objectMapper.writeValueAsBytes(dtos), dtos.size, file)
     }
