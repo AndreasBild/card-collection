@@ -17,7 +17,6 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.text.Normalizer
 import java.util.Locale
-import java.util.concurrent.ConcurrentHashMap
 
 // Not transactional on purpose: findAllWithDetails() loads everything via fetch joins, so no DB connection
 // is held while serialising, streaming to the client or writing files.
@@ -231,16 +230,12 @@ class CardExportService(
         return candidateSlug
     }
 
-    private val slugCache = ConcurrentHashMap<String, String>()
-
     private fun toSlug(input: String): String {
-        return slugCache.computeIfAbsent(input) { raw ->
-            val normalized = Normalizer.normalize(raw, Normalizer.Form.NFD)
-            val ascii = DIACRITICS_REGEX.replace(normalized, "")
-            NON_ALPHANUMERIC_REGEX.replace(ascii.lowercase(Locale.ENGLISH), "-")
-                .replace(CONSECUTIVE_DASHES_REGEX, "-")
-                .trim('-')
-        }
+        val normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
+        val ascii = DIACRITICS_REGEX.replace(normalized, "")
+        return NON_ALPHANUMERIC_REGEX.replace(ascii.lowercase(Locale.ENGLISH), "-")
+            .replace(CONSECUTIVE_DASHES_REGEX, "-")
+            .trim('-')
     }
 
     companion object {

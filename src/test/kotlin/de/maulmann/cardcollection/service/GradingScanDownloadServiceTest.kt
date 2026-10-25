@@ -133,7 +133,7 @@ class GradingScanDownloadServiceTest {
 
     @Test
     fun `test downloadAllGradingScans handles empty list and returns valid summary`() {
-        whenever(cardRepository.findAllWithDetails()).thenReturn(emptyList())
+        whenever(cardRepository.findAllGradedWithDetails()).thenReturn(emptyList())
 
         val summary = service.downloadAllGradingScans(overwrite = false)
         assertEquals(0, summary.totalGradedCards)
@@ -177,7 +177,7 @@ class GradingScanDownloadServiceTest {
             )
         }
 
-        whenever(cardRepository.findAllWithDetails()).thenReturn(cards)
+        whenever(cardRepository.findAllGradedWithDetails()).thenReturn(cards)
 
         val summary = service.downloadAllGradingScans(overwrite = false)
         assertEquals(5, summary.totalGradedCards)

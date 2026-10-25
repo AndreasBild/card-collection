@@ -77,6 +77,24 @@ class DatabaseChangeDetectorServiceTest {
     }
 
     @Test
+    fun `signature query covers every exported table with content checksums`() {
+        val expectedTables = listOf(
+            "card", "card_player", "player", "grading", "sport", "team",
+            "season", "card_brand", "card_theme", "variant", "card_manufacturer"
+        )
+        assertEquals(expectedTables, DatabaseChangeDetectorService.SIGNATURE_TABLES.keys.toList())
+        assertEquals(expectedTables.size * 2, DatabaseChangeDetectorService.SIGNATURE_COLUMN_COUNT)
+
+        val sql = DatabaseChangeDetectorService.SIGNATURE_SQL
+        expectedTables.forEach { table ->
+            assertTrue(sql.contains("FROM `$table`"), "signature SQL must read $table")
+        }
+        // Name columns must be part of the checksum so renames are detected.
+        assertTrue(sql.contains("IFNULL(name, '~')"))
+        assertTrue(sql.contains("IFNULL(grading_company, '~')"))
+    }
+
+    @Test
     fun `test checkForDatabaseChanges returns false when signature unchanged`() {
         val sameSig = "10:100:10:200:1:2:0:0:1:1:1:1:1:1"
 

@@ -56,8 +56,7 @@ class GradingScanDownloadService(
     // so no DB connection is held while performing slow outbound HTTP downloads.
     fun downloadAllGradingScans(overwrite: Boolean = false): GradingScanDownloadSummary {
         val targetDir = getDownloadDirectory()
-        val allGradedCards = cardRepository.findAllWithDetails()
-            .filter { it.grading != null && !it.gradingCertNumber.isNullOrBlank() }
+        val allGradedCards = cardRepository.findAllGradedWithDetails()
 
         logger.info("Found {} graded cards with certificate numbers for scan download.", allGradedCards.size)
 

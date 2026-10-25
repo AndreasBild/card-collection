@@ -29,6 +29,8 @@ class CardController(
         data class SortableColumnInfo(val displayName: String, val propertyPath: String, val isSortable: Boolean = true)
         data class ActiveFilterChip(val label: String, val value: String, val removeUrl: String)
 
+        private val DESCENDING_PATTERN = Regex("desc|descending", RegexOption.IGNORE_CASE)
+
         private val SORTABLE_COLUMNS = listOf(
             SortableColumnInfo("Player", "playerNames", false),
             SortableColumnInfo("Team", "teamNames", false),
@@ -77,7 +79,7 @@ class CardController(
             } else {
                 val field = parts[0].takeIf { it.isNotBlank() } ?: "id"
                 val direction = when {
-                    parts.size > 1 && parts[1].matches(Regex("desc|DESC|DESCENDING", RegexOption.IGNORE_CASE)) -> Sort.Direction.DESC
+                    parts.size > 1 && DESCENDING_PATTERN.matches(parts[1]) -> Sort.Direction.DESC
                     else -> Sort.Direction.ASC
                 }
                 if (field == "id" || SORTABLE_COLUMNS.any { col -> col.isSortable && col.propertyPath == field }) {
