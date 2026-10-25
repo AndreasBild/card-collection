@@ -57,19 +57,7 @@ class CardController(
     @GetMapping(value = ["", "/", "/cards"])
     fun getCards(
         model: Model,
-        @RequestParam(required = false) manufacturerId: Long?,
-        @RequestParam(required = false) brandId: Long?,
-        @RequestParam(required = false) themeId: Long?,
-        @RequestParam(required = false) sportId: Long?,
-        @RequestParam(required = false) playerId: Long?,
-        @RequestParam(required = false) seasonId: Long?,
-        @RequestParam(required = false) gameUsed: Boolean?,
-        @RequestParam(required = false) autograph: Boolean?,
-        @RequestParam(required = false) variantId: Long?,
-        @RequestParam(required = false) rookieCard: Boolean?,
-        @RequestParam(required = false) printRunRangeKey: String?,
-        @RequestParam(required = false) teamId: Long?,
-        @RequestParam(required = false) isGradedNullable: Boolean?,
+        filter: CardFilter,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: String,
         @RequestParam(required = false) sort: String?
@@ -99,22 +87,6 @@ class CardController(
         val currentPageIndex = if (isAll) 0 else page.coerceAtLeast(0)
 
         val pageable = PageRequest.of(currentPageIndex, pageSize, sortObj)
-
-        val filter = CardFilter(
-            manufacturerId = manufacturerId,
-            brandId = brandId,
-            themeId = themeId,
-            sportId = sportId,
-            playerId = playerId,
-            seasonId = seasonId,
-            gameUsed = gameUsed,
-            autograph = autograph,
-            variantId = variantId,
-            rookieCard = rookieCard,
-            printRunRangeKey = printRunRangeKey,
-            teamId = teamId,
-            isGradedNullable = isGradedNullable
-        )
 
         val cardsPage: Page<CardListItem> = cardService.getCardsFiltered(filter, pageable)
 
