@@ -1,5 +1,6 @@
 package de.maulmann.cardcollection.controller
 
+import de.maulmann.cardcollection.dto.CardListItem
 import de.maulmann.cardcollection.model.*
 import de.maulmann.cardcollection.service.CardService
 import de.maulmann.cardcollection.service.ReferenceDataService
@@ -77,7 +78,7 @@ class CardControllerTest {
         )
         card.cardPlayers.add(CardPlayer(id = CardPlayerId(1L, 1L), card = card, player = player, team = team))
 
-        val page = PageImpl(listOf(card), PageRequest.of(0, 20), 1)
+        val page = PageImpl(listOf(CardListItem.from(card)), PageRequest.of(0, 20), 1)
 
         whenever(cardService.getCardsFiltered(any(), any())).thenReturn(page)
         whenever(referenceDataService.getAllCardManufacturers()).thenReturn(listOf(manufacturer))
@@ -103,7 +104,7 @@ class CardControllerTest {
 
     @Test
     fun `getCards handles root path slash`() {
-        val page = PageImpl(emptyList<Card>(), PageRequest.of(0, 20), 0)
+        val page = PageImpl(emptyList<CardListItem>(), PageRequest.of(0, 20), 0)
         whenever(cardService.getCardsFiltered(any(), any())).thenReturn(page)
 
         mockMvc.perform(get("/"))
@@ -114,7 +115,7 @@ class CardControllerTest {
 
     @Test
     fun `getCards with sorting and filtering parameters`() {
-        val page = PageImpl(emptyList<Card>(), PageRequest.of(0, 10), 0)
+        val page = PageImpl(emptyList<CardListItem>(), PageRequest.of(0, 10), 0)
         whenever(cardService.getCardsFiltered(any(), any())).thenReturn(page)
 
         mockMvc.perform(
@@ -131,7 +132,7 @@ class CardControllerTest {
     }
     @Test
     fun `getCards with unsupported sort property falls back to id`() {
-        val page = PageImpl(emptyList<Card>(), PageRequest.of(0, 10), 0)
+        val page = PageImpl(emptyList<CardListItem>(), PageRequest.of(0, 10), 0)
         whenever(cardService.getCardsFiltered(any(), any())).thenReturn(page)
 
         mockMvc.perform(get("/cards").param("sort", "bogusField,desc"))
@@ -148,7 +149,7 @@ class CardControllerTest {
 
     @Test
     fun `getCards with size all parameter`() {
-        val page = PageImpl(emptyList<Card>(), PageRequest.of(0, 100_000), 0)
+        val page = PageImpl(emptyList<CardListItem>(), PageRequest.of(0, 100_000), 0)
         whenever(cardService.getCardsFiltered(any(), any())).thenReturn(page)
 
         mockMvc.perform(
@@ -164,7 +165,7 @@ class CardControllerTest {
     @Test
     fun `getCards populates activeFilterChips when filters are provided`() {
         val manufacturer = CardManufacturer(id = 5L, name = "Upper Deck")
-        val page = PageImpl(emptyList<Card>(), PageRequest.of(0, 20), 0)
+        val page = PageImpl(emptyList<CardListItem>(), PageRequest.of(0, 20), 0)
         whenever(cardService.getCardsFiltered(any(), any())).thenReturn(page)
         whenever(referenceDataService.getAllCardManufacturers()).thenReturn(listOf(manufacturer))
 

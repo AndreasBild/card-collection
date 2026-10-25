@@ -131,7 +131,7 @@ class CardServiceIntegrationTest {
         val result = cardService.getCardsFiltered(CardFilter(), PageRequest.of(0, 10))
         assertThat(result.totalElements).isEqualTo(2)
 
-        // Clear entityManager so entities are detached from the persistence context
+        // Read models hold no entities, so clearing the persistence context cannot affect them
         entityManager.clear()
 
         val card1 = result.content.first { it.number == "101" }
@@ -151,9 +151,14 @@ class CardServiceIntegrationTest {
         statistics.clear()
 
         val result = cardService.getCardsFiltered(CardFilter(), PageRequest.of(0, 10))
-        result.content.forEach { it.peopleSummary() }
 
-        // 1 page query + 1 explicit people query; no per-card lazy loading afterwards
+        // The read models are built inside the service call, so the count covers all lazy loading.
+        // 1 count query + 1 page query + 1 explicit people query; no per-card statements.
         assertThat(statistics.prepareStatementCount).isLessThanOrEqualTo(3)
+        assertThat(result.content).allSatisfy {
+            assertThat(it.playerNames).isNotBlank()
+            assertThat(it.sportNames).isNotBlank()
+            assertThat(it.teamNames).isNotBlank()
+        }
     }
 }

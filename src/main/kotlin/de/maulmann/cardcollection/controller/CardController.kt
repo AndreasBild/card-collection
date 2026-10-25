@@ -2,7 +2,7 @@ package de.maulmann.cardcollection.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import de.maulmann.cardcollection.dto.CardFilter
-import de.maulmann.cardcollection.model.Card
+import de.maulmann.cardcollection.dto.CardListItem
 import de.maulmann.cardcollection.model.GradingCompany
 import de.maulmann.cardcollection.service.CardService
 import de.maulmann.cardcollection.service.PlayerService
@@ -116,7 +116,7 @@ class CardController(
             isGradedNullable = isGradedNullable
         )
 
-        val cardsPage: Page<Card> = cardService.getCardsFiltered(filter, pageable)
+        val cardsPage: Page<CardListItem> = cardService.getCardsFiltered(filter, pageable)
 
         model.addAttribute("ownerName", FeaturedPlayer.name)
         model.addAttribute("cardPage", cardsPage)
@@ -271,7 +271,7 @@ class CardController(
         return chips
     }
 
-    private fun buildJsonLd(cards: List<Card>, totalItems: Long): String {
+    private fun buildJsonLd(cards: List<CardListItem>, totalItems: Long): String {
         val items = cards.mapIndexed { index, card ->
             val cardTitle = listOfNotNull(
                 card.season.name,
