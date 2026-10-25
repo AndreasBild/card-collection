@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <title>Juwan Howard Basketball Trading Card Collection</title>
+    <title th:text="${ownerName} + ' Basketball Trading Card Collection'">Basketball Trading Card Collection</title>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="theme-color" content="#1e3a8a">
@@ -16,17 +16,17 @@
     <meta name="msapplication-TileColor" content="#317EFB">
     <link href="/favicon/favicon.ico" rel="icon" sizes="32x32">
     <meta name="description"
-          content="Private Collection of Juwan Howard Basketball Trading Cards. Containing many 1/1 and rare Trading Cards from companies like: Panini, Fleer, Topps and Upper Deck. Including Super rare cards like Precious Metal Gems from the 90s">
+          th:content="'Private Collection of ' + ${ownerName} + ' Basketball Trading Cards. Containing many 1/1 and rare Trading Cards from companies like: Panini, Fleer, Topps and Upper Deck. Including Super rare cards like Precious Metal Gems from the 90s'">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="/css/main.css?v=4" rel="stylesheet" type="text/css">
     <meta name="robots" content="index,follow">
     <!-- Open Graph & Meta -->
-    <meta property="og:title" content="Juwan Howard Basketball Trading Card Collection">
-    <meta property="og:description" content="Private Collection of Juwan Howard Basketball Trading Cards. Containing rare cards from Panini, Fleer, Topps, and Upper Deck.">
+    <meta property="og:title" th:content="${ownerName} + ' Basketball Trading Card Collection'" content="Basketball Trading Card Collection">
+    <meta property="og:description" th:content="'Private Collection of ' + ${ownerName} + ' Basketball Trading Cards. Containing rare cards from Panini, Fleer, Topps, and Upper Deck.'" content="Private Collection of Basketball Trading Cards.">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Juwan Howard Basketball Trading Card Collection">
-    <meta name="twitter:description" content="Private Collection of Juwan Howard Basketball Trading Cards.">
+    <meta name="twitter:title" th:content="${ownerName} + ' Basketball Trading Card Collection'" content="Basketball Trading Card Collection">
+    <meta name="twitter:description" th:content="'Private Collection of ' + ${ownerName} + ' Basketball Trading Cards.'" content="Private Collection of Basketball Trading Cards.">
 
     <!-- Pre-render Theme Initialization to prevent Flash of Unstyled Theme -->
     <script>
@@ -52,7 +52,7 @@
 <header class="app-header">
     <div class="header-title-group">
         <h1>Trading Card Collection</h1>
-        <p>Juwan Howard &amp; Basketball Memorabilia Database</p>
+        <p><span th:text="${ownerName}">Collector</span> &amp; Basketball Memorabilia Database</p>
     </div>
     <div class="header-actions">
         <button id="themeToggleBtn" type="button" class="theme-toggle-btn" aria-label="Toggle dark or light theme">
