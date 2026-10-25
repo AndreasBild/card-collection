@@ -4,13 +4,19 @@ Syncs the current MySQL database content to src/main/resources/sql/dump/Dump.sql
 with exact multiline formatted INSERT tuples.
 """
 
+import argparse
+import gzip
 import os
 import re
 import subprocess
+from datetime import datetime
 from pathlib import Path
 
-LOCAL_PROP_PATH = Path("src/main/resources/application-local.properties")
-DUMP_PATH = Path("src/main/resources/sql/dump/Dump.sql")
+REPO_ROOT = Path(__file__).resolve().parent.parent
+LOCAL_PROP_PATH = REPO_ROOT / "src/main/resources/application-local.properties"
+APP_PROP_PATH = REPO_ROOT / "src/main/resources/application.properties"
+DUMP_PATH = REPO_ROOT / "src/main/resources/sql/dump/Dump.sql"
+BACKUP_DIR = REPO_ROOT / "backups"
 
 def get_mysql_credentials():
     user = "root"
@@ -19,21 +25,29 @@ def get_mysql_credentials():
     port = "3306"
     database = "card_collection"
 
-    if LOCAL_PROP_PATH.exists():
-        for line in LOCAL_PROP_PATH.read_text().splitlines():
-            line = line.strip()
-            if line.startswith("spring.datasource.username="):
-                user = line.split("=", 1)[1].strip()
-            elif line.startswith("spring.datasource.password="):
-                password = line.split("=", 1)[1].strip()
-            elif line.startswith("spring.datasource.url="):
-                url = line.split("=", 1)[1].strip()
-                m = re.search(r"//([^:/]+)(?::(\d+))?/([^?]+)", url)
-                if m:
-                    host = m.group(1)
-                    if m.group(2):
-                        port = m.group(2)
-                    database = m.group(3)
+    # Read from application.properties first as fallback, then application-local.properties for overrides
+    for prop_path in [APP_PROP_PATH, LOCAL_PROP_PATH]:
+        if prop_path.exists():
+            for line in prop_path.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if line.startswith("#") or not line:
+                    continue
+                if line.startswith("spring.datasource.username="):
+                    val = line.split("=", 1)[1].strip()
+                    if val and not val.startswith("${"):
+                        user = val
+                elif line.startswith("spring.datasource.password="):
+                    val = line.split("=", 1)[1].strip()
+                    if not val.startswith("${"):
+                        password = val
+                elif line.startswith("spring.datasource.url="):
+                    val = line.split("=", 1)[1].strip()
+                    m = re.search(r"//([^:/]+)(?::(\d+))?/([^?]+)", val)
+                    if m:
+                        host = m.group(1)
+                        if m.group(2):
+                            port = m.group(2)
+                        database = m.group(3)
 
     return host, port, user, password, database
 
@@ -48,7 +62,33 @@ def format_inserts(text):
     text = re.sub(r"(INSERT INTO `[^`]+`\nVALUES\s*)(.*?);", repl, text, flags=re.DOTALL)
     return text
 
+def create_rolling_backup(dump_content: str, backup_dir: Path, max_backups: int = 30):
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    backup_file = backup_dir / f"dump_{timestamp}.sql.gz"
+
+    with gzip.open(backup_file, "wt", encoding="utf-8") as f:
+        f.write(dump_content)
+
+    print(f"Created compressed backup: {backup_file.name} ({backup_file.stat().st_size} bytes)")
+
+    # Prune older backups
+    existing_backups = sorted(
+        backup_dir.glob("dump_*.sql.gz"),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True
+    )
+    if len(existing_backups) > max_backups:
+        for old in existing_backups[max_backups:]:
+            old.unlink(missing_ok=True)
+            print(f"Pruned older backup: {old.name}")
+
 def main():
+    parser = argparse.ArgumentParser(description="Sync MySQL database to Dump.sql with rolling backups")
+    parser.add_argument("--no-backup", action="store_true", help="Skip creating rolling compressed backup")
+    parser.add_argument("--max-backups", type=int, default=30, help="Maximum rolling backups to retain (default: 30)")
+    args = parser.parse_args()
+
     host, port, user, password, database = get_mysql_credentials()
     print(f"Exporting database dump from {user}@{host}:{port}/{database}...")
 
@@ -78,8 +118,12 @@ def main():
         dump = header + dump
 
     formatted = format_inserts(dump)
+    DUMP_PATH.parent.mkdir(parents=True, exist_ok=True)
     DUMP_PATH.write_text(formatted, encoding="utf-8")
     print(f"Successfully wrote {len(formatted.splitlines())} lines to {DUMP_PATH}")
+
+    if not args.no_backup:
+        create_rolling_backup(formatted, BACKUP_DIR, max_backups=args.max_backups)
 
 if __name__ == "__main__":
     main()

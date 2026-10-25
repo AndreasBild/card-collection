@@ -62,6 +62,8 @@ scratch/
 *.zip
 *.csv.tmp
 *.json.tmp
+*.sql.gz
+backups/
 
 ### Environment & Secrets (Local Overrides Only) ###
 .env

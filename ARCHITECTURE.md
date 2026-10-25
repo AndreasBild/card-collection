@@ -21,7 +21,9 @@ graph TD
         DETECTOR -->|Publish DatabaseChangedEvent| BUS[Spring ApplicationEventPublisher]
         BUS -->|DatabaseChangedEvent| LISTENER[DatabaseChangeEventListener]
         LISTENER -->|Evict All Caches| CACHE
-        LISTENER -->|Auto-Sync on Mutation| EXP[CardExportService]
+        LISTENER -->|Auto-Sync JSON on Mutation| EXP[CardExportService]
+        LISTENER -->|Auto-Dump & Snapshot Backup| DUMPSRV[DatabaseDumpService]
+        DUMPSRV -->|Refresh Dump.sql & backups/| DUMP
         SRV --> CTRL[CardController / FilterDataController / ExportController]
         LIMITER[ExportRateLimiter & SecurityHeadersFilter] --> CTRL
         HEALTH[DatabaseSyncHealthIndicator & CardCollectionInfoContributor] --> ACT[Actuator /health & /info]
