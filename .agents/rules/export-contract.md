@@ -17,7 +17,7 @@
    - Collision resolution: append `-card<id>` on first collision, and `-card<id>-<index>` for subsequent collisions.
 
 4. **Change Detection & Cache Eviction:**
-   - `DatabaseChangeDetectorService` tracks entity metric signatures (14 metrics).
+   - `DatabaseChangeDetectorService` tracks a content signature over the 11 exported tables (row count + CRC32 checksum of all exported columns per table, 22 values), defined in `SIGNATURE_TABLES`.
    - When external or internal changes are detected, Caffeine caches are evicted and `cards.json` is auto-synced to `export.json.sync-path`.
 
 5. **CSV & HTML Export Standards:**

@@ -59,6 +59,10 @@ class Card(
                     others.add(cp)
                 }
             }
+            // cardPlayers is a hash set; sort the rest so names, slugs and exports never depend on hash order.
+            others.sortWith(
+                compareBy<CardPlayer>({ it.player.surname.lowercase() }, { it.player.name.lowercase() }, { it.id.playerId })
+            )
             return if (juwan.isEmpty()) others else (juwan + others)
         }
 

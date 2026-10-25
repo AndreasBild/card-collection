@@ -123,9 +123,38 @@ class CardRepositoryTest {
     }
 
     @Test
-    fun `test findAllBySeasonIdWithDetails`() {
-        val cards = cardRepository.findAllBySeasonIdWithDetails(season23.id)
-        assertThat(cards).hasSize(1)
-        assertThat(cards[0].season.name).isEqualTo("2023-24")
+    fun `test findAllGradedWithDetails returns only graded cards with a certificate number`() {
+        assertThat(cardRepository.findAllGradedWithDetails()).isEmpty()
+
+        val grading = entityManager.persist(Grading(grade = 10.0f, gradingCompany = GradingCompany.PSA))
+        val withCert = cardRepository.findAllWithDetails().first()
+        val managed = entityManager.find(Card::class.java, withCert.id)!!
+        managed.grading = grading
+        managed.gradingCertNumber = "   "
+        entityManager.flush()
+        assertThat(cardRepository.findAllGradedWithDetails()).isEmpty()
+
+        managed.gradingCertNumber = "12345678"
+        entityManager.flush()
+        entityManager.clear()
+        val graded = cardRepository.findAllGradedWithDetails()
+        assertThat(graded).hasSize(1)
+        assertThat(graded[0].id).isEqualTo(withCert.id)
+        assertThat(graded[0].playerNames).isNotBlank()
+    }
+
+    @Test
+    fun `test facet queries only return reference rows that are used by cards`() {
+        entityManager.persist(CardBrand(name = "Unused Brand"))
+        entityManager.persist(CardTheme(name = "Unused Theme"))
+        entityManager.persist(Variant(name = "Unused Variant"))
+        entityManager.flush()
+
+        assertThat(cardRepository.findDistinctBrandsByManufacturerId(null).map { it.name })
+            .containsExactly("Prizm", "SPx")
+        assertThat(cardRepository.findDistinctThemesByManufacturerIdAndBrandId(null, null).map { it.name })
+            .containsExactly("Base Set", "Silver Prizm")
+        assertThat(cardRepository.findDistinctVariantsByFilter(null, null, null).map { it.name })
+            .containsExactly("Base", "Gold /10")
     }
 }

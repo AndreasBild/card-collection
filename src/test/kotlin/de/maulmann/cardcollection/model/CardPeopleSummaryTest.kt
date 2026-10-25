@@ -46,6 +46,22 @@ class CardPeopleSummaryTest {
     }
 
     @Test
+    fun `other players are ordered by surname name and id regardless of insertion order`() {
+        val basketball = Sport(id = 1L, name = "Basketball")
+        val zed = Player(id = 3L, name = "Zed", surname = "Adams", sport = basketball)
+        val amy = Player(id = 1L, name = "Amy", surname = "Brown", sport = basketball)
+        val ann = Player(id = 2L, name = "Ann", surname = "Brown", sport = basketball)
+        val juwan = Player(id = 4L, name = "Juwan", surname = "Howard", sport = basketball)
+
+        val forward = cardWithPlayers(Triple(ann, null, 2L), Triple(juwan, null, 4L), Triple(amy, null, 1L), Triple(zed, null, 3L))
+        val reversed = cardWithPlayers(Triple(zed, null, 3L), Triple(amy, null, 1L), Triple(juwan, null, 4L), Triple(ann, null, 2L))
+
+        val expected = "Juwan Howard, Zed Adams, Amy Brown, Ann Brown"
+        assertThat(forward.peopleSummary().playerNames).isEqualTo(expected)
+        assertThat(reversed.peopleSummary().playerNames).isEqualTo(expected)
+    }
+
+    @Test
     fun `peopleSummary is empty for card without players`() {
         val summary = cardWithPlayers().peopleSummary()
 

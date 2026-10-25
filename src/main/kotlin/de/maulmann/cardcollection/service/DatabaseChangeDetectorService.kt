@@ -72,30 +72,47 @@ class DatabaseChangeDetectorService(
     }
 
     fun computeDatabaseSignature(): String {
-        val sql = """
-            SELECT 
-                c.cnt, c.sm,
-                cp.cnt, cp.sm,
-                p.cnt, p.sm,
-                g.cnt, g.sm,
-                (SELECT COUNT(*) FROM team),
-                (SELECT COUNT(*) FROM season),
-                (SELECT COUNT(*) FROM card_brand),
-                (SELECT COUNT(*) FROM card_theme),
-                (SELECT COUNT(*) FROM variant),
-                (SELECT COUNT(*) FROM card_manufacturer)
-            FROM 
-                (SELECT COUNT(*) AS cnt, COALESCE(SUM(id + serial_number + COALESCE(print_run, 0) + COALESCE(grading_id, 0) + COALESCE(LENGTH(grading_cert_number), 0) + COALESCE(LENGTH(pack_odds), 0) + COALESCE(LENGTH(number), 0) + COALESCE(season_id, 0) + COALESCE(manufacturer_id, 0) + COALESCE(brand_id, 0) + COALESCE(theme_id, 0) + COALESCE(variant_id, 0) + CASE WHEN rookie_card IS TRUE THEN 7 ELSE 0 END + CASE WHEN game_used_material IS TRUE THEN 13 ELSE 0 END + CASE WHEN autograph IS TRUE THEN 29 ELSE 0 END), 0) AS sm FROM card) c
-            CROSS JOIN
-                (SELECT COUNT(*) AS cnt, COALESCE(SUM(card_id + player_id + COALESCE(team_id, 0)), 0) AS sm FROM card_player) cp
-            CROSS JOIN
-                (SELECT COUNT(*) AS cnt, COALESCE(SUM(id + sport_id), 0) AS sm FROM player) p
-            CROSS JOIN
-                (SELECT COUNT(*) AS cnt, COALESCE(SUM(id + CAST(grade * 10 AS SIGNED)), 0) AS sm FROM grading) g
-        """.trimIndent()
+        return jdbcTemplate.queryForObject(SIGNATURE_SQL) { rs, _ ->
+            (1..SIGNATURE_COLUMN_COUNT).joinToString(":") { rs.getLong(it).toString() }
+        }
+    }
 
-        return jdbcTemplate.queryForObject(sql) { rs, _ ->
-            (1..14).joinToString(":") { rs.getLong(it).toString() }
+    companion object {
+        /**
+         * Every exported table with the expressions that make up one row's content. Each expression is wrapped
+         * in IFNULL so a NULL cannot collide with an empty value; bit columns are cast with `+ 0`.
+         */
+        internal val SIGNATURE_TABLES: Map<String, List<String>> = linkedMapOf(
+            "card" to listOf(
+                "id", "print_run", "pack_odds", "serial_number", "number", "theme_id", "season_id", "variant_id",
+                "rookie_card + 0", "game_used_material + 0", "autograph + 0", "grading_id", "grading_cert_number",
+                "manufacturer_id", "brand_id"
+            ),
+            "card_player" to listOf("card_id", "player_id", "team_id"),
+            "player" to listOf("id", "name", "surname", "sport_id"),
+            "grading" to listOf("id", "grade", "grading_company"),
+            "sport" to listOf("id", "name"),
+            "team" to listOf("id", "name"),
+            "season" to listOf("id", "name"),
+            "card_brand" to listOf("id", "name"),
+            "card_theme" to listOf("id", "name"),
+            "variant" to listOf("id", "name"),
+            "card_manufacturer" to listOf("id", "name")
+        )
+
+        /** Two values per table: row count and the sum of per-row CRC32 content hashes. */
+        internal val SIGNATURE_COLUMN_COUNT = SIGNATURE_TABLES.size * 2
+
+        /**
+         * One round trip, one scan per table. Counts catch inserts/deletes; the CRC32 sum catches any edit of an
+         * exported column (renames, re-assignments, grading changes), which id/length sums could miss.
+         */
+        internal val SIGNATURE_SQL: String = SIGNATURE_TABLES.entries.joinToString(
+            separator = "\nCROSS JOIN\n",
+            prefix = "SELECT " + SIGNATURE_TABLES.keys.joinToString(", ") { "`$it`.cnt, `$it`.crc" } + "\nFROM\n"
+        ) { (table, columns) ->
+            val rowContent = columns.joinToString(", ") { "IFNULL($it, '~')" }
+            "(SELECT COUNT(*) AS cnt, COALESCE(SUM(CRC32(CONCAT_WS('|', $rowContent))), 0) AS crc FROM `$table`) `$table`"
         }
     }
 

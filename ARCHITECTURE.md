@@ -208,7 +208,7 @@ sequenceDiagram
 
     Admin->>DB: Direct INSERT / UPDATE / DELETE
     loop Every 30000ms
-        Det->>DB: Execute 14-Point Aggregate Signature Query
+        Det->>DB: Execute Content-Checksum Signature Query (11 tables)
         DB-->>Det: Return Aggregated Signature Hash
         alt Signature Mismatch
             Det->>Bus: publishEvent(DatabaseChangedEvent)
@@ -223,7 +223,7 @@ sequenceDiagram
     end
 ```
 
-The change signature query aggregates row counts and key identifier checksums across 14 tables and relationships (`card`, `card_player`, `player`, `grading`, `team`, `season`, `card_brand`, `card_theme`, `variant`, `card_manufacturer`, `sport`).
+The change signature query runs in a single round trip and returns, for each of the 11 exported tables (`card`, `card_player`, `player`, `grading`, `sport`, `team`, `season`, `card_brand`, `card_theme`, `variant`, `card_manufacturer`), the row count and the sum of per-row CRC32 checksums over every exported column (22 values in total). Inserts, deletes and edits such as renames or re-assignments therefore all change the signature. The table and column list lives in `DatabaseChangeDetectorService.SIGNATURE_TABLES`.
 
 ---
 
