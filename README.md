@@ -16,7 +16,7 @@ A high-performance **Spring Boot 4 / Kotlin 2 / MySQL** domain engine and invent
 
 ### 1. Requirements
 * **Java 27** SDK
-* **MySQL 8.x / 9.x** running locally on port `3306` (or use `docker compose up -d`)
+* **MySQL 8.x / 9.x / 26.x** (Ver 26.10+) running locally on port `3306` (or use `docker compose up -d`)
 
 ### 2. Database Initialization (Flyway)
 The application automatically executes all versioned migrations (`src/main/resources/db/migration`) on startup.

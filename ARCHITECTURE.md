@@ -9,7 +9,7 @@ The application feeds structured data to the downstream static site generator **
 ```mermaid
 graph TD
     subgraph Storage & Migration Layer
-        FW[Flyway Migrations] -->|DDL & Baseline Data| DB[(MySQL 8.x/9.x Database)]
+        FW[Flyway Migrations] -->|DDL & Baseline Data| DB[(MySQL 8.x/9.x/26.x Database)]
         DUMP[Dump.sql Baseline] -.->|Sync Reference| DB
     end
 
@@ -170,7 +170,7 @@ sequenceDiagram
     participant Cache as Caffeine CacheManager
     participant Srv as CardService
     participant Repo as CardRepository (JPA Specification)
-    participant DB as MySQL 8.x/9.x
+    participant DB as MySQL 8.x/9.x/26.x
 
     Client->>Ctrl: GET /cards?manufacturerId=1&brandId=2&page=0
     Ctrl->>Srv: getCardsFiltered(filter, pageable)
