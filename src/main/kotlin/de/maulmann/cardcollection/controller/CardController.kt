@@ -118,6 +118,7 @@ class CardController(
 
         val cardsPage: Page<CardListItem> = cardService.getCardsFiltered(filter, pageable)
 
+        model.addAttribute("ownerName", FeaturedPlayer.name)
         model.addAttribute("cardPage", cardsPage)
         model.addAttribute("cards", cardsPage.content)
         model.addAttribute("currentPage", cardsPage.number)
@@ -303,11 +304,11 @@ class CardController(
         val schemaMap = mapOf(
             "@context" to "https://schema.org",
             "@type" to "CollectionPage",
-            "name" to "Juwan Howard Basketball Trading Card Collection",
-            "description" to "Private Collection of Juwan Howard Basketball Trading Cards containing rare cards from Panini, Fleer, Topps, and Upper Deck.",
+            "name" to "${FeaturedPlayer.name} Basketball Trading Card Collection",
+            "description" to "Private Collection of ${FeaturedPlayer.name} Basketball Trading Cards containing rare cards from Panini, Fleer, Topps, and Upper Deck.",
             "about" to mapOf(
                 "@type" to "Person",
-                "name" to FEATURED_PLAYER_NAME,
+                "name" to FeaturedPlayer.name,
                 "jobTitle" to "Basketball Player"
             ),
             "mainEntity" to mapOf(

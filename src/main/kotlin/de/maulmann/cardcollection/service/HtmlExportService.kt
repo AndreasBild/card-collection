@@ -1,7 +1,7 @@
 package de.maulmann.cardcollection.service
 
 import de.maulmann.cardcollection.model.Card
-import de.maulmann.cardcollection.model.FEATURED_PLAYER_NAME
+import de.maulmann.cardcollection.model.FeaturedPlayer
 import de.maulmann.cardcollection.repository.CardRepository
 import org.springframework.stereotype.Service
 import org.springframework.web.util.HtmlUtils
@@ -128,7 +128,7 @@ class HtmlExportService(
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
-            <title>${FEATURED_PLAYER_NAME} Collection - Export</title>
+            <title>${HtmlUtils.htmlEscape(FeaturedPlayer.name)} Collection - Export</title>
             <style>
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -247,7 +247,7 @@ class HtmlExportService(
             </style>
         </head>
         <body>
-        <h2>${FEATURED_PLAYER_NAME} Collection [Total: ${cards.size}]</h2>
+        <h2>${HtmlUtils.htmlEscape(FeaturedPlayer.name)} Collection [Total: ${cards.size}]</h2>
         <table>
             <tr>
                 <th>Player</th>

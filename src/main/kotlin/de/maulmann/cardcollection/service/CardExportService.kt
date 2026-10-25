@@ -4,19 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import de.maulmann.cardcollection.dto.CardJsonDto
 import de.maulmann.cardcollection.model.Card
-import de.maulmann.cardcollection.model.FEATURED_PLAYER_NAME
-import de.maulmann.cardcollection.model.GradingCompany
+import de.maulmann.cardcollection.model.FeaturedPlayer
 import de.maulmann.cardcollection.repository.CardRepository
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import java.io.BufferedWriter
 import java.io.File
 import java.io.OutputStream
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import java.text.Normalizer
-import java.util.Locale
 
 // Not transactional on purpose: findAllWithDetails() loads everything via fetch joins, so no DB connection
 // is held while serialising, streaming to the client or writing files.
@@ -64,8 +58,8 @@ class CardExportService(
         val gradingCertNumStr = card.gradingCertNumber?.trim()?.ifBlank { null }
         val gradingUrlStr = card.verificationUrl
 
-        val collectionStr = playerStr ?: people.sportNames.ifBlank { null } ?: FEATURED_PLAYER_NAME
-        val slugId = generateUniqueSlug(card, existingSlugs)
+        val collectionStr = playerStr ?: people.sportNames.ifBlank { null } ?: FeaturedPlayer.name
+        val slugId = CardSlugGenerator.generateUnique(card, existingSlugs)
 
         return CardJsonDto(
             id = slugId,
@@ -105,7 +99,7 @@ class CardExportService(
         syncFile?.let { file ->
             // Best-effort side effect: the HTTP response has already been written at this point.
             try {
-                writeBytesAtomically(json, dtos.size, file)
+                CardsJsonFileWriter.writeAtomically(json, dtos.size, file)
             } catch (e: Exception) {
                 logger.warn("Could not sync cards.json to {}: {}", file.absolutePath, e.message)
             }
@@ -127,120 +121,10 @@ class CardExportService(
     }
 
     private fun syncDtosToFile(dtos: List<CardJsonDto>, file: File) {
-        writeBytesAtomically(objectMapper.writeValueAsBytes(dtos), dtos.size, file)
-    }
-
-    private fun writeBytesAtomically(json: ByteArray, cardCount: Int, file: File) {
-        val parent = file.parentFile
-        var tempFile: File? = null
-        try {
-            parent?.mkdirs()
-            tempFile = File.createTempFile("cards_", ".json.tmp", parent ?: File("."))
-            tempFile.writeBytes(json)
-            try {
-                Files.move(
-                    tempFile.toPath(),
-                    file.toPath(),
-                    StandardCopyOption.ATOMIC_MOVE,
-                    StandardCopyOption.REPLACE_EXISTING
-                )
-            } catch (e: Exception) {
-                // Fallback to non-atomic replace if atomic move is not supported across filesystem boundaries
-                Files.move(tempFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            }
-            logger.info("Successfully synced cards.json [{} cards] to {}", cardCount, file.absolutePath)
-        } finally {
-            tempFile?.let { Files.deleteIfExists(it.toPath()) }
-        }
+        CardsJsonFileWriter.writeAtomically(objectMapper.writeValueAsBytes(dtos), dtos.size, file)
     }
 
     fun writeCardsCsv(outputStream: OutputStream) {
-        val dtos = exportAllCardsToJsonDtos()
-        BufferedWriter(outputStream.writer(Charsets.UTF_8)).use { writer ->
-            writer.write("ID,Player,Season,Team,Company,Brand,Theme,Variant,Card Number,Serial Number,Print Run,Ratio,Grading Company,Grade,Grading Cert Number,Autograph,Patch,Rookie,Collection\r\n")
-            for (dto in dtos) {
-                val row = listOf(
-                    dto.id,
-                    dto.player ?: "",
-                    dto.season ?: "",
-                    dto.team ?: "",
-                    dto.company ?: "",
-                    dto.brand ?: "",
-                    dto.theme ?: "",
-                    dto.variant ?: "",
-                    dto.cardNumber ?: "",
-                    dto.serialNumber ?: "",
-                    dto.printRun?.toString() ?: "",
-                    dto.packOdds ?: "",
-                    dto.gradingCompany ?: "",
-                    dto.grade ?: "",
-                    dto.gradingCertNumber ?: "",
-                    if (dto.isAutograph) "Yes" else "No",
-                    if (dto.isPatch) "Yes" else "No",
-                    if (dto.isRookie) "Yes" else "No",
-                    dto.collection ?: ""
-                ).joinToString(",") { escapeCsv(it) }
-                writer.write(row)
-                writer.write("\r\n")
-            }
-            writer.flush()
-        }
-    }
-
-    private fun escapeCsv(value: String): String {
-        if (value.contains(",") || value.contains("\"") || value.contains("\n") || value.contains("\r")) {
-            return "\"" + value.replace("\"", "\"\"") + "\""
-        }
-        return value
-    }
-
-    private fun generateUniqueSlug(card: Card, existingSlugs: MutableSet<String>): String {
-        val rawParts = mutableListOf<String>()
-
-        card.season.name.takeIf { it.isNotBlank() }?.let { rawParts.add(it) }
-        card.brand.name.takeIf { it.isNotBlank() }?.let { rawParts.add(it) }
-
-        card.theme.name.takeIf { it.isNotBlank() && !it.equals("Base Set", ignoreCase = true) }?.let {
-            rawParts.add(it)
-        }
-
-        card.variant.name.takeIf { it.isNotBlank() && !it.equals("Base", ignoreCase = true) }?.let {
-            rawParts.add(it)
-        }
-
-        card.number.takeIf { it.isNotBlank() }?.let { rawParts.add(it) }
-
-        if (card.serialNumber != 0) {
-            rawParts.add("sn${card.serialNumber}")
-        }
-
-        val baseSlug = rawParts.joinToString("-") { toSlug(it) }.ifBlank { "card" }
-
-        var candidateSlug = baseSlug
-        if (existingSlugs.contains(candidateSlug)) {
-            candidateSlug = "$baseSlug-card${card.id}"
-        }
-        var index = 2
-        while (existingSlugs.contains(candidateSlug)) {
-            candidateSlug = "$baseSlug-card${card.id}-$index"
-            index++
-        }
-
-        existingSlugs.add(candidateSlug)
-        return candidateSlug
-    }
-
-    private fun toSlug(input: String): String {
-        val normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
-        val ascii = DIACRITICS_REGEX.replace(normalized, "")
-        return NON_ALPHANUMERIC_REGEX.replace(ascii.lowercase(Locale.ENGLISH), "-")
-            .replace(CONSECUTIVE_DASHES_REGEX, "-")
-            .trim('-')
-    }
-
-    companion object {
-        private val DIACRITICS_REGEX = Regex("\\p{InCombiningDiacriticalMarks}+")
-        private val NON_ALPHANUMERIC_REGEX = Regex("[^a-z0-9]+")
-        private val CONSECUTIVE_DASHES_REGEX = Regex("-+")
+        CardCsvWriter.write(exportAllCardsToJsonDtos(), outputStream)
     }
 }

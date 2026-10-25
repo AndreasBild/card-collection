@@ -53,7 +53,7 @@ class Card(
             val others = ArrayList<CardPlayer>(cardPlayers.size)
             for (cp in cardPlayers) {
                 val fullName = "${cp.player.name} ${cp.player.surname}".trim()
-                if (fullName.equals(FEATURED_PLAYER_NAME, ignoreCase = true)) {
+                if (fullName.equals(FeaturedPlayer.name, ignoreCase = true)) {
                     juwan.add(cp)
                 } else {
                     others.add(cp)
@@ -106,8 +106,5 @@ class Card(
             }
         }
 }
-
-/** Display name of the collection owner; listed first on multi-player cards and used as export fallback. */
-const val FEATURED_PLAYER_NAME = "Juwan Howard"
 
 data class CardPeopleSummary(val playerNames: String, val sportNames: String, val teamNames: String)
