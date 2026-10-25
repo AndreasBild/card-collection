@@ -1,7 +1,7 @@
 package de.maulmann.cardcollection.service
 
 import de.maulmann.cardcollection.dto.CardFilter
-import de.maulmann.cardcollection.model.Card
+import de.maulmann.cardcollection.dto.CardListItem
 import de.maulmann.cardcollection.repository.CardRepository
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
@@ -19,14 +19,15 @@ class CardService(
     fun getCardsFiltered(
         filter: CardFilter,
         pageable: Pageable
-    ): Page<Card> {
+    ): Page<CardListItem> {
         val cardsPage = cardRepository.findAll(CardSpecifications.fromFilter(filter), pageable)
         // The page query cannot fetch-join the cardPlayers collection (pagination would happen in memory),
         // so initialise players, sports and teams for exactly this page with one explicit query.
         cardsPage.content.map { it.id }.chunked(PEOPLE_FETCH_CHUNK_SIZE).forEach { ids ->
             cardRepository.fetchPeopleByIds(ids)
         }
-        return cardsPage
+        // Map to immutable read models inside the transaction: the cache then never holds managed entities.
+        return cardsPage.map { CardListItem.from(it) }
     }
 
     private companion object {
