@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import de.maulmann.cardcollection.dto.CardJsonDto
 import de.maulmann.cardcollection.model.Card
-import de.maulmann.cardcollection.model.FEATURED_PLAYER_NAME
+import de.maulmann.cardcollection.model.FeaturedPlayer
 import de.maulmann.cardcollection.model.GradingCompany
 import de.maulmann.cardcollection.repository.CardRepository
 import org.slf4j.LoggerFactory
@@ -64,7 +64,7 @@ class CardExportService(
         val gradingCertNumStr = card.gradingCertNumber?.trim()?.ifBlank { null }
         val gradingUrlStr = card.verificationUrl
 
-        val collectionStr = playerStr ?: people.sportNames.ifBlank { null } ?: FEATURED_PLAYER_NAME
+        val collectionStr = playerStr ?: people.sportNames.ifBlank { null } ?: FeaturedPlayer.name
         val slugId = generateUniqueSlug(card, existingSlugs)
 
         return CardJsonDto(
