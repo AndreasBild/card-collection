@@ -118,13 +118,5 @@ class DatabaseChangeDetectorService(
 
     fun getCurrentSignature(): String? = lastStateSignature.get()
 
-    fun resetSignature(newSignature: String?) {
-        lastStateSignature.set(newSignature)
-    }
-
     fun getLastSyncTimestamp(): Instant? = lastSyncTimestamp.get()
-
-    fun setLastSyncTimestamp(timestamp: Instant?) {
-        lastSyncTimestamp.set(timestamp)
-    }
 }

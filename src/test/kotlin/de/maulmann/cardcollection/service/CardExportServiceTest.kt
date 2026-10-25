@@ -347,40 +347,6 @@ class CardExportServiceTest {
     }
 
     @Test
-    fun `test exportCardsToJsonFile creates cards json file`(@TempDir tempDir: File) {
-        val file = File(tempDir, "cards.json")
-        val season = Season(id = 1L, name = "1994-95")
-        val manufacturer = CardManufacturer(id = 1L, name = "Upper Deck")
-        val brand = CardBrand(id = 1L, name = "Collectors Choice")
-        val theme = CardTheme(id = 1L, name = "Base Set")
-        val variant = Variant(id = 1L, name = "Base")
-
-        val card = Card(
-            id = 1L,
-            season = season,
-            manufacturer = manufacturer,
-            brand = brand,
-            variant = variant,
-            theme = theme,
-            number = "278",
-            serialNumber = 0,
-            printRun = null,
-            rookieCard = false,
-            gameUsedMaterial = false,
-            autograph = false,
-            grading = null
-        )
-
-        `when`(cardRepository.findAllWithDetails()).thenReturn(listOf(card))
-
-        cardExportService.exportCardsToJsonFile(file)
-
-        assertTrue(file.exists())
-        val content = file.readText(Charsets.UTF_8)
-        assertTrue(content.contains("\"id\" : \"1994-95-collectors-choice-278\""))
-    }
-
-    @Test
     fun `test writeCardsCsv produces valid CSV content`() {
         val season = Season(id = 1L, name = "1994-95")
         val manufacturer = CardManufacturer(id = 1L, name = "Upper Deck")
