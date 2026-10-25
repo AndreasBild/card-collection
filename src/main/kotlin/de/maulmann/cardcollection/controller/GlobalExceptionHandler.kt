@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.ui.Model
+import org.springframework.validation.BindException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -22,7 +23,11 @@ class GlobalExceptionHandler {
         val path: String
     )
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException::class, IllegalArgumentException::class)
+    @ExceptionHandler(
+        MethodArgumentTypeMismatchException::class,
+        BindException::class,
+        IllegalArgumentException::class
+    )
     fun handleBadRequest(ex: Exception, request: HttpServletRequest, model: Model): Any {
         logger.warn("Bad request on {}: {}", request.requestURI, ex.message)
         val uri = request.requestURI

@@ -41,6 +41,19 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    fun `handleBadRequest is registered for bind errors so malformed filter params redirect instead of 500`() {
+        val handled = GlobalExceptionHandler::class.java.getMethod(
+            "handleBadRequest",
+            Exception::class.java,
+            jakarta.servlet.http.HttpServletRequest::class.java,
+            org.springframework.ui.Model::class.java
+        ).getAnnotation(org.springframework.web.bind.annotation.ExceptionHandler::class.java).value.toList()
+
+        assertTrue(handled.contains(org.springframework.validation.BindException::class))
+        assertTrue(handled.contains(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException::class))
+    }
+
+    @Test
     fun `handleNotFound returns 404 for api request`() {
         val request = MockHttpServletRequest("GET", "/api/cards/999")
         val model = ConcurrentModel()
