@@ -179,7 +179,7 @@ class CardControllerTest {
             .andReturn()
 
         @Suppress("UNCHECKED_CAST")
-        val chips = result.modelAndView?.model?.get("activeFilterChips") as List<CardController.Companion.ActiveFilterChip>
+        val chips = result.modelAndView?.model?.get("activeFilterChips") as List<ActiveFilterChip>
         org.junit.jupiter.api.Assertions.assertEquals(2, chips.size)
         org.junit.jupiter.api.Assertions.assertTrue(chips.any { it.label == "Manufacturer" && it.value == "Upper Deck" })
         org.junit.jupiter.api.Assertions.assertTrue(chips.any { it.label == "Rookie" && it.value == "Yes" })
