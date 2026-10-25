@@ -244,15 +244,7 @@
                                    (${currentSortProperty == column.propertyPath && currentSortDirection == 'DESC'} ?
                                     ', currently sorted descending, activate to sort ascending' :
                                     ', activate to sort ascending'))"
-                   th:href="@{/cards(
-                        page=0, size=${pageSize},
-                        sort=${column.propertyPath + ',' + nextSortDir},
-                        manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''},
-                        sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''},
-                        seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''},
-                        variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''},
-                        isGradedNullable=${param.isGradedNullable ?: ''}
-                   )}">
+                   th:href="@{${cardUrls.sort(column.propertyPath + ',' + nextSortDir)}}">
                     <span th:text="${column.displayName}"></span>
                     <span th:if="${currentSortProperty == column.propertyPath}">
                         <span th:if="${currentSortDirection == 'ASC'}" aria-hidden="true">&uarr;</span>
@@ -346,40 +338,10 @@
         <nav th:if="${totalPages > 1 && !isAllSize}" aria-label="Pagination Navigation">
             <ul class="pagination">
                 <li th:classappend="${currentPage == 0} ? 'disabled' : ''">
-                    <a th:href="@{/cards(page=0, size=${pageSize},
-                                    sort=${param.sort ?: ''},
-                                    manufacturerId=${param.manufacturerId ?: ''},
-                                    brandId=${param.brandId ?: ''},
-                                    themeId=${param.themeId ?: ''},
-                                    sportId=${param.sportId ?: ''},
-                                    playerId=${param.playerId ?: ''},
-                                    teamId=${param.teamId ?: ''},
-                                    seasonId=${param.seasonId ?: ''},
-                                    gameUsed=${param.gameUsed ?: ''},
-                                    autograph=${param.autograph ?: ''},
-                                    variantId=${param.variantId ?: ''},
-                                    rookieCard=${param.rookieCard ?: ''},
-                                    printRunRangeKey=${param.printRunRangeKey ?: ''},
-                                    isGradedNullable=${param.isGradedNullable ?: ''}
-                                    )}" aria-label="Go to first page">First</a>
+                    <a th:href="@{${cardUrls.page(0)}}" aria-label="Go to first page">First</a>
                 </li>
                 <li th:classappend="${currentPage == 0} ? 'disabled' : ''">
-                    <a th:href="@{/cards(page=${currentPage - 1}, size=${pageSize},
-                                    sort=${param.sort ?: ''},
-                                    manufacturerId=${param.manufacturerId ?: ''},
-                                    brandId=${param.brandId ?: ''},
-                                    themeId=${param.themeId ?: ''},
-                                    sportId=${param.sportId ?: ''},
-                                    playerId=${param.playerId ?: ''},
-                                    teamId=${param.teamId ?: ''},
-                                    seasonId=${param.seasonId ?: ''},
-                                    gameUsed=${param.gameUsed ?: ''},
-                                    autograph=${param.autograph ?: ''},
-                                    variantId=${param.variantId ?: ''},
-                                    rookieCard=${param.rookieCard ?: ''},
-                                    printRunRangeKey=${param.printRunRangeKey ?: ''},
-                                    isGradedNullable=${param.isGradedNullable ?: ''}
-                                    )}"
+                    <a th:href="@{${cardUrls.page(currentPage - 1)}}"
                        th:unless="${currentPage == 0}" aria-label="Go to previous page">Previous</a>
                     <span th:if="${currentPage == 0}">Previous</span>
                 </li>
@@ -388,93 +350,33 @@
                         <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                             th:classappend="${i == currentPage} ? 'active' : ''">
                             <a th:aria-current="${i == currentPage ? 'page' : null}"
-                               th:href="@{/cards(page=${i}, size=${pageSize},
-                                            sort=${param.sort ?: ''},
-                                            manufacturerId=${param.manufacturerId ?: ''},
-                                            brandId=${param.brandId ?: ''},
-                                            themeId=${param.themeId ?: ''},
-                                            sportId=${param.sportId ?: ''},
-                                            playerId=${param.playerId ?: ''},
-                                            teamId=${param.teamId ?: ''},
-                                            seasonId=${param.seasonId ?: ''},
-                                            gameUsed=${param.gameUsed ?: ''},
-                                            autograph=${param.autograph ?: ''},
-                                            variantId=${param.variantId ?: ''},
-                                            rookieCard=${param.rookieCard ?: ''},
-                                            printRunRangeKey=${param.printRunRangeKey ?: ''},
-                                            isGradedNullable=${param.isGradedNullable ?: ''}
-                                            )}" th:text="${i + 1}">_</a>
+                               th:href="@{${cardUrls.page(i)}}" th:text="${i + 1}">_</a>
                         </li>
                     </th:block>
                     <th:block th:unless="${totalPages <= (2 * window + 5)}">
                         <li th:classappend="${0 == currentPage} ? 'active' : ''">
-                            <a th:href="@{/cards(page=0, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
+                            <a th:href="@{${cardUrls.page(0)}}"
                                th:text="1">_</a>
                         </li>
                         <li th:if="${currentPage > window + 1}" class="disabled"><span>...</span></li>
                         <li th:each="i : ${#numbers.sequence( T(java.lang.Math).max(1, currentPage.intValue() - 1), T(java.lang.Math).min(totalPages.intValue() - 2, currentPage.intValue() + 1) )}"
                             th:classappend="${i == currentPage} ? 'active' : ''">
-                            <a th:href="@{/cards(page=${i}, size=${pageSize},
-                                            sort=${param.sort ?: ''},
-                                            manufacturerId=${param.manufacturerId ?: ''},
-                                            brandId=${param.brandId ?: ''},
-                                            themeId=${param.themeId ?: ''},
-                                            sportId=${param.sportId ?: ''},
-                                            playerId=${param.playerId ?: ''},
-                                            teamId=${param.teamId ?: ''},
-                                            seasonId=${param.seasonId ?: ''},
-                                            gameUsed=${param.gameUsed ?: ''},
-                                            autograph=${param.autograph ?: ''},
-                                            variantId=${param.variantId ?: ''},
-                                            rookieCard=${param.rookieCard ?: ''},
-                                            printRunRangeKey=${param.printRunRangeKey ?: ''},
-                                            isGradedNullable=${param.isGradedNullable ?: ''}
-                                            )}" th:text="${i + 1}">_</a>
+                            <a th:href="@{${cardUrls.page(i)}}" th:text="${i + 1}">_</a>
                         </li>
                         <li th:if="${currentPage < totalPages - window - 2}" class="disabled"><span>...</span></li>
                         <li th:classappend="${totalPages - 1 == currentPage} ? 'active' : ''">
-                            <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize}, sort=${param.sort ?: ''}, manufacturerId=${param.manufacturerId ?: ''}, brandId=${param.brandId ?: ''}, themeId=${param.themeId ?: ''}, sportId=${param.sportId ?: ''}, playerId=${param.playerId ?: ''}, teamId=${param.teamId ?: ''}, seasonId=${param.seasonId ?: ''}, gameUsed=${param.gameUsed ?: ''}, autograph=${param.autograph ?: ''}, variantId=${param.variantId ?: ''}, rookieCard=${param.rookieCard ?: ''}, printRunRangeKey=${param.printRunRangeKey ?: ''}, isGradedNullable=${param.isGradedNullable ?: ''})}"
+                            <a th:href="@{${cardUrls.page(totalPages - 1)}}"
                                th:text="${totalPages}">_</a>
                         </li>
                     </th:block>
                 </th:block>
                 <li th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
-                    <a th:href="@{/cards(page=${currentPage + 1}, size=${pageSize},
-                                    sort=${param.sort ?: ''},
-                                    manufacturerId=${param.manufacturerId ?: ''},
-                                    brandId=${param.brandId ?: ''},
-                                    themeId=${param.themeId ?: ''},
-                                    sportId=${param.sportId ?: ''},
-                                    playerId=${param.playerId ?: ''},
-                                    teamId=${param.teamId ?: ''},
-                                    seasonId=${param.seasonId ?: ''},
-                                    gameUsed=${param.gameUsed ?: ''},
-                                    autograph=${param.autograph ?: ''},
-                                    variantId=${param.variantId ?: ''},
-                                    rookieCard=${param.rookieCard ?: ''},
-                                    printRunRangeKey=${param.printRunRangeKey ?: ''},
-                                    isGradedNullable=${param.isGradedNullable ?: ''}
-                                    )}"
+                    <a th:href="@{${cardUrls.page(currentPage + 1)}}"
                        th:unless="${currentPage >= totalPages - 1}" aria-label="Go to next page">Next</a>
                     <span th:if="${currentPage >= totalPages - 1}">Next</span>
                 </li>
                 <li th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''">
-                    <a th:href="@{/cards(page=${totalPages - 1}, size=${pageSize},
-                                    sort=${param.sort ?: ''},
-                                    manufacturerId=${param.manufacturerId ?: ''},
-                                    brandId=${param.brandId ?: ''},
-                                    themeId=${param.themeId ?: ''},
-                                    sportId=${param.sportId ?: ''},
-                                    playerId=${param.playerId ?: ''},
-                                    teamId=${param.teamId ?: ''},
-                                    seasonId=${param.seasonId ?: ''},
-                                    gameUsed=${param.gameUsed ?: ''},
-                                    autograph=${param.autograph ?: ''},
-                                    variantId=${param.variantId ?: ''},
-                                    rookieCard=${param.rookieCard ?: ''},
-                                    printRunRangeKey=${param.printRunRangeKey ?: ''},
-                                    isGradedNullable=${param.isGradedNullable ?: ''}
-                                    )}" aria-label="Go to last page">Last</a>
+                    <a th:href="@{${cardUrls.page(totalPages - 1)}}" aria-label="Go to last page">Last</a>
                 </li>
             </ul>
         </nav>

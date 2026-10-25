@@ -3,6 +3,7 @@ package de.maulmann.cardcollection.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import de.maulmann.cardcollection.dto.CardFilter
 import de.maulmann.cardcollection.dto.CardListItem
+import de.maulmann.cardcollection.dto.CardsUrlBuilder
 import de.maulmann.cardcollection.model.GradingCompany
 import de.maulmann.cardcollection.service.CardService
 import de.maulmann.cardcollection.service.PlayerService
@@ -119,6 +120,7 @@ class CardController(
         val cardsPage: Page<CardListItem> = cardService.getCardsFiltered(filter, pageable)
 
         model.addAttribute("ownerName", FeaturedPlayer.name)
+        model.addAttribute("cardUrls", CardsUrlBuilder(filter, if (isAll) "all" else parsedSize.toString(), sort))
         model.addAttribute("cardPage", cardsPage)
         model.addAttribute("cards", cardsPage.content)
         model.addAttribute("currentPage", cardsPage.number)
@@ -202,19 +204,7 @@ class CardController(
             if (size != "20") builder.queryParam("size", size)
             if (!sort.isNullOrBlank()) builder.queryParam("sort", sort)
 
-            if (paramKey != "manufacturerId" && filter.manufacturerId != null) builder.queryParam("manufacturerId", filter.manufacturerId)
-            if (paramKey != "brandId" && filter.brandId != null) builder.queryParam("brandId", filter.brandId)
-            if (paramKey != "themeId" && filter.themeId != null) builder.queryParam("themeId", filter.themeId)
-            if (paramKey != "sportId" && filter.sportId != null) builder.queryParam("sportId", filter.sportId)
-            if (paramKey != "playerId" && filter.playerId != null) builder.queryParam("playerId", filter.playerId)
-            if (paramKey != "teamId" && filter.teamId != null) builder.queryParam("teamId", filter.teamId)
-            if (paramKey != "seasonId" && filter.seasonId != null) builder.queryParam("seasonId", filter.seasonId)
-            if (paramKey != "variantId" && filter.variantId != null) builder.queryParam("variantId", filter.variantId)
-            if (paramKey != "gameUsed" && filter.gameUsed != null) builder.queryParam("gameUsed", filter.gameUsed)
-            if (paramKey != "autograph" && filter.autograph != null) builder.queryParam("autograph", filter.autograph)
-            if (paramKey != "rookieCard" && filter.rookieCard != null) builder.queryParam("rookieCard", filter.rookieCard)
-            if (paramKey != "printRunRangeKey" && !filter.printRunRangeKey.isNullOrBlank()) builder.queryParam("printRunRangeKey", filter.printRunRangeKey)
-            if (paramKey != "isGradedNullable" && filter.isGradedNullable != null) builder.queryParam("isGradedNullable", filter.isGradedNullable)
+            filter.toQueryParams().forEach { (name, value) -> if (name != paramKey) builder.queryParam(name, value) }
 
             return builder.build().toUriString()
         }
