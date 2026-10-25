@@ -7,6 +7,7 @@ import de.maulmann.cardcollection.model.GradingCompany
 import de.maulmann.cardcollection.service.CardService
 import de.maulmann.cardcollection.service.PlayerService
 import de.maulmann.cardcollection.service.PrintRunRange
+import de.maulmann.cardcollection.service.ReferenceDataService
 import de.maulmann.cardcollection.model.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -20,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder
 @Controller
 class CardController(
     private val cardService: CardService,
+    private val referenceDataService: ReferenceDataService,
     private val playerService: PlayerService
 ) {
 
@@ -140,14 +142,14 @@ class CardController(
         model.addAttribute("currentSortDirection", currentSortDirection)
         model.addAttribute("sortableColumns", SORTABLE_COLUMNS)
 
-        val manufacturers = cardService.getAllCardManufacturers()
+        val manufacturers = referenceDataService.getAllCardManufacturers()
         val players = playerService.getPlayers()
-        val brands = cardService.getAllBrands()
-        val themes = cardService.getAllThemes()
-        val sports = cardService.getAllSports()
-        val seasons = cardService.getAllSeasons()
-        val variants = cardService.getAllVariants()
-        val teams = cardService.getAllTeams()
+        val brands = referenceDataService.getAllBrands()
+        val themes = referenceDataService.getAllThemes()
+        val sports = referenceDataService.getAllSports()
+        val seasons = referenceDataService.getAllSeasons()
+        val variants = referenceDataService.getAllVariants()
+        val teams = referenceDataService.getAllTeams()
 
         val activeFilterChips = buildActiveFilterChips(
             filter = filter,

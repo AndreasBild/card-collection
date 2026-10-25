@@ -15,7 +15,7 @@ graph TD
 
     subgraph Core Spring Boot Application
         DB <-->|Hibernate 7 / Spring Data JPA| REPO[Repository & JPA Layer]
-        REPO <-->|Dynamic Specifications & Left Join Fetch| SRV[CardService & CardExportService]
+        REPO <-->|Dynamic Specifications & Left Join Fetch| SRV[CardService, ReferenceDataService & CardExportService]
         CACHE[(Caffeine Multi-Tier Cache)] <-->|TTLs 30m - 24h| SRV
         DETECTOR[DatabaseChangeDetectorService] -->|30s Polling Signature| DB
         DETECTOR -->|Publish DatabaseChangedEvent| BUS[Spring ApplicationEventPublisher]
@@ -170,7 +170,7 @@ sequenceDiagram
     actor Client as Web Browser / API Consumer
     participant Ctrl as CardController / FilterDataController
     participant Cache as Caffeine CacheManager
-    participant Srv as CardService
+    participant Srv as CardService / ReferenceDataService
     participant Repo as CardRepository (JPA Specification)
     participant DB as MySQL 8.x/9.x/26.x
 
