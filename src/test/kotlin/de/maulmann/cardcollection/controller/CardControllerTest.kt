@@ -2,6 +2,7 @@ package de.maulmann.cardcollection.controller
 
 import de.maulmann.cardcollection.model.*
 import de.maulmann.cardcollection.service.CardService
+import de.maulmann.cardcollection.service.ReferenceDataService
 import de.maulmann.cardcollection.service.PlayerService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,6 +29,9 @@ class CardControllerTest {
 
     @Mock
     private lateinit var cardService: CardService
+
+    @Mock
+    private lateinit var referenceDataService: ReferenceDataService
 
     @Mock
     private lateinit var playerService: PlayerService
@@ -76,14 +80,14 @@ class CardControllerTest {
         val page = PageImpl(listOf(card), PageRequest.of(0, 20), 1)
 
         whenever(cardService.getCardsFiltered(any(), any())).thenReturn(page)
-        whenever(cardService.getAllCardManufacturers()).thenReturn(listOf(manufacturer))
+        whenever(referenceDataService.getAllCardManufacturers()).thenReturn(listOf(manufacturer))
         whenever(playerService.getPlayers()).thenReturn(listOf(player))
-        whenever(cardService.getAllBrands()).thenReturn(listOf(brand))
-        whenever(cardService.getAllThemes()).thenReturn(listOf(theme))
-        whenever(cardService.getAllSports()).thenReturn(listOf(sport))
-        whenever(cardService.getAllSeasons()).thenReturn(listOf(season))
-        whenever(cardService.getAllVariants()).thenReturn(listOf(variant))
-        whenever(cardService.getAllTeams()).thenReturn(listOf(team))
+        whenever(referenceDataService.getAllBrands()).thenReturn(listOf(brand))
+        whenever(referenceDataService.getAllThemes()).thenReturn(listOf(theme))
+        whenever(referenceDataService.getAllSports()).thenReturn(listOf(sport))
+        whenever(referenceDataService.getAllSeasons()).thenReturn(listOf(season))
+        whenever(referenceDataService.getAllVariants()).thenReturn(listOf(variant))
+        whenever(referenceDataService.getAllTeams()).thenReturn(listOf(team))
 
         mockMvc.perform(get("/cards"))
             .andExpect(status().isOk)
@@ -162,7 +166,7 @@ class CardControllerTest {
         val manufacturer = CardManufacturer(id = 5L, name = "Upper Deck")
         val page = PageImpl(emptyList<Card>(), PageRequest.of(0, 20), 0)
         whenever(cardService.getCardsFiltered(any(), any())).thenReturn(page)
-        whenever(cardService.getAllCardManufacturers()).thenReturn(listOf(manufacturer))
+        whenever(referenceDataService.getAllCardManufacturers()).thenReturn(listOf(manufacturer))
 
         val result = mockMvc.perform(
             get("/cards")

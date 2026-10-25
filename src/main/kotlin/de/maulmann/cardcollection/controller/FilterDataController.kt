@@ -3,7 +3,7 @@ package de.maulmann.cardcollection.controller
 import de.maulmann.cardcollection.model.CardBrand
 import de.maulmann.cardcollection.model.CardTheme
 import de.maulmann.cardcollection.model.Variant
-import de.maulmann.cardcollection.service.CardService
+import de.maulmann.cardcollection.service.ReferenceDataService
 import org.springframework.http.CacheControl
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 
 @RestController
 @RequestMapping("/api/filters")
-class FilterDataController(private val cardService: CardService) {
+class FilterDataController(private val referenceDataService: ReferenceDataService) {
 
     private val filterCacheControl = CacheControl.maxAge(1, TimeUnit.HOURS).cachePublic()
 
@@ -22,7 +22,7 @@ class FilterDataController(private val cardService: CardService) {
     fun getBrandsForFilter(@RequestParam(required = false) manufacturerId: Long?): ResponseEntity<List<CardBrand>> {
         return ResponseEntity.ok()
             .cacheControl(filterCacheControl)
-            .body(cardService.getAllBrands(manufacturerId))
+            .body(referenceDataService.getAllBrands(manufacturerId))
     }
 
     @GetMapping("/themes")
@@ -32,7 +32,7 @@ class FilterDataController(private val cardService: CardService) {
     ): ResponseEntity<List<CardTheme>> {
         return ResponseEntity.ok()
             .cacheControl(filterCacheControl)
-            .body(cardService.getAllThemes(manufacturerId = manufacturerId, brandId = brandId))
+            .body(referenceDataService.getAllThemes(manufacturerId = manufacturerId, brandId = brandId))
     }
 
     @GetMapping("/variants")
@@ -43,7 +43,7 @@ class FilterDataController(private val cardService: CardService) {
     ): ResponseEntity<List<Variant>> {
         return ResponseEntity.ok()
             .cacheControl(filterCacheControl)
-            .body(cardService.getAllVariants(manufacturerId, brandId, themeId))
+            .body(referenceDataService.getAllVariants(manufacturerId, brandId, themeId))
     }
 }
 
