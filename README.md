@@ -38,6 +38,8 @@ The application automatically executes all versioned migrations (`src/main/resou
 ```
 Access the application web UI at `http://localhost:8080/cards`.
 
+> **IntelliJ IDEA Tip:** The pre-configured run action (`CardCollectionApplication` and `All Tests`) automatically verifies if MySQL is listening on port `3306` (via `scripts/ensure-mysql-running.sh`) and starts the service on-demand before launch.
+
 ---
 
 ## 📤 Export Pipelines & Static Site Sync
