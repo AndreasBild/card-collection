@@ -88,22 +88,13 @@ class Card(
     val verificationUrl: String?
         get() {
             val cert = gradingCertNumber?.trim()?.takeIf { it.isNotEmpty() } ?: return null
-            return when (grading?.gradingCompany) {
-                GradingCompany.PSA -> "https://www.psacard.com/cert/$cert"
-                GradingCompany.BGS -> "https://www.beckett.com/grading/card-lookup?item_type=BGS&item_id=$cert"
-                GradingCompany.MBA -> "https://checkcoa.com/mba-grading-certificate-lookup/"
-                null -> null
-            }
+            return grading?.gradingCompany?.provider()?.verificationUrl(cert)
         }
 
     val frontScanUrl: String?
         get() {
             val cert = gradingCertNumber?.trim()?.takeIf { it.isNotEmpty() } ?: return null
-            return when (grading?.gradingCompany) {
-                GradingCompany.PSA -> "https://d1htnxwo4o0jhw.cloudfront.net/cert/$cert/front-large.jpg"
-                GradingCompany.BGS -> "https://www.beckett.com/grading/card-lookup?item_type=BGS&item_id=$cert"
-                else -> null
-            }
+            return grading?.gradingCompany?.provider()?.frontScanUrl(cert)
         }
 }
 

@@ -4,6 +4,8 @@ import de.maulmann.cardcollection.dto.GradingScanCardResult
 import de.maulmann.cardcollection.dto.GradingScanDownloadSummary
 import de.maulmann.cardcollection.model.Card
 import de.maulmann.cardcollection.model.GradingCompany
+import de.maulmann.cardcollection.model.GradingProvider
+import de.maulmann.cardcollection.model.provider
 import de.maulmann.cardcollection.repository.CardRepository
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -193,85 +195,29 @@ class GradingScanDownloadService(
         }
     }
 
+    /**
+     * Finds the front and back scan URLs: first by probing the provider's direct image candidates, then (only if a
+     * side is still missing) by scraping the provider's page. The company-specific rules live in [GradingProvider].
+     */
     fun resolveScanUrls(company: GradingCompany, certNumber: String): Pair<String?, String?> {
-        return when (company) {
-            GradingCompany.PSA -> resolvePsaScanUrls(certNumber)
-            GradingCompany.BGS -> resolveBgsScanUrls(certNumber)
-            GradingCompany.MBA -> resolveMbaScanUrls(certNumber)
-        }
+        val provider = company.provider()
+        val (front, back) = probeDirectCandidates(provider, certNumber)
+        if (front != null && back != null) return front to back
+
+        val html = fetchPageHtml(provider.scanPageUrl(certNumber)) ?: return front to back
+        return provider.pickScans(extractImageUrls(html), certNumber, front, back)
     }
 
-    private fun resolvePsaScanUrls(certNumber: String): Pair<String?, String?> {
-        val frontCandidates = listOf(
-            "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/front-original.jpg",
-            "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/front-large.jpg",
-            "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/front.jpg",
-            "https://cert.psacard.com/$certNumber/front-large.jpg",
-            "https://cert.psacard.com/$certNumber/front.jpg"
-        )
+    private fun probeDirectCandidates(provider: GradingProvider, certNumber: String): Pair<String?, String?> {
+        val frontCandidates = provider.directFrontCandidates(certNumber)
+        val backCandidates = provider.directBackCandidates(certNumber)
+        if (frontCandidates.isEmpty() && backCandidates.isEmpty()) return null to null
 
-        val backCandidates = listOf(
-            "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/back-original.jpg",
-            "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/back-large.jpg",
-            "https://d1htnxwo4o0jhw.cloudfront.net/cert/$certNumber/back.jpg",
-            "https://cert.psacard.com/$certNumber/back-large.jpg",
-            "https://cert.psacard.com/$certNumber/back.jpg"
-        )
-
-        val (frontUrlCandidate, backUrlCandidate) = Executors.newVirtualThreadPerTaskExecutor().use { executor ->
+        return Executors.newVirtualThreadPerTaskExecutor().use { executor ->
             val frontFuture = executor.submit(Callable { findFirstValidCandidate(frontCandidates) })
             val backFuture = executor.submit(Callable { findFirstValidCandidate(backCandidates) })
-            Pair(frontFuture.get(), backFuture.get())
+            frontFuture.get() to backFuture.get()
         }
-
-        var frontUrl = frontUrlCandidate
-        var backUrl = backUrlCandidate
-
-        if (frontUrl == null || backUrl == null) {
-            // Fallback: parse PSA cert webpage for dynamic images, zoom URLs, or lightboxes
-            val certPageUrl = "https://www.psacard.com/cert/$certNumber"
-            val html = fetchPageHtml(certPageUrl)
-            if (html != null) {
-                val imageUrls = extractImageUrls(html).filter { url ->
-                    url.contains(certNumber, ignoreCase = true) || url.contains("cert", ignoreCase = true) || url.contains("cloudfront", ignoreCase = true)
-                }
-
-                if (frontUrl == null) {
-                    frontUrl = imageUrls.firstOrNull { it.contains("front", ignoreCase = true) } ?: imageUrls.firstOrNull()
-                }
-                if (backUrl == null) {
-                    backUrl = imageUrls.firstOrNull { it.contains("back", ignoreCase = true) && it != frontUrl }
-                }
-            }
-        }
-
-        return Pair(frontUrl, backUrl)
-    }
-
-    private fun resolveBgsScanUrls(certNumber: String): Pair<String?, String?> {
-        val certPageUrl = "https://www.beckett.com/grading/card-lookup?item_type=BGS&item_id=$certNumber"
-        val html = fetchPageHtml(certPageUrl) ?: return Pair(null, null)
-
-        val imageUrls = extractImageUrls(html).filter { url ->
-            url.contains("beckett.com", ignoreCase = true) || url.contains(certNumber, ignoreCase = true)
-        }
-
-        val frontUrl = imageUrls.firstOrNull { it.contains("front", ignoreCase = true) || it.contains("f.jpg", ignoreCase = true) } ?: imageUrls.firstOrNull()
-        val backUrl = imageUrls.firstOrNull { (it.contains("back", ignoreCase = true) || it.contains("b.jpg", ignoreCase = true)) && it != frontUrl }
-        return Pair(frontUrl, backUrl)
-    }
-
-    private fun resolveMbaScanUrls(certNumber: String): Pair<String?, String?> {
-        val lookupUrl = "https://checkcoa.com/mba-grading-certificate-lookup/?serial=$certNumber"
-        val html = fetchPageHtml(lookupUrl) ?: return Pair(null, null)
-
-        val imageUrls = extractImageUrls(html).filter { url ->
-            url.contains(certNumber, ignoreCase = true) || url.contains("mba", ignoreCase = true) || url.contains("checkcoa", ignoreCase = true)
-        }
-
-        val frontUrl = imageUrls.firstOrNull { it.contains("front", ignoreCase = true) } ?: imageUrls.firstOrNull()
-        val backUrl = imageUrls.firstOrNull { it.contains("back", ignoreCase = true) && it != frontUrl }
-        return Pair(frontUrl, backUrl)
     }
 
     private fun fetchPageHtml(url: String): String? {
