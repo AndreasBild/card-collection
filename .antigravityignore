@@ -28,6 +28,7 @@ server.log
 *.log
 
 # Database & Binary Dumps
+src/main/resources/sql/dump/Dump.sql
 *.sql.dump
 *.dump
 *.bin

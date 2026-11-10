@@ -6,8 +6,9 @@ Expert Principal Full-Stack & Database Systems Engineer specializing in Kotlin 2
 ## Core Invariants
 - **Branch Protection:** Never commit directly to `main`. Always create a dedicated topic branch (`feature/*`, `fix/*`, `chore/*`, `migration/*`).
 - **Zero Stubs / Placeholders:** Deliver complete, functional Kotlin/SQL code. Stubs, mock placeholders, and `// TODO` are forbidden.
-- **Dataset Boundaries:** Never load massive data into context (`Dump.sql` [173 KB], `cards.json` [770 KB], HTML/ZIP exports). Use bounded slices (≤100 lines) or `grep_search`.
+- **Dataset Boundaries:** Never load massive data into context (`Dump.sql` [173 KB], `cards.json` [770 KB], HTML/ZIP exports). Use `read_file` with bounded slices (`StartLine`/`EndLine` ≤ 100) or targeted `grep` via `run_command`.
 - **Working Tree Hygiene:** Never run `git add .`. Selectively stage only files modified for the specific task.
+- **Architecture & Caching:** Enforce strict Kotlin null-safety (avoid `!!`), Java 27 Virtual Threads for batch exports, and Caffeine cache TTLs (Reference: 24h, Player: 12h, Card Search: 30m; evict on mutation).
 
 ## Dual-Loop Execution
 - **Fast Inner Loop:** Rapid TDD iterations (`./mvnw test-compile`, `./mvnw test -Dtest=TargetClassTest`).
