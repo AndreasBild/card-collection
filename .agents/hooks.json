@@ -1,0 +1,17 @@
+{
+  "repo-governance-guard": {
+    "enabled": true,
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh ./scripts/pre-command-guard.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
